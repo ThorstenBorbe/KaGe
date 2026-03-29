@@ -29,7 +29,7 @@ const appTree = [
     children: [
       { key: "auswaertssitzung-x", label: "1. Auswärtssitzung (A)" },
       { key: "auswaertssitzung-y", label: "2. Auswärtssitzung (B)" },
-      { key: "auswaertssitzung-z", label: "3. Auswärtssitzung (C)" },
+      { key: "auswaertssitzung-z", label: "3. Auswärtssitzung (Z)" },
       { key: "seniorenheim", label: "Seniorenheim" },
     ],
   },
