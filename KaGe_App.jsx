@@ -27,9 +27,9 @@ const appTree = [
     label: "Externe Veranstaltungen",
     icon: Building2,
     children: [
-      { key: "auswaertssitzung-x", label: "1. Auswärtssitzung (X)" },
-      { key: "auswaertssitzung-y", label: "2. Auswärtssitzung (Y)" },
-      { key: "auswaertssitzung-z", label: "3. Auswärtssitzung (Z)" },
+      { key: "auswaertssitzung-x", label: "1. Auswärtssitzung (A)" },
+      { key: "auswaertssitzung-y", label: "2. Auswärtssitzung (B)" },
+      { key: "auswaertssitzung-z", label: "3. Auswärtssitzung (C)" },
       { key: "seniorenheim", label: "Seniorenheim" },
     ],
   },
