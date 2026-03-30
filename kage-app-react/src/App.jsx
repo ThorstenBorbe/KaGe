@@ -1,7 +1,23 @@
-import { useState } from "react";
+import { act, useState } from "react";
+import GroupPage from "./components/GroupPage";
+import roteGarde from "./data/roteGarde";
+import blaueGarde from "./data/blaueGarde";
+import grueneGarde from "./data/grueneGarde";
+import boeckliGarde from "./data/boeckliGarde";
+import boeck2Beat from "./data/boeck2Beat";
+import maennerBalett from "./data/maennerBalett";
+import buettenRedner from "./data/buettenRedner";
+import elfInnen from "./data/elfInnen";
+import elferRaete from "./data/elferRaete";
+import zellerDallerLacker from "./data/zellerDallerLacker";
+import EthikkommissionPage from "./components/EthikkommissionsPage";
+import VorstandsPage from "./components/VorstandsPage";
+import KummerKastenPage from "./components/KummerKastenPage";
+import FinanzPage from "./components/FinanzPage";
+import UebersichtPage from "./components/UebersichtPage";
 
 const appTree = [
-  { key: "dashboard", label: "Dashboard" },
+  { key: "uebersicht", label: "Übersicht" },
   { key: "kalender", label: "Kalender" },
   {
     key: "interne",
@@ -23,7 +39,7 @@ const appTree = [
       { key: "auswaerts-x", label: "1. Auswärtssitzung (X)" },
       { key: "auswaerts-y", label: "2. Auswärtssitzung (Y)" },
       { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
-      { key: "seniorenheim", label: "Seniorenheim" },
+      { key: "seniorenheime", label: "Seniorenheime" },
     ],
   },
   {
@@ -33,7 +49,8 @@ const appTree = [
       { key: "rote-garde", label: "Rote Garde" },
       { key: "blaue-garde", label: "Blaue Garde" },
       { key: "gruene-garde", label: "Grüne Garde" },
-      { key: "beat2boeck", label: "Beat2Böck" },
+      { key: "boeckli-garde", label: "Böckli" },
+      { key: "boeck2beat", label: "Böck2Beat" },
       { key: "maennerbalett", label: "Männerbalett" },
       { key: "buettenredner", label: "Büttenredner" },
       { key: "elfinnen", label: "Elfinnen" },
@@ -44,7 +61,10 @@ const appTree = [
   { key: "mitglieder", label: "Mitglieder" },
   { key: "news", label: "News" },
   { key: "vorstand", label: "Vorstandschaft" },
+  { key: "ethikkommission", label: "Ethikkommission" },
+  { key: "finanzen", label: "Finanzen" },
   { key: "einstellungen", label: "Einstellungen (nur Vorstand)" },
+  { key: "kummerkasten", label: "Kummerkasten" },
 ];
 
 function findActiveLabel(items, activeKey) {
@@ -59,7 +79,7 @@ function findActiveLabel(items, activeKey) {
 }
 
 export default function App() {
-  const [active, setActive] = useState("dashboard");
+  const [active, setActive] = useState("Übersicht");
   const [openMenus, setOpenMenus] = useState({
     interne: false,
     externe: false,
@@ -75,6 +95,55 @@ export default function App() {
 
   const activeLabel = findActiveLabel(appTree, active);
 
+  function renderContent() {
+  if (active === "rote-garde") {
+    return <GroupPage key={active} group={roteGarde} />;
+  }
+  if (active === "blaue-garde") {
+    return <GroupPage key={active} group={blaueGarde} />;
+  }
+  if (active === "gruene-garde") {
+    return <GroupPage key={active} group={grueneGarde} />;
+  }
+  if (active === "boeckli-garde") {
+    return <GroupPage key={active} group={boeckliGarde} />;
+  }
+  if (active === "boeck2beat") {
+    return <GroupPage key={active} group={boeck2Beat} />;
+  }
+  if (active === "maennerbalett") {
+    return <GroupPage key={active} group={maennerBalett} />;
+  }
+  if (active === "elfinnen") {
+    return <GroupPage key={active} group={elfInnen} />;
+  }
+  if (active === "elferraete") {
+    return <GroupPage key={active} group={elferRaete} />;
+  }
+  if (active === "buettenredner") {
+    return <GroupPage key={active} group={buettenRedner} />;
+  }
+  if (active === "zdl") {
+    return <GroupPage key={active} group={zellerDallerLacker} />;
+  }
+  if (active === "finanzen") {
+    return <FinanzPage />;
+  }
+  if (active === "vorstand") {
+    return <VorstandsPage />
+  }
+  if (active === "ethikkommission") {
+    return <EthikkommissionPage />;
+  }
+  if (active === "kummerkasten") {
+    return <KummerKastenPage />;
+  }
+  if (active === "uebersicht") {
+    return <UebersichtPage />;
+  }
+  return <div>Übersicht</div>;
+}
+
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial, sans-serif" }}>
       <aside
@@ -85,9 +154,18 @@ export default function App() {
           padding: "20px",
         }}
       >
-        <h2 style={{ marginTop: 0 }}>🎭 KaGe Zell</h2>
-        <p style={{ fontSize: "14px", opacity: 0.9 }}>
-          Vereinsportal für Organisation, Termine und Gruppen
+
+    <div style={{ textAlign: "center", marginBottom: "10px" }}>
+      <img
+        src="https://www.tgzell.de/images/abteilungen/kage/kagezell.png"
+        alt="KaGe Logo"
+        style={{ width: "120px" }}
+/>
+  
+</div>
+
+        <p style={{ fontSize: "18px", opacity: 0.9 }}>
+          Alles rund um den Zeller Fasching
         </p>
 
         <div style={{ marginTop: "20px" }}>
@@ -151,19 +229,7 @@ export default function App() {
 
       <main style={{ flex: 1, padding: "24px", background: "#f3f4f6" }}>
         <h1 style={{ marginTop: 0 }}>{activeLabel}</h1>
-
-        <div
-          style={{
-            background: "white",
-            borderRadius: "16px",
-            padding: "20px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <p>
-            Hier entsteht der Bereich <strong>{activeLabel}</strong>.
-          </p>
-        </div>
+        {renderContent()}
       </main>
     </div>
   );
