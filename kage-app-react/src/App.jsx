@@ -1,20 +1,26 @@
-import { act, useState } from "react";
+import { act, Children, useState } from "react";
+{ /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
 import roteGarde from "./data/roteGarde";
 import blaueGarde from "./data/blaueGarde";
 import grueneGarde from "./data/grueneGarde";
 import boeckliGarde from "./data/boeckliGarde";
 import boeck2Beat from "./data/boeck2Beat";
-import maennerBalett from "./data/maennerBalett";
+import maennerBallett from "./data/maennerBallett";
 import buettenRedner from "./data/buettenRedner";
 import elfInnen from "./data/elfInnen";
 import elferRaete from "./data/elferRaete";
 import zellerDallerLacker from "./data/zellerDallerLacker";
-import EthikkommissionPage from "./components/EthikkommissionsPage";
+
+{ /* hier die weiteren imports */ }
 import VorstandsPage from "./components/VorstandsPage";
 import KummerKastenPage from "./components/KummerKastenPage";
 import FinanzPage from "./components/FinanzPage";
 import UebersichtPage from "./components/UebersichtPage";
+import ZugaengePage from "./components/ZugaengePage"; 
+import KaGeCartaPage from "./components/KaGeCartaPage";
+import AhndungPage from "./components/AhndungPage";
+
 
 const appTree = [
   { key: "uebersicht", label: "Übersicht" },
@@ -27,7 +33,7 @@ const appTree = [
       { key: "prunksitzung-1", label: "1. Prunksitzung" },
       { key: "prunksitzung-2", label: "2. Prunksitzung" },
       { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
-      { key: "beatbox-party", label: "Beatbox Party" },
+      { key: "beatbox-party", label: "Beat-Bocks-Party" },
       { key: "kinderfasching", label: "Kinderfasching" },
       { key: "kehraus", label: "Kehraus" },
     ],
@@ -49,21 +55,30 @@ const appTree = [
       { key: "rote-garde", label: "Rote Garde" },
       { key: "blaue-garde", label: "Blaue Garde" },
       { key: "gruene-garde", label: "Grüne Garde" },
-      { key: "boeckli-garde", label: "Böckli" },
+      { key: "boeckli-garde", label: "Zeller Böckli" },
       { key: "boeck2beat", label: "Böck2Beat" },
-      { key: "maennerbalett", label: "Männerbalett" },
+      { key: "maennerballett", label: "Zeller Böck Ballett" },
+      { key: "zdl", label: "Zeller Daller Lacker" },
       { key: "buettenredner", label: "Büttenredner" },
-      { key: "elfinnen", label: "Elfinnen" },
+      { key: "elfinnen", label: "11'n" },
       { key: "elferraete", label: "Elferräte" },
-      { key: "zdl", label: "ZDL" },
+
     ],
   },
   { key: "mitglieder", label: "Mitglieder" },
   { key: "news", label: "News" },
   { key: "vorstand", label: "Vorstandschaft" },
-  { key: "ethikkommission", label: "Ethikkommission" },
+  { 
+    key: "ethikKommitee", 
+    label: "Ethikkommitee",
+    children: [
+      { key: "kommitee", label: "Kommitee" },
+      { key: "kagezellcarta", label: "KaGe-Carta" },
+      { key: "ahndung", label: "Ahndung" },
+      ],
+  },
   { key: "finanzen", label: "Finanzen" },
-  { key: "einstellungen", label: "Einstellungen (nur Vorstand)" },
+  { key: "zugaenge", label: "Zugänge & Anleitungen" },
   { key: "kummerkasten", label: "Kummerkasten" },
 ];
 
@@ -111,8 +126,8 @@ export default function App() {
   if (active === "boeck2beat") {
     return <GroupPage key={active} group={boeck2Beat} />;
   }
-  if (active === "maennerbalett") {
-    return <GroupPage key={active} group={maennerBalett} />;
+  if (active === "maennerballett") {
+    return <GroupPage key={active} group={maennerBallett} />;
   }
   if (active === "elfinnen") {
     return <GroupPage key={active} group={elfInnen} />;
@@ -132,14 +147,23 @@ export default function App() {
   if (active === "vorstand") {
     return <VorstandsPage />
   }
-  if (active === "ethikkommission") {
-    return <EthikkommissionPage />;
+  if (active === "kommitee") {
+    return <GroupPage key={active} group={zellerDallerLacker} />;
   }
   if (active === "kummerkasten") {
     return <KummerKastenPage />;
   }
   if (active === "uebersicht") {
     return <UebersichtPage />;
+  }
+  if (active === "zugaenge") {
+    return <ZugaengePage />;
+  }
+  if (active === "kagezellcarta") {
+    return <KaGeCartaPage />;
+  }
+  if (active === "ahndung") {
+    return <AhndungPage />;
   }
   return <div>Übersicht</div>;
 }

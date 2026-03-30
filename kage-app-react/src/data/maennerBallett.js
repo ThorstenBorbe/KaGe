@@ -1,5 +1,5 @@
-const maennerbalett = {
-  name: "Männerbalett",
+const maennerballett = {
+  name: "Zeller Böck Ballett",
   ansprechpartner: [
     {
       name: "Max Mustermann",
@@ -20,7 +20,7 @@ const maennerbalett = {
     },
   ],
   terminplanPdf:
-    "https://deine-cloud.de/pdfs/Maennerbalett-Terminplan.pdf",
+    "https://deine-cloud.de/pdfs/Zeller-Boeck-Ballett-Terminplan.pdf",
   naechsteAuftritte: [
     {
       datum: "15.01.2027",
@@ -40,4 +40,4 @@ const maennerbalett = {
   ],
 };
 
-export default maennerbalett;
+export default maennerballett;

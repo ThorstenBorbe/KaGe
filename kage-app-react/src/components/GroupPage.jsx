@@ -81,7 +81,7 @@ export default function GroupPage({ group }) {
         >
           <h2 style={{ marginTop: 0 }}>📄 Terminplan</h2>
           <p><br /></p>
-          <p style={{ color: "#4b5563", lineHeight: 1.5 }}>
+          <p style={{ color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
             Den aktuellen Terminplan Deiner Gruppe kannst Du hier direkt als PDF öffnen.
           </p>
           <a

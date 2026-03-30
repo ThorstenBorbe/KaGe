@@ -1,4 +1,4 @@
-export default function FinanzPage() {
+export default function AhndungPage() {
   return (
     <div style={{ padding: "24px" }}>
 
@@ -11,16 +11,16 @@ export default function FinanzPage() {
           maxWidth: "800px",
         }}
       >
-        <h2 style={{ marginTop: 0 }}>📊 Finanzübersicht</h2>
 
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5 }}>
-          In diesem Bereich wird zukünftig die Finanzübersicht der Karnevalsgesellschaft dargestellt.
+        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify"  }}>
+          Muss im Workshop gemeinsam definiert und festgelegt werden, damit es eine klare und transparente Handhabung gibt. 
+          Es muss klar sein, welche Verstöße es gibt, wie sie geahndet werden und wer dafür zuständig ist. 
+          Es muss auch ein Prozess definiert werden
         </p>
 
-        <p style={{ marginTop: "8px", color: "#4b5563", lineHeight: 1.5 }}>
-          Hier können Einnahmen, Ausgaben, Budgets sowie Auswertungen und Berichte eingesehen werden.
+        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5 }}> 
+         Test
         </p>
-
         <div
           style={{
             marginTop: "20px",
@@ -33,8 +33,7 @@ export default function FinanzPage() {
             fontStyle: "italic",
           }}
         >
-          ⚠️ Finanzübersicht wird aktuell noch entwickelt
-        </div>
+          ⚠️ Das ist nur ein Merker für die noch notwendigen Aufgaben welche gemacht werden müssen.        </div>
       </div>
     </div>
   );

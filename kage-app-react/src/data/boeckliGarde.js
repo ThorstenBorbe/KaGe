@@ -1,5 +1,5 @@
 const boeckliGarde = {
-  name: "Böckli",
+  name: "Zeller Böckli",
   ansprechpartner: [
     {
       name: "Max Mustermann",
@@ -25,7 +25,7 @@ const boeckliGarde = {
     },
   ],
   terminplanPdf:
-    "https://deine-cloud.de/pdfs/Boeckli-Terminplan.pdf",
+    "https://deine-cloud.de/pdfs/Zeller-Boeckli-Terminplan.pdf",
   naechsteAuftritte: [
     {
       datum: "11.11.2026",

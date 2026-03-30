@@ -1,12 +1,13 @@
-import ethikkommission from "../data/ethikKommission";
 import AnliegenFormular from "./AnliegenFormular";
 
-export default function EthikkommissionPage() {
+export default function EthikkommiteePage() {
   return (
     <div style={{ padding: "24px" }}>
 
-        <p style={{ marginTop: "8px", opacity: 0.9 }}>
-           Die Ethikkommission prüft, ob Vorhaben moralisch und rechtlich vertretbar sind.
+        <p style={{ marginTop: "8px", opacity: 0.9, textAlign: "justify" }}>
+           Die Ethikkommission prüft, ob Vorhaben moralisch und rechtlich vertretbar sind.<br />
+           Sie ist Ansprechpartner für alle Mitglieder, die sich in einer schwierigen Situation befinden oder ein Anliegen haben.<br />
+           Alle Mitglieder sind verpflichtet, sich an die ethischen Richtlinien zu halten und bei Verstößen die Ethikkommission zu informieren.<br />
            Bei Verstößen werden geeignete Maßnahmen eingeleitet.
         </p>
  
@@ -26,7 +27,7 @@ export default function EthikkommissionPage() {
           gap: "20px",
         }}
       >
-        {ethikkommission.map((person) => (
+        {ethikKommitee.map((person) => (
           <div
             key={person.id}
             style={{

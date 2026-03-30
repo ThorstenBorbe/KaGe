@@ -1,5 +1,5 @@
 const elfInnen = {
-  name: "Elfinnen",
+  name: "11'n",
   ansprechpartner: [
     {
       name: "Max Mustermann",

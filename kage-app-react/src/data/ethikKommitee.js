@@ -1,4 +1,4 @@
-const ethikkommission = [
+const ethikKommitee = [
   {
     id: 1,
     rolle: "Vorsitzender",
@@ -43,4 +43,4 @@ const ethikkommission = [
   },
 ];
 
-export default ethikkommission;
+export default ethikKommitee;
