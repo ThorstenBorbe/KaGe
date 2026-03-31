@@ -1,4 +1,5 @@
-import { act, Children, useState } from "react";
+import { useState, useRef } from "react";
+import { useAuth } from "./context/AuthContext";
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
 import roteGarde from "./data/roteGarde";
@@ -20,86 +21,121 @@ import UebersichtPage from "./components/UebersichtPage";
 import ZugaengePage from "./components/ZugaengePage"; 
 import KaGeCartaPage from "./components/KaGeCartaPage";
 import AhndungPage from "./components/AhndungPage";
+import AdminPage from "./components/AdminPage";
+import KalenderPage from "./components/KalenderPage";
 
 
 const appTree = [
   { key: "uebersicht", label: "Übersicht" },
   { key: "kalender", label: "Kalender" },
   {
-    key: "interne",
-    label: "Interne Veranstaltungen",
+    key: "veranstaltungen",
+    label: "Veranstaltungen",
     children: [
-      { key: "11-11", label: "11.11. Jetzt geht los" },
-      { key: "prunksitzung-1", label: "1. Prunksitzung" },
-      { key: "prunksitzung-2", label: "2. Prunksitzung" },
-      { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
-      { key: "beatbox-party", label: "Beat-Bocks-Party" },
-      { key: "kinderfasching", label: "Kinderfasching" },
-      { key: "kehraus", label: "Kehraus" },
+      {
+        key: "interne",
+        label: "Intern",
+        children: [
+          { key: "11-11", label: "11.11. Jetzt geht los" },
+          { key: "prunksitzung-1", label: "1. Prunksitzung" },
+          { key: "prunksitzung-2", label: "2. Prunksitzung" },
+          { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
+          { key: "beatbox-party", label: "Beat-Bocks-Party" },
+          { key: "kinderfasching", label: "Kinderfasching" },
+          { key: "kehraus", label: "Kehraus" },
+        ],
+      },
+      {
+        key: "externe",
+        label: "Extern",
+        children: [
+          { key: "auswaerts-x", label: "1. Auswärtssitzung (X)" },
+          { key: "auswaerts-y", label: "2. Auswärtssitzung (Y)" },
+          { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
+          { key: "seniorenheime", label: "Seniorenheime" },
+        ],
+      },
     ],
   },
   {
-    key: "externe",
-    label: "Externe Veranstaltungen",
+    key: "verein",
+    label: "Verein",
     children: [
-      { key: "auswaerts-x", label: "1. Auswärtssitzung (X)" },
-      { key: "auswaerts-y", label: "2. Auswärtssitzung (Y)" },
-      { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
-      { key: "seniorenheime", label: "Seniorenheime" },
+      { key: "vorstand", label: "Vorstandschaft" },
+      {
+        key: "gruppen",
+        label: "Gruppen",
+        children: [
+          { key: "rote-garde", label: "Rote Garde" },
+          { key: "blaue-garde", label: "Blaue Garde" },
+          { key: "gruene-garde", label: "Grüne Garde" },
+          { key: "boeckli-garde", label: "Zeller Böckli" },
+          { key: "boeck2beat", label: "Böck2Beat" },
+          { key: "maennerballett", label: "Zeller Böck Ballett" },
+          { key: "zdl", label: "Zeller Daller Lacker" },
+          { key: "buettenredner", label: "Büttenredner" },
+          { key: "elfinnen", label: "11'n" },
+          { key: "elferraete", label: "Elferräte" },
+        ],
+      },
+      {
+        key: "ethikKommitee",
+        label: "Ethikkommitee",
+        children: [
+          { key: "kommitee", label: "Kommitee" },
+          { key: "kagezellcarta", label: "KaGe-Carta" },
+          { key: "ahndung", label: "Ahndung" },
+        ],
+      },
     ],
-  },
-  {
-    key: "gruppen",
-    label: "Gruppen",
-    children: [
-      { key: "rote-garde", label: "Rote Garde" },
-      { key: "blaue-garde", label: "Blaue Garde" },
-      { key: "gruene-garde", label: "Grüne Garde" },
-      { key: "boeckli-garde", label: "Zeller Böckli" },
-      { key: "boeck2beat", label: "Böck2Beat" },
-      { key: "maennerballett", label: "Zeller Böck Ballett" },
-      { key: "zdl", label: "Zeller Daller Lacker" },
-      { key: "buettenredner", label: "Büttenredner" },
-      { key: "elfinnen", label: "11'n" },
-      { key: "elferraete", label: "Elferräte" },
-
-    ],
-  },
-  { key: "mitglieder", label: "Mitglieder" },
-  { key: "news", label: "News" },
-  { key: "vorstand", label: "Vorstandschaft" },
-  { 
-    key: "ethikKommitee", 
-    label: "Ethikkommitee",
-    children: [
-      { key: "kommitee", label: "Kommitee" },
-      { key: "kagezellcarta", label: "KaGe-Carta" },
-      { key: "ahndung", label: "Ahndung" },
-      ],
   },
   { key: "finanzen", label: "Finanzen" },
   { key: "zugaenge", label: "Zugänge & Anleitungen" },
   { key: "kummerkasten", label: "Kummerkasten" },
+  { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
 ];
 
 function findActiveLabel(items, activeKey) {
   for (const item of items) {
     if (item.key === activeKey) return item.label;
     if (item.children) {
-      const child = item.children.find((c) => c.key === activeKey);
-      if (child) return child.label;
+      for (const child of item.children) {
+        if (child.key === activeKey) return child.label;
+        if (child.children) {
+          const grand = child.children.find((g) => g.key === activeKey);
+          if (grand) return grand.label;
+        }
+      }
     }
   }
   return activeKey;
 }
 
+// Welche Rollen dürfen welche Menüpunkte sehen:
+// Einträge ohne "minRole" sind für alle eingeloggten Nutzer sichtbar.
+const MENU_ROLES = {
+  finanzen: "vorstand",
+  zugaenge: "vorstand",
+  mitglieder: "vorstand",
+  nutzerverwaltung: "admin",
+};
+
 export default function App() {
-  const [active, setActive] = useState("Übersicht");
+  const { currentUser, userRole, logout, hasRole } = useAuth();
+  const [active, setActive] = useState("uebersicht");
   const [openMenus, setOpenMenus] = useState({
+    veranstaltungen: false,
     interne: false,
     externe: false,
+    verein: false,
     gruppen: false,
   });
+
+  const mainRef = useRef(null);
+
+  function scrollToTop() {
+    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   const toggleMenu = (key) => {
     setOpenMenus((prev) => ({
@@ -165,6 +201,12 @@ export default function App() {
   if (active === "ahndung") {
     return <AhndungPage />;
   }
+  if (active === "nutzerverwaltung") {
+    return <AdminPage />;
+  }
+  if (active === "kalender") {
+    return <KalenderPage />;
+  }
   return <div>Übersicht</div>;
 }
 
@@ -193,7 +235,10 @@ export default function App() {
         </p>
 
         <div style={{ marginTop: "20px" }}>
-          {appTree.map((item) => (
+          {appTree.filter((item) => {
+            const required = MENU_ROLES[item.key];
+            return !required || hasRole(required);
+          }).map((item) => (
             <div key={item.key} style={{ marginBottom: "8px" }}>
               <button
                 onClick={() => {
@@ -225,35 +270,122 @@ export default function App() {
               {item.children && openMenus[item.key] && (
                 <div style={{ marginTop: "6px", marginLeft: "14px" }}>
                   {item.children.map((child) => (
-                    <button
-                      key={child.key}
-                      onClick={() => setActive(child.key)}
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        marginBottom: "6px",
-                        background: active === child.key ? "#fca5a5" : "rgba(255,255,255,0.08)",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        textAlign: "left",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                      }}
-                    >
-                      {child.label}
-                    </button>
+                    <div key={child.key}>
+                      <button
+                        onClick={() => {
+                          if (child.children) {
+                            toggleMenu(child.key);
+                          } else {
+                            setActive(child.key);
+                          }
+                        }}
+                        style={{
+                          width: "100%",
+                          padding: "10px",
+                          marginBottom: "6px",
+                          background: active === child.key ? "#fca5a5" : "rgba(255,255,255,0.08)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "8px",
+                          textAlign: "left",
+                          cursor: "pointer",
+                          fontSize: "13px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <span>{child.label}</span>
+                        {child.children && <span>{openMenus[child.key] ? "▾" : "▸"}</span>}
+                      </button>
+                      {child.children && openMenus[child.key] && (
+                        <div style={{ marginLeft: "12px", marginBottom: "4px" }}>
+                          {child.children.map((grand) => (
+                            <button
+                              key={grand.key}
+                              onClick={() => setActive(grand.key)}
+                              style={{
+                                width: "100%",
+                                padding: "8px 10px",
+                                marginBottom: "4px",
+                                background: active === grand.key ? "#fca5a5" : "rgba(255,255,255,0.05)",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "6px",
+                                textAlign: "left",
+                                cursor: "pointer",
+                                fontSize: "12px",
+                              }}
+                            >
+                              {grand.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
             </div>
           ))}
         </div>
+
+        {/* Nutzerinfo + Logout */}
+        <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
+          <p style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
+            Rolle: {userRole ?? "–"}
+          </p>
+          <a
+            href="/2fa-einrichten"
+            style={{ fontSize: 12, color: "white", display: "block", marginBottom: 8, opacity: 0.85 }}
+          >
+            Zwei-Faktor-Authentifizierung (2FA) einrichten
+          </a>
+          <button
+            onClick={logout}
+            style={{
+              width: "100%",
+              padding: "8px",
+              background: "rgba(255,255,255,0.15)",
+              color: "white",
+              border: "1px solid rgba(255,255,255,0.3)",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+            }}
+          >
+            Abmelden
+          </button>
+        </div>
       </aside>
 
-      <main style={{ flex: 1, padding: "24px", background: "#f3f4f6" }}>
+      <main ref={mainRef} style={{ flex: 1, padding: "24px", background: "#f3f4f6", overflowY: "auto", position: "relative" }}>
         <h1 style={{ marginTop: 0 }}>{activeLabel}</h1>
         {renderContent()}
+        <button
+          onClick={scrollToTop}
+          title="Nach oben"
+          style={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+            width: 44,
+            height: 44,
+            borderRadius: "50%",
+            background: "#b91c1c",
+            color: "white",
+            border: "none",
+            fontSize: 20,
+            cursor: "pointer",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          ↑
+        </button>
       </main>
     </div>
   );
