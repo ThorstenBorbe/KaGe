@@ -29,6 +29,7 @@ import KalenderPage from "./components/KalenderPage";
 import LoginPage from "./components/LoginPage";
 import EinstellungenPage from "./components/EinstellungenPage";
 import EthikkommiteePage from "./components/EthikkommiteePage";
+import MeldungPage from "./components/MeldungPage";
 
 
 const appTree = [
@@ -91,6 +92,7 @@ const appTree = [
           { key: "kommitee", label: "Kommitee" },
           { key: "kagezellcarta", label: "KaGe-Carta" },
           { key: "ahndung", label: "Ahndung" },
+          { key: "meldung", label: "Meldung" },
         ],
       },
     ],
@@ -215,6 +217,9 @@ export default function App() {
   }
   if (active === "kommitee") {
     return <EthikkommiteePage />;
+  }
+  if (active === "meldung") {
+    return <MeldungPage />;
   }
   if (active === "kummerkasten") {
     return <BoeckFeedbackPage />;

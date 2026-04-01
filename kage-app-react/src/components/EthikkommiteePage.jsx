@@ -1,4 +1,3 @@
-import AnliegenFormular from "./AnliegenFormular";
 import ethikKommitee from "../data/ethikKommitee";
 
 export default function EthikkommiteePage() {
@@ -13,14 +12,6 @@ export default function EthikkommiteePage() {
         </p>
  
 
-      {/* Melde Button fuer Ethikkommission mit Popup Fenster */}
-      <div style={{ marginTop: "20px" }}>
-
-        <AnliegenFormular />
-      </div>
-
-      <p><br /></p>
-
       <div
         style={{
           display: "grid",
@@ -28,6 +19,8 @@ export default function EthikkommiteePage() {
           gap: "20px",
         }}
       >
+        <p><br /></p>
+        <p><br /></p>
         {ethikKommitee.map((person) => (
           <div
             key={person.id}

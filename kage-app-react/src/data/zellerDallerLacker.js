@@ -2,12 +2,12 @@ const zellerDallerLacker = {
   name: "Zeller Daller Lacker",
   ansprechpartner: [
     {
-      name: "Jürgen Hupp",
+      name: "Max Mustermann",
       telefon: "0170/1234567",
       email: "max@example.com",
     },
     {
-      name: "Peter Meichsner",
+      name: "Max Mustermann",
       telefon: "0170/1234567",
       email: "max@example.com",
     },

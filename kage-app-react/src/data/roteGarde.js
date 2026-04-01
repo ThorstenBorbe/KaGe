@@ -2,14 +2,14 @@ const roteGarde = {
   name: "Rote Garde",
   ansprechpartner: [
     {
-      name: "Anika Beyersdorf",
-      telefon: "0173/53 64 974",
-      email: "Abeyersdorf@gmx.de",
+      name: "Max Mustermann",
+      telefon: "0170/1234567",
+      email: "max@example.com",
     },
     {
-      name: "Leah-Nathalie Löffler",
-      telefon: "123",
-      email: "abdc@gmx.de",
+      name: "Max Mustermann",
+      telefon: "0170/1234567",
+      email: "max@example.com",
     },
   ],
   trainingstermine: [
