@@ -4,8 +4,8 @@ const vorstand = [
     rolle: "1. Gesellschaftspräsident",
     name: "Thorsten Borbe",
     bild: "https://www.tgzell.de/images/abteilungen/kage/elferrat/thorsten_borbe.jpg",
-    email: "thorsten@example.com",
-    mobil: "+49 178 88 44 357",
+    email: "Welche Email Adresse eintragen ? Ist ja nur für uns intern im Verein",
+    mobil: "+49 (0)178 88 44 357",
     adresse: {
       strasse: "Amselweg",
       hausnummer: "9",
@@ -18,8 +18,8 @@ const vorstand = [
     rolle: "1. Sitzungspräsident",
     name: "Maik Ulrich-Schildge",
     bild: "https://www.tgzell.de/images/abteilungen/kage/elferrat/maik_schildge-ulrich.jpg",
-    email: "max@example.com",
-    mobil: "+49 171 9876543",
+    email: "Welche Email Adresse eintragen ? Ist ja nur für uns intern im Verein",
+    mobil: "+49 (0)179 54 61 973",
     adresse: {
       strasse: "Sonnenstraße",
       hausnummer: "12",
@@ -32,8 +32,8 @@ const vorstand = [
     rolle: "2. Gesellschaftspräsident",
     name: "Stefan Golla",
     bild: "https://www.tgzell.de/images/abteilungen/kage/elferrat/Golla_Stefan_2019.jpg",
-    email: "max@example.com",
-    mobil: "+49 171 9876543",
+    email: "Welche Email Adresse eintragen ? Ist ja nur für uns intern im Verein",
+    mobil: "+49 (0)176 31 499 654",
     adresse: {
       strasse: "Gresselstraße",
       hausnummer: "12",
@@ -46,8 +46,8 @@ const vorstand = [
     rolle: "2. Sitzungspräsident",
     name: "Daniel Väthröder",
     bild: "https://www.tgzell.de/images/abteilungen/kage/elferrat/daniel_vaethroeder.jpg",
-    email: "max@example.com",
-    mobil: "+49 171 9876543",
+    email: "Welche Email Adresse eintragen ? Ist ja nur für uns intern im Verein",
+    mobil: "+49 (0)179 46 30 579",
     adresse: {
       strasse: "Sonnenstraße",
       hausnummer: "12",
