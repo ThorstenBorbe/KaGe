@@ -35,7 +35,7 @@ const buettenRedner = {
     {
       datum: "15.01.2027",
       veranstaltung: "1. Prunksitzung",
-      ort: "Veitshöchheim",
+      ort: "Zell am Main",
     },
   ],
 };

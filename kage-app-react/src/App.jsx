@@ -23,6 +23,8 @@ import KaGeCartaPage from "./components/KaGeCartaPage";
 import AhndungPage from "./components/AhndungPage";
 import AdminPage from "./components/AdminPage";
 import KalenderPage from "./components/KalenderPage";
+import LoginPage from "./components/LoginPage";
+import EinstellungenPage from "./components/EinstellungenPage";
 
 
 const appTree = [
@@ -91,7 +93,7 @@ const appTree = [
   },
   { key: "finanzen", label: "Finanzen" },
   { key: "zugaenge", label: "Zugänge & Anleitungen" },
-  { key: "kummerkasten", label: "Kummerkasten" },
+  { key: "kummerkasten", label: "Böck-Feedback" },
   { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
 ];
 
@@ -122,6 +124,9 @@ const MENU_ROLES = {
 
 export default function App() {
   const { currentUser, userRole, logout, hasRole } = useAuth();
+
+  if (!currentUser) return <LoginPage />;
+
   const [active, setActive] = useState("uebersicht");
   const [openMenus, setOpenMenus] = useState({
     veranstaltungen: false,
@@ -137,11 +142,31 @@ export default function App() {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  function navigate(key) {
+    setActive(key);
+    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  const TOP_LEVEL = ["veranstaltungen", "verein"];
+  const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
+
   const toggleMenu = (key) => {
-    setOpenMenus((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    setOpenMenus((prev) => {
+      const isOpen = prev[key];
+      const updated = { ...prev };
+
+      if (TOP_LEVEL.includes(key)) {
+        // Andere Top-Level-Menüs und deren Kinder schließen
+        TOP_LEVEL.forEach((k) => { updated[k] = false; });
+        SUB_LEVEL.forEach((k) => { updated[k] = false; });
+      } else if (SUB_LEVEL.includes(key)) {
+        // Andere Sub-Menüs schließen
+        SUB_LEVEL.forEach((k) => { updated[k] = false; });
+      }
+
+      updated[key] = !isOpen;
+      return updated;
+    });
   };
 
   const activeLabel = findActiveLabel(appTree, active);
@@ -207,6 +232,9 @@ export default function App() {
   if (active === "kalender") {
     return <KalenderPage />;
   }
+  if (active === "einstellungen") {
+    return <EinstellungenPage />;
+  }
   return <div>Übersicht</div>;
 }
 
@@ -223,7 +251,7 @@ export default function App() {
 
     <div style={{ textAlign: "center", marginBottom: "10px" }}>
       <img
-        src="https://www.tgzell.de/images/abteilungen/kage/kagezell.png"
+        src="/src/assets/Logo/KaGe Zell Logo mit Schriftzug.png"
         alt="KaGe Logo"
         style={{ width: "120px" }}
 />
@@ -245,7 +273,7 @@ export default function App() {
                   if (item.children) {
                     toggleMenu(item.key);
                   } else {
-                    setActive(item.key);
+                    navigate(item.key);
                   }
                 }}
                 style={{
@@ -276,7 +304,7 @@ export default function App() {
                           if (child.children) {
                             toggleMenu(child.key);
                           } else {
-                            setActive(child.key);
+                            navigate(child.key);
                           }
                         }}
                         style={{
@@ -303,7 +331,7 @@ export default function App() {
                           {child.children.map((grand) => (
                             <button
                               key={grand.key}
-                              onClick={() => setActive(grand.key)}
+                              onClick={() => navigate(grand.key)}
                               style={{
                                 width: "100%",
                                 padding: "8px 10px",
@@ -335,12 +363,24 @@ export default function App() {
           <p style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
             Rolle: {userRole ?? "–"}
           </p>
-          <a
-            href="/2fa-einrichten"
-            style={{ fontSize: 12, color: "white", display: "block", marginBottom: 8, opacity: 0.85 }}
+          <button
+            onClick={() => navigate("einstellungen")}
+            style={{
+              width: "100%",
+              padding: "8px",
+              marginBottom: 8,
+              background: active === "einstellungen" ? "white" : "rgba(255,255,255,0.1)",
+              color: active === "einstellungen" ? "#111" : "white",
+              border: "1px solid rgba(255,255,255,0.3)",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontSize: 13,
+              fontWeight: 600,
+              textAlign: "center",
+            }}
           >
-            Zwei-Faktor-Authentifizierung (2FA) einrichten
-          </a>
+            Persönliche Einstellungen
+          </button>
           <button
             onClick={logout}
             style={{
