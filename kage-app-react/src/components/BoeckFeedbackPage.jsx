@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function KummerkastenPage() {
+export default function BoeckFeedbackPage() {
   const [kategorie, setKategorie] = useState("");
   const [nachricht, setNachricht] = useState("");
 

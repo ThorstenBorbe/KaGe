@@ -94,7 +94,7 @@ export default function EinstellungenPage() {
   }
 
   return (
-    <div style={{ maxWidth: 520 }}>
+    <div style={{ padding: "24px" }}>
       <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
         <p style={{ color: "#6b7280", fontSize: 13, marginTop: 0 }}>
           Angemeldet als: <strong>{user?.email}</strong>

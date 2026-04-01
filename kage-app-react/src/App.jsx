@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
+
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
 import roteGarde from "./data/roteGarde";
@@ -13,10 +14,11 @@ import buettenRedner from "./data/buettenRedner";
 import elfInnen from "./data/elfInnen";
 import elferRaete from "./data/elferRaete";
 import zellerDallerLacker from "./data/zellerDallerLacker";
+import ethikKommitee from "./data/ethikKommitee";
 
 { /* hier die weiteren imports */ }
 import VorstandsPage from "./components/VorstandsPage";
-import KummerKastenPage from "./components/KummerKastenPage";
+import BoeckFeedbackPage from "./components/BoeckFeedbackPage";
 import FinanzPage from "./components/FinanzPage";
 import UebersichtPage from "./components/UebersichtPage";
 import ZugaengePage from "./components/ZugaengePage"; 
@@ -26,6 +28,7 @@ import AdminPage from "./components/AdminPage";
 import KalenderPage from "./components/KalenderPage";
 import LoginPage from "./components/LoginPage";
 import EinstellungenPage from "./components/EinstellungenPage";
+import EthikkommiteePage from "./components/EthikkommiteePage";
 
 
 const appTree = [
@@ -111,6 +114,7 @@ function findActiveLabel(items, activeKey) {
       }
     }
   }
+  if (activeKey === "einstellungen") return "Persönliche Einstellungen";
   return activeKey;
 }
 
@@ -210,10 +214,10 @@ export default function App() {
     return <VorstandsPage />
   }
   if (active === "kommitee") {
-    return <GroupPage key={active} group={zellerDallerLacker} />;
+    return <EthikkommiteePage />;
   }
   if (active === "kummerkasten") {
-    return <KummerKastenPage />;
+    return <BoeckFeedbackPage />;
   }
   if (active === "uebersicht") {
     return <UebersichtPage />;
@@ -361,9 +365,7 @@ export default function App() {
 
         {/* Nutzerinfo + Logout */}
         <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
-          <p style={{ fontSize: 11, opacity: 0.6, marginBottom: 10 }}>
-            Rolle: {userRole ?? "–"}
-          </p>
+
           <button
             onClick={() => navigate("einstellungen")}
             style={{

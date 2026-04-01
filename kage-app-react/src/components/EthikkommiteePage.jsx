@@ -1,4 +1,5 @@
 import AnliegenFormular from "./AnliegenFormular";
+import ethikKommitee from "../data/ethikKommitee";
 
 export default function EthikkommiteePage() {
   return (
