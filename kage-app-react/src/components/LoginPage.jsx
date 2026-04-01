@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import kageLogo from "../assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 
 // Nur im Entwicklungsmodus sichtbar
 const IS_DEV = import.meta.env.DEV;
@@ -105,7 +106,7 @@ export default function LoginPage() {
       >
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
           <img
-            src="/src/assets/Logo/KaGe Zell Logo mit Schriftzug.png"
+            src={kageLogo}
             alt="KaGe Logo"
             style={{ width: "100px", marginBottom: "12px" }}
           />

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
+import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
 import roteGarde from "./data/roteGarde";
@@ -251,7 +252,7 @@ export default function App() {
 
     <div style={{ textAlign: "center", marginBottom: "10px" }}>
       <img
-        src="/src/assets/Logo/KaGe Zell Logo mit Schriftzug.png"
+        src={kageLogo}
         alt="KaGe Logo"
         style={{ width: "120px" }}
 />
