@@ -18,6 +18,11 @@ import elferRaete from "./data/elferRaete";
 import zellerDallerLacker from "./data/zellerDallerLacker";
 import ethikKommitee from "./data/ethikKommitee";
 
+import ExterneVeranstaltungPage from "./components/ExterneVeranstaltungPage";
+import externeVeranstaltungen from "./data/externeVeranstaltungen";
+import AufbauAbbauPage from "./components/AufbauAbbauPage";
+import interneVeranstaltungen from "./data/interneVeranstaltungen";
+
 { /* hier die weiteren imports */ }
 import VorstandsPage from "./components/VorstandsPage";
 import BoeckFeedbackPage from "./components/BoeckFeedbackPage";
@@ -45,13 +50,13 @@ const appTree = [
         key: "interne",
         label: "Intern",
         children: [
-          { key: "11-11", label: "11.11. Jetzt geht los" },
-          { key: "prunksitzung-1", label: "1. Prunksitzung" },
-          { key: "prunksitzung-2", label: "2. Prunksitzung" },
-          { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
-          { key: "beatbox-party", label: "Beat-Bocks-Party" },
-          { key: "kinderfasching", label: "Kinderfasching" },
-          { key: "kehraus", label: "Kehraus" },
+          { key: "11-11", label: "11.11. Jetzt geht los", children: [{ key: "11-11-aufbau", label: "Aufbau" }, { key: "11-11-abbau", label: "Abbau" }] },
+          { key: "prunksitzung-1", label: "1. Prunksitzung", children: [{ key: "prunksitzung-1-aufbau", label: "Aufbau" }, { key: "prunksitzung-1-abbau", label: "Abbau" }] },
+          { key: "prunksitzung-2", label: "2. Prunksitzung", children: [{ key: "prunksitzung-2-aufbau", label: "Aufbau" }, { key: "prunksitzung-2-abbau", label: "Abbau" }] },
+          { key: "bunter-nachmittag", label: "Bunter Nachmittag", children: [{ key: "bunter-nachmittag-aufbau", label: "Aufbau" }, { key: "bunter-nachmittag-abbau", label: "Abbau" }] },
+          { key: "beatbox-party", label: "Beat-Bocks-Party", children: [{ key: "beatbox-party-aufbau", label: "Aufbau" }, { key: "beatbox-party-abbau", label: "Abbau" }] },
+          { key: "kinderfasching", label: "Kinderfasching", children: [{ key: "kinderfasching-aufbau", label: "Aufbau" }, { key: "kinderfasching-abbau", label: "Abbau" }] },
+          { key: "kehraus", label: "Kehraus", children: [{ key: "kehraus-aufbau", label: "Aufbau" }, { key: "kehraus-abbau", label: "Abbau" }] },
         ],
       },
       {
@@ -112,8 +117,13 @@ function findActiveLabel(items, activeKey) {
       for (const child of item.children) {
         if (child.key === activeKey) return child.label;
         if (child.children) {
-          const grand = child.children.find((g) => g.key === activeKey);
-          if (grand) return grand.label;
+          for (const grand of child.children) {
+            if (grand.key === activeKey) return grand.label;
+            if (grand.children) {
+              const gg = grand.children.find((g) => g.key === activeKey);
+              if (gg) return gg.label;
+            }
+          }
         }
       }
     }
@@ -143,6 +153,13 @@ export default function App() {
     externe: false,
     verein: false,
     gruppen: false,
+    "11-11": false,
+    "prunksitzung-1": false,
+    "prunksitzung-2": false,
+    "bunter-nachmittag": false,
+    "beatbox-party": false,
+    kinderfasching: false,
+    kehraus: false,
   });
 
   const mainRef = useRef(null);
@@ -158,6 +175,7 @@ export default function App() {
 
   const TOP_LEVEL = ["veranstaltungen", "verein"];
   const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
+  const GRAND_LEVEL = ["11-11", "prunksitzung-1", "prunksitzung-2", "bunter-nachmittag", "beatbox-party", "kinderfasching", "kehraus"];
 
   const toggleMenu = (key) => {
     setOpenMenus((prev) => {
@@ -168,9 +186,14 @@ export default function App() {
         // Andere Top-Level-Menüs und deren Kinder schließen
         TOP_LEVEL.forEach((k) => { updated[k] = false; });
         SUB_LEVEL.forEach((k) => { updated[k] = false; });
+        GRAND_LEVEL.forEach((k) => { updated[k] = false; });
       } else if (SUB_LEVEL.includes(key)) {
         // Andere Sub-Menüs schließen
         SUB_LEVEL.forEach((k) => { updated[k] = false; });
+        GRAND_LEVEL.forEach((k) => { updated[k] = false; });
+      } else if (GRAND_LEVEL.includes(key)) {
+        // Andere Veranstaltungs-Untermenüs schließen
+        GRAND_LEVEL.forEach((k) => { updated[k] = false; });
       }
 
       updated[key] = !isOpen;
@@ -210,6 +233,18 @@ export default function App() {
   }
   if (active === "zdl") {
     return <GroupPage key={active} group={zellerDallerLacker} />;
+  }
+  if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {
+    const typ = active.endsWith("-aufbau") ? "Aufbau" : "Abbau";
+    const eventKey = active.slice(0, active.lastIndexOf("-"));
+    const eventData = interneVeranstaltungen[eventKey];
+    if (eventData) {
+      return <AufbauAbbauPage key={active} data={eventData[typ.toLowerCase()]} typ={typ} />;
+    }
+  }
+  if (["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"].includes(active)) {
+    const data = externeVeranstaltungen[active];
+    return <ExterneVeranstaltungPage key={active} veranstaltung={data} />;
   }
   if (active === "finanzen") {
     return <FinanzPage />;
@@ -341,24 +376,56 @@ export default function App() {
                       {child.children && openMenus[child.key] && (
                         <div style={{ marginLeft: "12px", marginBottom: "4px" }}>
                           {child.children.map((grand) => (
-                            <button
-                              key={grand.key}
-                              onClick={() => navigate(grand.key)}
-                              style={{
-                                width: "100%",
-                                padding: "8px 10px",
-                                marginBottom: "4px",
-                                background: active === grand.key ? "#fca5a5" : "rgba(255,255,255,0.05)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "6px",
-                                textAlign: "left",
-                                cursor: "pointer",
-                                fontSize: "12px",
-                              }}
-                            >
-                              {grand.label}
-                            </button>
+                            <div key={grand.key}>
+                              <button
+                                onClick={() => {
+                                  if (grand.children) toggleMenu(grand.key);
+                                  else navigate(grand.key);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  padding: "8px 10px",
+                                  marginBottom: "4px",
+                                  background: active === grand.key ? "#fca5a5" : "rgba(255,255,255,0.05)",
+                                  color: "white",
+                                  border: "none",
+                                  borderRadius: "6px",
+                                  textAlign: "left",
+                                  cursor: "pointer",
+                                  fontSize: "12px",
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <span>{grand.label}</span>
+                                {grand.children && <span>{openMenus[grand.key] ? "▾" : "▸"}</span>}
+                              </button>
+                              {grand.children && openMenus[grand.key] && (
+                                <div style={{ marginLeft: "12px", marginBottom: "4px" }}>
+                                  {grand.children.map((gg) => (
+                                    <button
+                                      key={gg.key}
+                                      onClick={() => navigate(gg.key)}
+                                      style={{
+                                        width: "100%",
+                                        padding: "7px 10px",
+                                        marginBottom: "3px",
+                                        background: active === gg.key ? "#fca5a5" : "rgba(255,255,255,0.04)",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "5px",
+                                        textAlign: "left",
+                                        cursor: "pointer",
+                                        fontSize: "11px",
+                                      }}
+                                    >
+                                      {gg.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           ))}
                         </div>
                       )}
