@@ -3,8 +3,7 @@ import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import { db } from "./firebase/firebaseConfig";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
-
-const APP_VERSION = "v0.0.4";
+import { APP_VERSION } from "./version";
 
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
@@ -30,7 +29,7 @@ import interneVeranstaltungen from "./data/interneVeranstaltungen";
 import VorstandsPage from "./components/VorstandsPage";
 import BoeckFeedbackPage from "./components/BoeckFeedbackPage";
 import FinanzPage from "./components/FinanzPage";
-import UebersichtPage from "./components/UebersichtPage";
+import ToDosPage from "./components/ToDosPage";
 import ZugaengePage from "./components/ZugaengePage"; 
 import KaGeCartaPage from "./components/KaGeCartaPage";
 import AhndungPage from "./components/AhndungPage";
@@ -42,6 +41,7 @@ import EthikkommiteePage from "./components/EthikkommiteePage";
 import MeldungPage from "./components/MeldungPage";
 import PrivacyConsentPage from "./components/PrivacyConsentPage";
 import DatenschutzPage from "./components/DatenschutzPage";
+import AppDokumentationPage from "./components/AppDokumentationPage";
 
 
 const appTree = [
@@ -114,6 +114,7 @@ const appTree = [
   { key: "zugaenge", label: "Zugänge & Anleitungen" },
   { key: "kummerkasten", label: "Böck-Feedback" },
   { key: "datenschutz", label: "Datenschutz" },
+  { key: "app-dokumentation", label: "App-Dokumentation" },
   { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
 ];
 
@@ -334,8 +335,11 @@ export default function App() {
   if (active === "datenschutz") {
     return <DatenschutzPage />;
   }
+  if (active === "app-dokumentation") {
+    return <AppDokumentationPage />;
+  }
   if (active === "uebersicht") {
-    return <UebersichtPage />;
+    return <ToDosPage />;
   }
   if (active === "zugaenge") {
     return <ZugaengePage />;
