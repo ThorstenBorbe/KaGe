@@ -371,6 +371,10 @@ export default function App() {
         {/* Nutzerinfo + Logout */}
         <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
 
+          <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>
+            Version: {__APP_VERSION__}
+          </p>
+
           <button
             onClick={() => navigate("einstellungen")}
             style={{
