@@ -11,10 +11,10 @@ export default function DatenschutzPage() {
           textAlign: "left",
         }}
       >
-        <h1 style={{ marginTop: 0, marginBottom: 10, color: "#b91c1c", fontSize: "24px" }}>
+        <h1 style={{ marginTop: 0, marginBottom: 10, color: "#b91c1c", fontSize: "18px" }}>
           Datenschutzhinweise
         </h1>
-        <p style={{ marginTop: 0, color: "#6b7280", fontSize: "13px" }}>Stand: 10.05.2026</p>
+        <p style={{ marginTop: 0, marginBottom: "18px", color: "#6b7280", fontSize: "18px" }}>Stand: 10.05.2026</p>
 
         <Section title="1. Verantwortlicher">
           <p>Turngemeinde Zell von 1862 e.V. (Abteilung Karnevallsgesellschaft)</p>
@@ -66,8 +66,8 @@ export default function DatenschutzPage() {
 
 function Section({ title, children }) {
   return (
-    <section style={{ marginBottom: 14, fontSize: 13, color: "#111827", lineHeight: 1.5 }}>
-      <h2 style={{ fontSize: 15, color: "#b91c1c", margin: "0 0 6px 0" }}>{title}</h2>
+    <section style={{ marginBottom: 14, fontSize: 18, color: "#111827", lineHeight: 1.5 }}>
+      <h2 style={{ fontSize: 18, color: "#b91c1c", margin: "0 0 6px 0" }}>{title}</h2>
       <div>{children}</div>
     </section>
   );

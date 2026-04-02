@@ -1,5 +1,5 @@
-export default function AufbauAbbauPage({ data, typ }) {
-  const d = data;
+export default function FaschingszugPage({ veranstaltung }) {
+  const v = veranstaltung;
 
   return (
     <div style={{ padding: "24px" }}>
@@ -13,31 +13,33 @@ export default function AufbauAbbauPage({ data, typ }) {
           textAlign: "left",
         }}
       >
-        {/* Zeitraum & Treffpunkt */}
-        <InfoSection icon={typ === "Aufbau" ? "🔧" : "📦"} title={typ}>
-          <InfoRow label="Zeitraum" value={d.zeitraum} />
-          <InfoRow label="Treffpunkt" value={d.treffpunkt} />
+        <InfoSection icon="📍" title="Treffpunkt & Uhrzeit">
+          <InfoRow label="Treffpunkt" value={v.treffpunkt} />
+          <InfoRow label="Uhrzeit" value={v.treffpunktUhrzeit} />
         </InfoSection>
 
         <Divider />
 
-        {/* Verantwortliche */}
-        <InfoSection icon="👤" title="Verantwortliche">
-          <ListSection items={d.verantwortliche} emptyText="Noch keine Verantwortlichen eingetragen." />
+        <InfoSection icon="🚗" title="Fahrer">
+          <ListSection items={v.fahrer} emptyText="Noch kein Fahrer eingetragen." />
         </InfoSection>
 
         <Divider />
 
-        {/* Aufgaben */}
-        <InfoSection icon="✅" title="Aufgaben">
-          <ListSection items={d.aufgaben} emptyText="Noch keine Aufgaben eingetragen." />
+        <InfoSection icon="👥" title="Teilnehmer">
+          <ListSection items={v.teilnehmer} emptyText="Noch keine Teilnehmer eingetragen." />
         </InfoSection>
 
         <Divider />
 
-        {/* Bemerkungen */}
-        <InfoSection icon="📝" title="Bemerkungen">
-          <InfoRow label="Bemerkungen" value={d.bemerkungen} />
+        <InfoSection icon="🚚" title="Wagenaufbau">
+          <InfoRow label="Status / Info" value={v.wagenaufbau} />
+        </InfoSection>
+
+        <Divider />
+
+        <InfoSection icon="🎊" title="Besorgung Wurfmaterial">
+          <InfoRow label="Status / Info" value={v.wurfmaterial} />
         </InfoSection>
       </div>
     </div>

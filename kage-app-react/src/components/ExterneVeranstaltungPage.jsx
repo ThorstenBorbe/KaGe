@@ -10,6 +10,7 @@ export default function ExterneVeranstaltungPage({ veranstaltung }) {
           padding: 28,
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           maxWidth: 700,
+          textAlign: "left",
         }}
       >
         {/* Treffpunkt */}
@@ -66,7 +67,7 @@ export default function ExterneVeranstaltungPage({ veranstaltung }) {
 function InfoSection({ icon, title, children }) {
   return (
     <div style={{ marginBottom: 4 }}>
-      <h3 style={{ fontSize: 14, fontWeight: 700, color: "#b91c1c", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: "#b91c1c", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
         <span>{icon}</span> {title}
       </h3>
       {children}
@@ -76,7 +77,7 @@ function InfoSection({ icon, title, children }) {
 
 function InfoRow({ label, value }) {
   return (
-    <div style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 13 }}>
+    <div style={{ display: "flex", gap: 8, marginBottom: 6, fontSize: 18 }}>
       <span style={{ minWidth: 150, color: "#6b7280", fontWeight: 600 }}>{label}:</span>
       <span style={{ color: value ? "#111827" : "#d1d5db" }}>{value || "—"}</span>
     </div>
@@ -85,10 +86,10 @@ function InfoRow({ label, value }) {
 
 function ListSection({ items, emptyText }) {
   if (!items || items.length === 0) {
-    return <p style={{ fontSize: 13, color: "#d1d5db", margin: 0 }}>{emptyText}</p>;
+    return <p style={{ fontSize: 18, color: "#d1d5db", margin: 0 }}>{emptyText}</p>;
   }
   return (
-    <ul style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: "#111827" }}>
+    <ul style={{ margin: 0, paddingLeft: 20, fontSize: 18, color: "#111827" }}>
       {items.map((item, i) => (
         <li key={i} style={{ marginBottom: 4 }}>{item}</li>
       ))}

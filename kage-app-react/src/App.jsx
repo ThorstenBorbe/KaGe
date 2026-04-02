@@ -1,6 +1,8 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
+import { db } from "./firebase/firebaseConfig";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
 const APP_VERSION = "v0.0.4";
 
@@ -19,6 +21,7 @@ import zellerDallerLacker from "./data/zellerDallerLacker";
 import ethikKommitee from "./data/ethikKommitee";
 
 import ExterneVeranstaltungPage from "./components/ExterneVeranstaltungPage";
+import FaschingszugPage from "./components/FaschingszugPage";
 import externeVeranstaltungen from "./data/externeVeranstaltungen";
 import AufbauAbbauPage from "./components/AufbauAbbauPage";
 import interneVeranstaltungen from "./data/interneVeranstaltungen";
@@ -42,7 +45,7 @@ import DatenschutzPage from "./components/DatenschutzPage";
 
 
 const appTree = [
-  { key: "uebersicht", label: "Übersicht" },
+  { key: "uebersicht", label: "ToDo's für die App" },
   { key: "kalender", label: "Kalender" },
   {
     key: "veranstaltungen",
@@ -68,6 +71,7 @@ const appTree = [
           { key: "auswaerts-x", label: "1. Auswärtssitzung (X)" },
           { key: "auswaerts-y", label: "2. Auswärtssitzung (Y)" },
           { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
+          { key: "faschingszug", label: "Faschingszug" },
           { key: "seniorenheime", label: "Seniorenheime" },
         ],
       },
@@ -168,6 +172,8 @@ export default function App() {
   }
 
   const [active, setActive] = useState("uebersicht");
+  const [sessionValue, setSessionValue] = useState("Session 2026/2027");
+  const [sessionSaving, setSessionSaving] = useState(false);
   const [openMenus, setOpenMenus] = useState({
     veranstaltungen: false,
     interne: false,
@@ -185,8 +191,47 @@ export default function App() {
 
   const mainRef = useRef(null);
 
+  const canEditSession = hasRole("vorstand");
+  const SESSION_OPTIONS = [
+    "Session 2026/2027",
+    "Session 2027/2028",
+    "Session 2028/2029",
+    "Session 2029/2030",
+  ];
+
+  useEffect(() => {
+    const sessionRef = doc(db, "appSettings", "session");
+    const unsub = onSnapshot(sessionRef, (snap) => {
+      const value = snap.data()?.activeSession;
+      if (typeof value === "string" && value.trim()) {
+        setSessionValue(value);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  async function handleSessionChange(nextSession) {
+    setSessionValue(nextSession);
+    if (!canEditSession) return;
+    setSessionSaving(true);
+    try {
+      await setDoc(
+        doc(db, "appSettings", "session"),
+        {
+          activeSession: nextSession,
+          updatedBy: currentUser?.uid ?? null,
+          updatedAt: new Date().toISOString(),
+        },
+        { merge: true }
+      );
+    } finally {
+      setSessionSaving(false);
+    }
+  }
+
   function scrollToTop() {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function navigate(key) {
@@ -263,6 +308,10 @@ export default function App() {
       return <AufbauAbbauPage key={active} data={eventData[typ.toLowerCase()]} typ={typ} />;
     }
   }
+  if (active === "faschingszug") {
+    const data = externeVeranstaltungen[active];
+    return <FaschingszugPage key={active} veranstaltung={data} />;
+  }
   if (["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"].includes(active)) {
     const data = externeVeranstaltungen[active];
     return <ExterneVeranstaltungPage key={active} veranstaltung={data} />;
@@ -333,6 +382,37 @@ export default function App() {
           Alles rund um den Zeller Fasching
         </p>
 
+        <div style={{ marginTop: "36px", marginBottom: "6px" }}>
+          <select
+            value={sessionValue}
+            onChange={(e) => handleSessionChange(e.target.value)}
+            disabled={!canEditSession || sessionSaving}
+            style={{
+              width: "100%",
+              padding: "8px 10px",
+              borderRadius: "8px",
+              border: "1px solid rgba(255,255,255,0.35)",
+              background: !canEditSession ? "rgba(255,255,255,0.08)" : "white",
+              color: !canEditSession ? "white" : "#111",
+              fontSize: "18px",
+              textAlign: "center",
+              cursor: !canEditSession ? "not-allowed" : "pointer",
+              boxSizing: "border-box",
+            }}
+          >
+            {SESSION_OPTIONS.map((session) => (
+              <option key={session} value={session}>
+                {session}
+              </option>
+            ))}
+          </select>
+          {!canEditSession && (
+            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", marginTop: "6px", marginBottom: 0 }}>
+              Nur Vorstand/Admin kann die Session ändern.
+            </p>
+          )}
+        </div>
+
         <div style={{ marginTop: "20px" }}>
           {appTree.filter((item) => {
             const required = MENU_ROLES[item.key];
@@ -356,7 +436,7 @@ export default function App() {
                   borderRadius: "10px",
                   textAlign: "left",
                   cursor: "pointer",
-                  fontSize: "14px",
+                  fontSize: "18px",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
@@ -388,7 +468,7 @@ export default function App() {
                           borderRadius: "8px",
                           textAlign: "left",
                           cursor: "pointer",
-                          fontSize: "13px",
+                          fontSize: "18px",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
@@ -416,7 +496,7 @@ export default function App() {
                                   borderRadius: "6px",
                                   textAlign: "left",
                                   cursor: "pointer",
-                                  fontSize: "12px",
+                                  fontSize: "18px",
                                   display: "flex",
                                   justifyContent: "space-between",
                                   alignItems: "center",
@@ -441,7 +521,7 @@ export default function App() {
                                         borderRadius: "5px",
                                         textAlign: "left",
                                         cursor: "pointer",
-                                        fontSize: "11px",
+                                        fontSize: "18px",
                                       }}
                                     >
                                       {gg.label}
@@ -464,7 +544,7 @@ export default function App() {
         {/* Nutzerinfo + Logout */}
         <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
 
-          <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>
+          <p style={{ textAlign: "center", fontSize: 10, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>
             Version: {APP_VERSION}
           </p>
 
@@ -479,8 +559,8 @@ export default function App() {
               border: "1px solid rgba(255,255,255,0.3)",
               borderRadius: 8,
               cursor: "pointer",
-              fontSize: 13,
-              fontWeight: 600,
+              fontSize: 18,
+              fontWeight: 400,
               textAlign: "center",
             }}
           >
@@ -496,8 +576,8 @@ export default function App() {
               border: "1px solid rgba(255,255,255,0.3)",
               borderRadius: 8,
               cursor: "pointer",
-              fontSize: 13,
-              fontWeight: 600,
+              fontSize: 18,
+              fontWeight: 400,
             }}
           >
             Abmelden

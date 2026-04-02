@@ -32,10 +32,10 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
           textAlign: "left",
         }}
       >
-        <h1 style={{ marginTop: 0, marginBottom: 10, color: "#b91c1c", fontSize: "24px" }}>
+        <h1 style={{ marginTop: 0, marginBottom: 10, color: "#b91c1c", fontSize: "18px" }}>
           Datenschutzhinweise
         </h1>
-        <p style={{ marginTop: 0, color: "#6b7280", fontSize: "13px" }}>Stand: {stand}</p>
+        <p style={{ marginTop: 0, marginBottom: "18px", color: "#6b7280", fontSize: "18px" }}>Stand: {stand}</p>
 
         <div style={{ maxHeight: "56vh", overflowY: "auto", paddingRight: "8px" }}>
           <Section title="1. Verantwortlicher">
@@ -76,7 +76,7 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
         </div>
 
         <form onSubmit={handleSubmit} style={{ marginTop: "18px" }}>
-          <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "14px", color: "#111827" }}>
+          <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", fontSize: "18px", color: "#111827" }}>
             <input
               type="checkbox"
               checked={checked}
@@ -97,6 +97,7 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
               borderRadius: "8px",
               padding: "11px 16px",
               fontWeight: 700,
+              fontSize: "18px",
               cursor: !checked || busy ? "not-allowed" : "pointer",
             }}
           >
@@ -110,8 +111,8 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
 
 function Section({ title, children }) {
   return (
-    <section style={{ marginBottom: "12px", fontSize: "13px", color: "#111827" }}>
-      <h2 style={{ fontSize: "14px", color: "#b91c1c", margin: "0 0 6px 0" }}>{title}</h2>
+    <section style={{ marginBottom: "12px", fontSize: "18px", color: "#111827" }}>
+      <h2 style={{ fontSize: "18px", color: "#b91c1c", margin: "0 0 6px 0" }}>{title}</h2>
       <div>{children}</div>
     </section>
   );

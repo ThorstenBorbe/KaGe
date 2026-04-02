@@ -29,36 +29,27 @@ export default function UebersichtPage() {
           4. Erstellung VMI Matrix (Verantwortlichkeiten, Mitwirkende, Informierte) für die verschiedenen Bereiche um die Zuständigkeiten zu klären
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          5. Login In und Registrierung für die Nutzer der App, damit nur Mitglieder Zugriff auf die Daten haben und diese auch gefiltert sind. Es sieht nicht jeder alles, sondern nur das was er sehen muss
+          5. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          6. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
-        </p>
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          7. Sessionsumschaltung, dass man auch schon mehrere Jahre vorausplanen kann
-        </p>
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          8. Datenbank für verschiedene Termine anlegen und auf Cloud stellen, dass auch Bilder vom Aufbau eingesehen werden können
+          6. Datenbank für verschiedene Termine anlegen und auf Cloud stellen, dass auch Bilder vom Aufbau eingesehen werden können
         </p>        
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          9. Nach Eintragung der Termin bei der Gema entrichtet werden muss, automatisiert eine Email zur Anmeldung verschicken
+          7. Nach Eintragung der Termin bei der Gema entrichtet werden muss, automatisiert eine Email zur Anmeldung verschicken
         </p>    
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          10. Template für externe Veranstaltungen inkl. Fahrer erstellen
-        </p>    
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          11. Protokolle über App jederzeit lesbar machen (Cloud)
+          8. Protokolle über App jederzeit lesbar machen (Cloud)
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          12. Ideen vom Workshop einholen und in die App einarbeiten
+          9. Ideen vom Workshop einholen und in die App einarbeiten
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
+          10. Sessionsumschaltung über Cloud für die einzelnen Veranstaltungen umschalten. Ausser Admin und Vorstand ist nur die aktuelle Session sichbar
+        </p>        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           <br />
 
         </p>
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5 }}> 
-         Test
-        </p>
+
         <div
           style={{
             marginTop: "20px",

@@ -12,7 +12,7 @@ import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const AuthContext = createContext(null);
 
-const ROLE_HIERARCHY = ["gast", "mitglied", "vorstand", "admin"];
+const ROLE_HIERARCHY = ["gast", "mitglied", "trainer", "vorstand", "admin"];
 const PRIVACY_POLICY_VERSION = "2026-05-10";
 const PRIVACY_POLICY_STAND = "10.05.2026";
 

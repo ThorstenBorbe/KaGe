@@ -1,0 +1,68 @@
+const kalenderTermine = [
+  {
+    id: "11-11",
+    titel: "11.11. Jetzt geht los",
+    datum: "2026-11-11",
+    uhrzeit: "19:11",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "prunksitzung-1",
+    titel: "1. Prunksitzung",
+    datum: "2027-01-16",
+    uhrzeit: "19:33",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "prunksitzung-2",
+    titel: "2. Prunksitzung",
+    datum: "2027-01-23",
+    uhrzeit: "19:33",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "bunter-nachmittag",
+    titel: "Bunter Nachmittag",
+    datum: "2027-01-31",
+    uhrzeit: "14:11",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "beatbox-party",
+    titel: "Beat-Bocks-Party",
+    datum: "2027-02-06",
+    uhrzeit: "20:00",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "faschingszug",
+    titel: "Faschingszug",
+    datum: "2027-02-14",
+    uhrzeit: "13:33",
+    ort: "Zell am Main",
+    kategorie: "Extern",
+  },
+  {
+    id: "kinderfasching",
+    titel: "Kinderfasching",
+    datum: "2027-02-15",
+    uhrzeit: "14:00",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+  {
+    id: "kehraus",
+    titel: "Kehraus",
+    datum: "2027-02-16",
+    uhrzeit: "18:00",
+    ort: "Zell am Main",
+    kategorie: "Intern",
+  },
+];
+
+export default kalenderTermine;

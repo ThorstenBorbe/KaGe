@@ -44,6 +44,7 @@ export default function MeldungPage() {
                 display: "block",
                 marginBottom: "8px",
                 fontWeight: "bold",
+                fontSize: "18px",
               }}
             >
               Betreff / Kategorie
@@ -58,7 +59,7 @@ export default function MeldungPage() {
                 padding: "12px",
                 borderRadius: "10px",
                 border: "1px solid #d1d5db",
-                fontSize: "14px",
+                fontSize: "18px",
               }}
             >
               <option value="">Bitte auswählen</option>
@@ -76,6 +77,7 @@ export default function MeldungPage() {
                 display: "block",
                 marginBottom: "8px",
                 fontWeight: "bold",
+                fontSize: "18px",
               }}
             >
               Nachricht
@@ -93,9 +95,9 @@ export default function MeldungPage() {
                 padding: "12px",
                 borderRadius: "10px",
                 border: "1px solid #d1d5db",
-                fontSize: "14px",
+                fontSize: "18px",
                 resize: "vertical",
-                fontFamily: "Arial, sans-serif",
+                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
                 boxSizing: "border-box",
               }}
             />
@@ -105,7 +107,7 @@ export default function MeldungPage() {
             style={{
               textAlign: "right",
               marginBottom: "20px",
-              fontSize: "13px",
+              fontSize: "18px",
               color: "#6b7280",
             }}
           >
@@ -121,7 +123,7 @@ export default function MeldungPage() {
               borderRadius: "10px",
               padding: "12px 20px",
               cursor: "pointer",
-              fontSize: "14px",
+              fontSize: "18px",
               fontWeight: "bold",
             }}
           >

@@ -3,12 +3,13 @@ import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firesto
 import { db } from "../firebase/firebaseConfig";
 
 const BRAND_RED = "#b91c1c";
-const ROLES = ["gast", "mitglied", "vorstand", "admin", "gesperrt"];
+const ROLES = ["gast", "mitglied", "trainer", "vorstand", "admin", "gesperrt"];
 
 const ROLE_COLORS = {
   pending: "#f97316",
   gast: "#9ca3af",
   mitglied: "#3b82f6",
+  trainer: "#22c55e",
   vorstand: "#f59e0b",
   admin: "#dc2626",
   gesperrt: "#111827",

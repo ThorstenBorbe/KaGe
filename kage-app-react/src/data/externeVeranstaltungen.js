@@ -50,6 +50,15 @@ const externeVeranstaltungen = {
     teilnehmer: [],
     auftritte: [],
   },
+  faschingszug: {
+    titel: "Faschingszug",
+    treffpunkt: "",
+    treffpunktUhrzeit: "",
+    fahrer: [],
+    teilnehmer: [],
+    wagenaufbau: "",
+    wurfmaterial: "",
+  },
   seniorenheime: {
     titel: "Seniorenheime",
     treffpunkt: "",

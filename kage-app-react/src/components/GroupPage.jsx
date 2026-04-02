@@ -1,11 +1,17 @@
+import { useAuth } from "../context/AuthContext";
+
 export default function GroupPage({ group }) {
+  const { hasRole } = useAuth();
+  const isSessionGroup = group.name === "11'n" || group.name === "Elferräte";
+  const canCancelSessionOrTraining = hasRole("vorstand");
+
   return (
     <div
       style={{
         padding: "24px",
         background: "#f3f4f6",
         minHeight: "100vh",
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
       }}
     >
 
@@ -52,7 +58,9 @@ export default function GroupPage({ group }) {
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           }}
         >
-          <h2 style={{ marginTop: 0 }}>🏋️ Trainingstermine</h2>
+          <h2 style={{ marginTop: 0 }}>
+            {isSessionGroup ? "📅 Sitzungstermine" : "🏋️ Trainingstermine"}
+          </h2>
           {group.trainingstermine.map((termin, index) => (
             <div
               key={index}
@@ -69,6 +77,46 @@ export default function GroupPage({ group }) {
               <div style={{ marginTop: "4px", color: "#374151" }}>📍 {termin.ort}</div>
             </div>
           ))}
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "4px", justifyContent: "center" }}>
+            {canCancelSessionOrTraining && (
+              <button
+                type="button"
+                style={{
+                  background: "#b91c1c",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  padding: "10px 16px",
+                  width: "220px",
+                  minHeight: "44px",
+                  fontWeight: "bold",
+                  fontSize: "16px",
+                  fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+                  cursor: "pointer",
+                }}
+              >
+                {isSessionGroup ? "Sitzung fällt aus" : "Training fällt aus"}
+              </button>
+            )}
+            <button
+              type="button"
+              style={{
+                background: "#b91c1c",
+                color: "white",
+                border: "none",
+                borderRadius: "12px",
+                padding: "10px 16px",
+                width: "220px",
+                minHeight: "44px",
+                fontWeight: "bold",
+                fontSize: "16px",
+                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+                cursor: "pointer",
+              }}
+            >
+              Verhindert
+            </button>
+          </div>
         </div>
 
         <div
@@ -97,6 +145,8 @@ export default function GroupPage({ group }) {
               padding: "12px 18px",
               borderRadius: "12px",
               fontWeight: "bold",
+              fontSize: "16px",
+              fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
             }}
           >
             Terminplan öffnen

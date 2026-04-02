@@ -96,7 +96,7 @@ export default function EinstellungenPage() {
   return (
     <div style={{ padding: "24px" }}>
       <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-        <p style={{ color: "#6b7280", fontSize: 13, marginTop: 0 }}>
+        <p style={{ color: "#6b7280", fontSize: 18, marginTop: 0 }}>
           Angemeldet als: <strong>{user?.email}</strong>
         </p>
 
@@ -164,10 +164,10 @@ function SettingsCard({ title, desc, open, onToggle, children }) {
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, fontSize: 14, color: "#111827" }}>{title}</div>
-          <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>{desc}</div>
+          <div style={{ fontWeight: 600, fontSize: 18, color: "#111827" }}>{title}</div>
+          <div style={{ fontSize: 18, color: "#6b7280", marginTop: 2 }}>{desc}</div>
         </div>
-        <span style={{ color: "#b91c1c", fontSize: 16 }}>{open ? "▴" : "▾"}</span>
+        <span style={{ color: "#b91c1c", fontSize: 18 }}>{open ? "▴" : "▾"}</span>
       </button>
       {open && (
         <div style={{ padding: "16px", borderTop: "1px solid #f3f4f6", background: "#fafafa" }}>
@@ -181,7 +181,7 @@ function SettingsCard({ title, desc, open, onToggle, children }) {
 function Field({ id, label, type = "text", value, onChange, placeholder, last }) {
   return (
     <div style={{ marginBottom: last ? "16px" : "12px" }}>
-      <label htmlFor={id} style={{ display: "block", marginBottom: 5, fontSize: 12, color: "#374151", fontWeight: 600 }}>
+      <label htmlFor={id} style={{ display: "block", marginBottom: 5, fontSize: 18, color: "#374151", fontWeight: 600 }}>
         {label}
       </label>
       <input
@@ -190,7 +190,7 @@ function Field({ id, label, type = "text", value, onChange, placeholder, last })
         placeholder={placeholder ?? ""}
         style={{
           width: "100%", padding: "9px 11px", borderRadius: 7,
-          border: "1px solid #d1d5db", fontSize: 13, outline: "none", boxSizing: "border-box",
+          border: "1px solid #d1d5db", fontSize: 18, outline: "none", boxSizing: "border-box",
         }}
       />
     </div>
@@ -205,7 +205,7 @@ function Btn({ children, busy }) {
       style={{
         padding: "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c",
         color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7,
-        fontSize: 13, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
+        fontSize: 18, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
       }}
     >
       {busy ? "…" : children}
@@ -216,7 +216,7 @@ function Btn({ children, busy }) {
 function Feedback({ msg }) {
   if (!msg.text) return null;
   return (
-    <p style={{ color: msg.error ? "#b91c1c" : "#16a34a", fontSize: 12, marginBottom: 10, marginTop: -4 }}>
+    <p style={{ color: msg.error ? "#b91c1c" : "#16a34a", fontSize: 18, marginBottom: 10, marginTop: -4 }}>
       {msg.text}
     </p>
   );
