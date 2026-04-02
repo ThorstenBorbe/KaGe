@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 
+const APP_VERSION = "v0.0.3";
+
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
 import roteGarde from "./data/roteGarde";
@@ -372,7 +374,7 @@ export default function App() {
         <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
 
           <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.5)", margin: "0 0 10px 0" }}>
-            Version: {__APP_VERSION__}
+            Version: {APP_VERSION}
           </p>
 
           <button
