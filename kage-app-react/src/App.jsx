@@ -3,7 +3,8 @@ import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import { db } from "./firebase/firebaseConfig";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
-import { APP_VERSION } from "./version";
+
+const APP_VERSION = "v0.0.6";
 
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
