@@ -11,8 +11,8 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'Century Gothic', 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Century Gothic', 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
 
   font: 18px/145% var(--sans);
@@ -52,6 +52,14 @@
 
 body {
   margin: 0;
+  font-family: 'Century Gothic', 'CenturyGothic', 'Segoe UI', Roboto, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: 'Century Gothic', 'CenturyGothic', 'Segoe UI', Roboto, sans-serif;
 }
 
 #root {

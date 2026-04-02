@@ -97,7 +97,7 @@ export default function BoeckFeedbackPage() {
                 border: "1px solid #d1d5db",
                 fontSize: "14px",
                 resize: "vertical",
-                fontFamily: "Arial, sans-serif",
+                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
                 boxSizing: "border-box",
               }}
             />

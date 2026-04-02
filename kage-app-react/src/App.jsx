@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 
-const APP_VERSION = "v0.0.3";
+const APP_VERSION = "v0.0.4";
 
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
@@ -37,6 +37,8 @@ import LoginPage from "./components/LoginPage";
 import EinstellungenPage from "./components/EinstellungenPage";
 import EthikkommiteePage from "./components/EthikkommiteePage";
 import MeldungPage from "./components/MeldungPage";
+import PrivacyConsentPage from "./components/PrivacyConsentPage";
+import DatenschutzPage from "./components/DatenschutzPage";
 
 
 const appTree = [
@@ -107,6 +109,7 @@ const appTree = [
   { key: "finanzen", label: "Finanzen" },
   { key: "zugaenge", label: "Zugänge & Anleitungen" },
   { key: "kummerkasten", label: "Böck-Feedback" },
+  { key: "datenschutz", label: "Datenschutz" },
   { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
 ];
 
@@ -142,9 +145,27 @@ const MENU_ROLES = {
 };
 
 export default function App() {
-  const { currentUser, userRole, logout, hasRole } = useAuth();
+  const {
+    currentUser,
+    userRole,
+    logout,
+    hasRole,
+    privacyAccepted,
+    privacyBusy,
+    acceptPrivacyConsent,
+    privacyPolicyStand,
+  } = useAuth();
 
   if (!currentUser) return <LoginPage />;
+  if (!privacyAccepted) {
+    return (
+      <PrivacyConsentPage
+        onAccept={acceptPrivacyConsent}
+        busy={privacyBusy}
+        stand={privacyPolicyStand}
+      />
+    );
+  }
 
   const [active, setActive] = useState("uebersicht");
   const [openMenus, setOpenMenus] = useState({
@@ -261,6 +282,9 @@ export default function App() {
   if (active === "kummerkasten") {
     return <BoeckFeedbackPage />;
   }
+  if (active === "datenschutz") {
+    return <DatenschutzPage />;
+  }
   if (active === "uebersicht") {
     return <UebersichtPage />;
   }
@@ -286,7 +310,7 @@ export default function App() {
 }
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial, sans-serif" }}>
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif" }}>
       <aside
         style={{
           width: "300px",
