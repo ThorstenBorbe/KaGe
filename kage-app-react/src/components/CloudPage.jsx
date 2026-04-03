@@ -194,14 +194,13 @@ export default function CloudPage() {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            flexDirection: "column",
             alignItems: "center",
-            gap: 12,
-            flexWrap: "wrap",
+            gap: 10,
             marginBottom: 10,
           }}
         >
-          <h3 style={{ margin: 0, color: "#111827" }}>Aktueller Verbrauch (Spark Free)</h3>
+          <h3 style={{ margin: 0, color: "#111827", textAlign: "center" }}>Aktueller Verbrauch (Spark Free)</h3>
           <button
             onClick={loadUsage}
             disabled={usage.loading}
@@ -209,10 +208,12 @@ export default function CloudPage() {
               border: "none",
               borderRadius: 8,
               padding: "8px 12px",
+              minWidth: 220,
               background: usage.loading ? "#9ca3af" : "#b91c1c",
               color: "white",
               cursor: usage.loading ? "not-allowed" : "pointer",
               fontWeight: 600,
+              textAlign: "center",
             }}
           >
             {usage.loading ? "Lädt..." : "Verbrauch aktualisieren"}
@@ -223,34 +224,47 @@ export default function CloudPage() {
           Belegter Speicherplatz aus deinem Firebase Storage Bucket.
         </p>
 
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              width: "100%",
-              height: 24,
-              borderRadius: 999,
-              overflow: "hidden",
-              background: "#e5e7eb",
-              border: "1px solid #d1d5db",
-            }}
-          >
-            <div
-              style={{
-                width: `${usedPercent}%`,
-                height: "100%",
-                background: usedPercent > 85 ? "#dc2626" : "#b91c1c",
-                transition: "width 300ms ease",
-              }}
-            />
+        {usage.loading ? (
+          <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
+            <div className="skeleton" style={{ height: 24, borderRadius: 999 }} />
+            <div style={{ display: "flex", gap: 12 }}>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="skeleton" style={{ height: 16, width: 90, borderRadius: 4 }} />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div style={{ marginBottom: 8 }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: 24,
+                  borderRadius: 999,
+                  overflow: "hidden",
+                  background: "#e5e7eb",
+                  border: "1px solid #d1d5db",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${usedPercent}%`,
+                    height: "100%",
+                    background: usedPercent > 85 ? "#dc2626" : "#b91c1c",
+                    transition: "width 300ms ease",
+                  }}
+                />
+              </div>
+            </div>
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
-          <span>Belegt: {formatBytes(usage.totalBytes)}</span>
-          <span>Limit: {formatBytes(SPARK_STORAGE_LIMIT_BYTES)}</span>
-          <span>Auslastung: {usedPercent.toFixed(2)}%</span>
-          <span>Dateien: {usage.fileCount}</span>
-        </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
+              <span>Belegt: {formatBytes(usage.totalBytes)}</span>
+              <span>Limit: {formatBytes(SPARK_STORAGE_LIMIT_BYTES)}</span>
+              <span>Auslastung: {usedPercent.toFixed(2)}%</span>
+              <span>Dateien: {usage.fileCount}</span>
+            </div>
+          </>
+        )}
 
         {usage.lastUpdated && (
           <p style={{ marginBottom: 0, marginTop: 10, fontSize: 12, color: "#6b7280" }}>
@@ -276,35 +290,46 @@ export default function CloudPage() {
           Tageslimit Download im Spark-Tarif: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}.
         </p>
 
-        <div style={{ marginBottom: 8 }}>
-          <div
-            style={{
-              width: "100%",
-              height: 24,
-              borderRadius: 999,
-              overflow: "hidden",
-              background: "#e5e7eb",
-              border: "1px solid #d1d5db",
-            }}
-          >
-            <div
-              style={{
-                width: `${trafficPercent}%`,
-                height: "100%",
-                background: trafficPercent > 85 ? "#dc2626" : "#2563eb",
-                transition: "width 300ms ease",
-              }}
-            />
+        {traffic.loading ? (
+          <div style={{ display: "grid", gap: 8, marginBottom: 8 }}>
+            <div className="skeleton" style={{ height: 24, borderRadius: 999 }} />
+            <div style={{ display: "flex", gap: 12 }}>
+              {[0, 1, 2].map((i) => (
+                <div key={i} className="skeleton" style={{ height: 16, width: 90, borderRadius: 4 }} />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div style={{ marginBottom: 8 }}>
+              <div
+                style={{
+                  width: "100%",
+                  height: 24,
+                  borderRadius: 999,
+                  overflow: "hidden",
+                  background: "#e5e7eb",
+                  border: "1px solid #d1d5db",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${trafficPercent}%`,
+                    height: "100%",
+                    background: trafficPercent > 85 ? "#dc2626" : "#2563eb",
+                    transition: "width 300ms ease",
+                  }}
+                />
+              </div>
+            </div>
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
-          <span>
-            Heute geladen: {traffic.loading ? "Lädt..." : traffic.downloadBytesToday == null ? "Keine Daten" : formatBytes(traffic.downloadBytesToday)}
-          </span>
-          <span>Limit: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}</span>
-          <span>Auslastung: {traffic.downloadBytesToday == null ? "-" : `${trafficPercent.toFixed(2)}%`}</span>
-        </div>
+            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
+              <span>Heute geladen: {traffic.downloadBytesToday == null ? "Keine Daten" : formatBytes(traffic.downloadBytesToday)}</span>
+              <span>Limit: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}</span>
+              <span>Auslastung: {traffic.downloadBytesToday == null ? "-" : `${trafficPercent.toFixed(2)}%`}</span>
+            </div>
+          </>
+        )}
 
         {traffic.updatedAt && (
           <p style={{ marginBottom: 0, marginTop: 10, fontSize: 12, color: "#6b7280" }}>
@@ -325,40 +350,44 @@ export default function CloudPage() {
       </div>
 
       {hasRole("vorstand") && (
-        <div style={card}>
-          <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827" }}>
+        <div style={{ ...card, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827", textAlign: "center" }}>
             Aktuell online
           </h3>
-          <p style={{ marginTop: 0, color: "#4b5563", marginBottom: 10 }}>
+          <p style={{ marginTop: 0, color: "#4b5563", marginBottom: 10, textAlign: "center" }}>
             Live-Anzahl der aktuell verbundenen Nutzer.
           </p>
 
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              minWidth: 96,
-              borderRadius: 12,
-              padding: "10px 14px",
-              background: "#ecfdf5",
-              border: "1px solid #a7f3d0",
-              color: "#065f46",
-              fontSize: 26,
-              fontWeight: 700,
-            }}
-          >
-            {onlineStats.loading ? "..." : onlineStats.count}
-          </div>
+          {onlineStats.loading ? (
+            <div className="skeleton" style={{ height: 56, width: 96, borderRadius: 12 }} />
+          ) : (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minWidth: 96,
+                borderRadius: 12,
+                padding: "10px 14px",
+                background: "#ecfdf5",
+                border: "1px solid #a7f3d0",
+                color: "#065f46",
+                fontSize: 26,
+                fontWeight: 700,
+              }}
+            >
+              {onlineStats.count}
+            </div>
+          )}
 
           {onlineStats.lastUpdated && (
-            <p style={{ marginBottom: 0, marginTop: 10, fontSize: 12, color: "#6b7280" }}>
+            <p style={{ marginBottom: 0, marginTop: 10, fontSize: 12, color: "#6b7280", textAlign: "center" }}>
               Zuletzt aktualisiert: {onlineStats.lastUpdated}
             </p>
           )}
 
           {onlineStats.error && (
-            <p style={{ marginBottom: 0, marginTop: 10, color: "#b91c1c", fontSize: 13 }}>
+            <p style={{ marginBottom: 0, marginTop: 10, color: "#b91c1c", fontSize: 13, textAlign: "center" }}>
               {onlineStats.error}
             </p>
           )}

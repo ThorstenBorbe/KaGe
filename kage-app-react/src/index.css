@@ -117,3 +117,14 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.skeleton {
+  background: #e5e7eb;
+  border-radius: 6px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}

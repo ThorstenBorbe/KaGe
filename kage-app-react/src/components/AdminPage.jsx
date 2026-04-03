@@ -177,7 +177,11 @@ export default function AdminPage() {
         </div>
 
         {loading ? (
-          <p style={{ color: "#6b7280" }}>Lade Nutzer…</p>
+          <div style={{ display: "grid", gap: 10 }}>
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="skeleton" style={{ height: 38, borderRadius: 8 }} />
+            ))}
+          </div>
         ) : filtered.length === 0 ? (
           <p style={{ color: "#6b7280" }}>Keine Nutzer gefunden.</p>
         ) : (
