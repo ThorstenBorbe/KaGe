@@ -1,5 +1,5 @@
 export default function AufbauAbbauPage({ data, typ }) {
-  const d = data;
+  const d = data || {};
 
   return (
     <div style={{ padding: "24px" }}>

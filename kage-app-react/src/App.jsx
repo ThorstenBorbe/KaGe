@@ -1,10 +1,10 @@
-import { useEffect, useState, useRef } from "react";
+import { Component, useEffect, useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import { db } from "./firebase/firebaseConfig";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
-const APP_VERSION = "v0.0.6";
+const APP_VERSION = "v0.0.7";
 
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
@@ -43,6 +43,8 @@ import PrivacyConsentPage from "./components/PrivacyConsentPage";
 import DatenschutzPage from "./components/DatenschutzPage";
 import AppDokumentationPage from "./components/AppDokumentationPage";
 import CloudPage from "./components/CloudPage";
+import SidebarNavigation from "./components/navigation/SidebarNavigation";
+import { theme } from "./styles/theme";
 
 
 const appTree = [
@@ -199,71 +201,37 @@ const STATIC_PAGE_BY_KEY = {
 
 const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"]);
 
-const MENU_BUTTON_BASE_STYLE = {
-  width: "100%",
-  border: "none",
-  textAlign: "left",
-  cursor: "pointer",
-  fontSize: "18px",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
+class ContentErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
 
-const MENU_BUTTON_LEVEL_CONFIG = {
-  top: {
-    padding: "12px",
-    borderRadius: "10px",
-    activeBackground: "white",
-    inactiveBackground: "transparent",
-    activeColor: "#111",
-    inactiveColor: "white",
-  },
-  child: {
-    padding: "10px",
-    marginBottom: "6px",
-    borderRadius: "8px",
-    activeBackground: "#fca5a5",
-    inactiveBackground: "rgba(255,255,255,0.08)",
-    activeColor: "white",
-    inactiveColor: "white",
-  },
-  grand: {
-    padding: "8px 10px",
-    marginBottom: "4px",
-    borderRadius: "6px",
-    activeBackground: "#fca5a5",
-    inactiveBackground: "rgba(255,255,255,0.05)",
-    activeColor: "white",
-    inactiveColor: "white",
-  },
-  great: {
-    padding: "7px 10px",
-    marginBottom: "3px",
-    borderRadius: "5px",
-    activeBackground: "#fca5a5",
-    inactiveBackground: "rgba(255,255,255,0.04)",
-    activeColor: "white",
-    inactiveColor: "white",
-  },
-};
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
 
-function getMenuButtonStyle(level, isActive) {
-  const config = MENU_BUTTON_LEVEL_CONFIG[level];
-  return {
-    ...MENU_BUTTON_BASE_STYLE,
-    padding: config.padding,
-    marginBottom: config.marginBottom,
-    borderRadius: config.borderRadius,
-    background: isActive ? config.activeBackground : config.inactiveBackground,
-    color: isActive ? config.activeColor : config.inactiveColor,
-  };
+  componentDidUpdate(prevProps) {
+    if (prevProps.resetKey !== this.props.resetKey && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ background: "#fff", borderRadius: 12, padding: 18, color: "#6b7280" }}>
+          Inhalt konnte nicht geladen werden. Bitte Seite erneut im Menü auswählen.
+        </div>
+      );
+    }
+    return this.props.children;
+  }
 }
 
 export default function App() {
   const {
     currentUser,
-    userRole,
     logout,
     hasRole,
     privacyAccepted,
@@ -359,14 +327,6 @@ export default function App() {
     mainRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }
 
-  function handleMenuNodeClick(node) {
-    if (node.children) {
-      toggleMenu(node.key);
-      return;
-    }
-    navigate(node.key);
-  }
-
   const TOP_LEVEL = ["veranstaltungen", "verein"];
   const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
   const GRAND_LEVEL = ["11-11", "prunksitzung-1", "prunksitzung-2", "bunter-nachmittag", "beatbox-party", "kinderfasching", "kehraus"];
@@ -407,9 +367,11 @@ export default function App() {
       const typ = active.endsWith("-aufbau") ? "Aufbau" : "Abbau";
       const eventKey = active.slice(0, active.lastIndexOf("-"));
       const eventData = interneVeranstaltungen[eventKey];
-      if (eventData) {
-        return <AufbauAbbauPage key={active} data={eventData[typ.toLowerCase()]} typ={typ} />;
+      const details = eventData?.[typ.toLowerCase()];
+      if (details) {
+        return <AufbauAbbauPage key={active} data={details} typ={typ} />;
       }
+      return <div>Keine {typ.toLowerCase()}-Daten für diesen Menüpunkt hinterlegt.</div>;
     }
 
     if (active === "faschingszug") {
@@ -429,14 +391,14 @@ export default function App() {
   }
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: theme.font.base }}>
       <aside
         style={{
           width: "300px",
           height: "100vh",
           overflowY: "auto",
-          background: "#b91c1c",
-          color: "white",
+          background: theme.colors.sidebarBg,
+          color: theme.colors.sidebarText,
           padding: "20px",
         }}
       >
@@ -485,66 +447,15 @@ export default function App() {
           )}
         </div>
 
-        <div style={{ marginTop: "20px" }}>
-          {appTree.filter((item) => {
-            const required = MENU_ROLES[item.key];
-            return !required || hasRole(required);
-          }).map((item) => (
-            <div key={item.key} style={{ marginBottom: "8px" }}>
-              <button
-                onClick={() => handleMenuNodeClick(item)}
-                style={getMenuButtonStyle("top", active === item.key)}
-              >
-                <span>{item.label}</span>
-                {item.children && <span>{openMenus[item.key] ? "▾" : "▸"}</span>}
-              </button>
-
-              {item.children && openMenus[item.key] && (
-                <div style={{ marginTop: "6px", marginLeft: "14px" }}>
-                  {item.children.map((child) => (
-                    <div key={child.key}>
-                      <button
-                        onClick={() => handleMenuNodeClick(child)}
-                        style={getMenuButtonStyle("child", active === child.key)}
-                      >
-                        <span>{child.label}</span>
-                        {child.children && <span>{openMenus[child.key] ? "▾" : "▸"}</span>}
-                      </button>
-                      {child.children && openMenus[child.key] && (
-                        <div style={{ marginLeft: "12px", marginBottom: "4px" }}>
-                          {child.children.map((grand) => (
-                            <div key={grand.key}>
-                              <button
-                                onClick={() => handleMenuNodeClick(grand)}
-                                style={getMenuButtonStyle("grand", active === grand.key)}
-                              >
-                                <span>{grand.label}</span>
-                                {grand.children && <span>{openMenus[grand.key] ? "▾" : "▸"}</span>}
-                              </button>
-                              {grand.children && openMenus[grand.key] && (
-                                <div style={{ marginLeft: "12px", marginBottom: "4px" }}>
-                                  {grand.children.map((gg) => (
-                                    <button
-                                      key={gg.key}
-                                      onClick={() => navigate(gg.key)}
-                                      style={getMenuButtonStyle("great", active === gg.key)}
-                                    >
-                                      {gg.label}
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <SidebarNavigation
+          items={appTree}
+          activeKey={active}
+          openMenus={openMenus}
+          onNavigate={navigate}
+          onToggleMenu={toggleMenu}
+          hasRole={hasRole}
+          menuRoles={MENU_ROLES}
+        />
 
         {/* Nutzerinfo + Logout */}
         <div style={{ marginTop: "auto", paddingTop: "20px", borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "32px" }}>
@@ -559,9 +470,9 @@ export default function App() {
               width: "100%",
               padding: "8px",
               marginBottom: 8,
-              background: active === "einstellungen" ? "white" : "rgba(255,255,255,0.1)",
+              background: active === "einstellungen" ? theme.colors.white : "rgba(255,255,255,0.1)",
               color: active === "einstellungen" ? "#111" : "white",
-              border: "1px solid rgba(255,255,255,0.3)",
+              border: `1px solid ${theme.colors.borderSoft}`,
               borderRadius: 8,
               cursor: "pointer",
               fontSize: 18,
@@ -578,7 +489,7 @@ export default function App() {
               padding: "8px",
               background: "rgba(255,255,255,0.15)",
               color: "white",
-              border: "1px solid rgba(255,255,255,0.3)",
+              border: `1px solid ${theme.colors.borderSoft}`,
               borderRadius: 8,
               cursor: "pointer",
               fontSize: 18,
@@ -590,9 +501,9 @@ export default function App() {
         </div>
       </aside>
 
-      <main ref={mainRef} style={{ flex: 1, height: "100vh", padding: "24px", background: "#f3f4f6", overflowY: "auto", position: "relative" }}>
+      <main ref={mainRef} style={{ flex: 1, height: "100vh", padding: "24px", background: theme.colors.contentBg, overflowY: "auto", position: "relative" }}>
         <h1 style={{ marginTop: 0 }}>{activeLabel}</h1>
-        {renderContent()}
+        <ContentErrorBoundary resetKey={active}>{renderContent()}</ContentErrorBoundary>
         <button
           onClick={scrollToTop}
           title="Nach oben"
@@ -603,12 +514,12 @@ export default function App() {
             width: 44,
             height: 44,
             borderRadius: "50%",
-            background: "#b91c1c",
+            background: theme.colors.danger,
             color: "white",
             border: "none",
             fontSize: 20,
             cursor: "pointer",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+            boxShadow: theme.shadow.floating,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",

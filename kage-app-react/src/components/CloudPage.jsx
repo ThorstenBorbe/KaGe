@@ -54,7 +54,10 @@ async function readStorageUsage() {
 }
 
 export default function CloudPage() {
-  const { hasRole } = useAuth();
+  const authContext = useAuth();
+  const hasRole = typeof authContext?.hasRole === "function"
+    ? authContext.hasRole
+    : () => false;
   const [usage, setUsage] = useState({
     loading: true,
     error: "",
@@ -102,31 +105,41 @@ export default function CloudPage() {
   }, [loadUsage]);
 
   useEffect(() => {
-    const trafficRef = doc(db, "appSettings", "cloudTrafficToday");
-    const unsub = onSnapshot(
-      trafficRef,
-      (snap) => {
-        const data = snap.data() || {};
-        const downloadBytesToday = Number(data.downloadBytesToday);
-        const updatedAt = typeof data.updatedAt === "string" ? data.updatedAt : "";
+    try {
+      const trafficRef = doc(db, "appSettings", "cloudTrafficToday");
+      const unsub = onSnapshot(
+        trafficRef,
+        (snap) => {
+          const data = snap.data() || {};
+          const downloadBytesToday = Number(data.downloadBytesToday);
+          const updatedAt = typeof data.updatedAt === "string" ? data.updatedAt : "";
 
-        setTraffic({
-          loading: false,
-          error: "",
-          downloadBytesToday: Number.isFinite(downloadBytesToday) ? downloadBytesToday : null,
-          updatedAt,
-        });
-      },
-      () => {
-        setTraffic({
-          loading: false,
-          error: "Tages-Traffic konnte nicht geladen werden.",
-          downloadBytesToday: null,
-          updatedAt: "",
-        });
-      }
-    );
-    return () => unsub();
+          setTraffic({
+            loading: false,
+            error: "",
+            downloadBytesToday: Number.isFinite(downloadBytesToday) ? downloadBytesToday : null,
+            updatedAt,
+          });
+        },
+        () => {
+          setTraffic({
+            loading: false,
+            error: "Tages-Traffic konnte nicht geladen werden.",
+            downloadBytesToday: null,
+            updatedAt: "",
+          });
+        }
+      );
+      return () => unsub();
+    } catch {
+      setTraffic({
+        loading: false,
+        error: "Tages-Traffic konnte nicht initialisiert werden.",
+        downloadBytesToday: null,
+        updatedAt: "",
+      });
+      return undefined;
+    }
   }, []);
 
   useEffect(() => {
@@ -135,30 +148,40 @@ export default function CloudPage() {
       return;
     }
 
-    const statusRef = rtdbRef(rtdb, "status");
-    const unsubscribe = onValue(
-      statusRef,
-      (snapshot) => {
-        const value = snapshot.val() || {};
-        const count = Object.values(value).filter((entry) => entry?.state === "online").length;
-        setOnlineStats({
-          loading: false,
-          error: "",
-          count,
-          lastUpdated: new Date().toLocaleString("de-DE"),
-        });
-      },
-      () => {
-        setOnlineStats({
-          loading: false,
-          error: "Online-Status konnte nicht geladen werden.",
-          count: 0,
-          lastUpdated: "",
-        });
-      }
-    );
+    try {
+      const statusRef = rtdbRef(rtdb, "status");
+      const unsubscribe = onValue(
+        statusRef,
+        (snapshot) => {
+          const value = snapshot.val() || {};
+          const count = Object.values(value).filter((entry) => entry?.state === "online").length;
+          setOnlineStats({
+            loading: false,
+            error: "",
+            count,
+            lastUpdated: new Date().toLocaleString("de-DE"),
+          });
+        },
+        () => {
+          setOnlineStats({
+            loading: false,
+            error: "Online-Status konnte nicht geladen werden.",
+            count: 0,
+            lastUpdated: "",
+          });
+        }
+      );
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch {
+      setOnlineStats({
+        loading: false,
+        error: "Online-Status konnte nicht initialisiert werden.",
+        count: 0,
+        lastUpdated: "",
+      });
+      return undefined;
+    }
   }, [hasRole]);
 
   const trafficPercent = traffic.downloadBytesToday == null
