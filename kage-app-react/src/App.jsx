@@ -18,7 +18,6 @@ import buettenRedner from "./data/buettenRedner";
 import elfInnen from "./data/elfInnen";
 import elferRaete from "./data/elferRaete";
 import zellerDallerLacker from "./data/zellerDallerLacker";
-import ethikKommitee from "./data/ethikKommitee";
 
 import ExterneVeranstaltungPage from "./components/ExterneVeranstaltungPage";
 import FaschingszugPage from "./components/FaschingszugPage";
@@ -43,6 +42,7 @@ import MeldungPage from "./components/MeldungPage";
 import PrivacyConsentPage from "./components/PrivacyConsentPage";
 import DatenschutzPage from "./components/DatenschutzPage";
 import AppDokumentationPage from "./components/AppDokumentationPage";
+import CloudPage from "./components/CloudPage";
 
 
 const appTree = [
@@ -117,6 +117,7 @@ const appTree = [
   { key: "datenschutz", label: "Datenschutz" },
   { key: "app-dokumentation", label: "App-Dokumentation" },
   { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
+  { key: "cloud", label: "Cloud" },
 ];
 
 function findActiveLabel(items, activeKey) {
@@ -141,6 +142,20 @@ function findActiveLabel(items, activeKey) {
   return activeKey;
 }
 
+function findAncestorKeys(items, targetKey, path = []) {
+  for (const item of items) {
+    const nextPath = item.children ? [...path, item.key] : path;
+    if (item.key === targetKey) {
+      return path;
+    }
+    if (item.children) {
+      const found = findAncestorKeys(item.children, targetKey, nextPath);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
 // Welche Rollen dürfen welche Menüpunkte sehen:
 // Einträge ohne "minRole" sind für alle eingeloggten Nutzer sichtbar.
 const MENU_ROLES = {
@@ -148,7 +163,102 @@ const MENU_ROLES = {
   zugaenge: "vorstand",
   mitglieder: "mitglied",
   nutzerverwaltung: "admin",
+  cloud: "vorstand",
 };
+
+const GROUP_DATA_BY_KEY = {
+  "rote-garde": roteGarde,
+  "blaue-garde": blaueGarde,
+  "gruene-garde": grueneGarde,
+  "boeckli-garde": boeckliGarde,
+  boeck2beat: boeck2Beat,
+  maennerballett: maennerBallett,
+  elfinnen: elfInnen,
+  elferraete: elferRaete,
+  buettenredner: buettenRedner,
+  zdl: zellerDallerLacker,
+};
+
+const STATIC_PAGE_BY_KEY = {
+  finanzen: FinanzPage,
+  vorstand: VorstandsPage,
+  kommitee: EthikkommiteePage,
+  meldung: MeldungPage,
+  kummerkasten: BoeckFeedbackPage,
+  datenschutz: DatenschutzPage,
+  "app-dokumentation": AppDokumentationPage,
+  uebersicht: ToDosPage,
+  zugaenge: ZugaengePage,
+  kagezellcarta: KaGeCartaPage,
+  ahndung: AhndungPage,
+  nutzerverwaltung: AdminPage,
+  cloud: CloudPage,
+  kalender: KalenderPage,
+  einstellungen: EinstellungenPage,
+};
+
+const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"]);
+
+const MENU_BUTTON_BASE_STYLE = {
+  width: "100%",
+  border: "none",
+  textAlign: "left",
+  cursor: "pointer",
+  fontSize: "18px",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
+
+const MENU_BUTTON_LEVEL_CONFIG = {
+  top: {
+    padding: "12px",
+    borderRadius: "10px",
+    activeBackground: "white",
+    inactiveBackground: "transparent",
+    activeColor: "#111",
+    inactiveColor: "white",
+  },
+  child: {
+    padding: "10px",
+    marginBottom: "6px",
+    borderRadius: "8px",
+    activeBackground: "#fca5a5",
+    inactiveBackground: "rgba(255,255,255,0.08)",
+    activeColor: "white",
+    inactiveColor: "white",
+  },
+  grand: {
+    padding: "8px 10px",
+    marginBottom: "4px",
+    borderRadius: "6px",
+    activeBackground: "#fca5a5",
+    inactiveBackground: "rgba(255,255,255,0.05)",
+    activeColor: "white",
+    inactiveColor: "white",
+  },
+  great: {
+    padding: "7px 10px",
+    marginBottom: "3px",
+    borderRadius: "5px",
+    activeBackground: "#fca5a5",
+    inactiveBackground: "rgba(255,255,255,0.04)",
+    activeColor: "white",
+    inactiveColor: "white",
+  },
+};
+
+function getMenuButtonStyle(level, isActive) {
+  const config = MENU_BUTTON_LEVEL_CONFIG[level];
+  return {
+    ...MENU_BUTTON_BASE_STYLE,
+    padding: config.padding,
+    marginBottom: config.marginBottom,
+    borderRadius: config.borderRadius,
+    background: isActive ? config.activeBackground : config.inactiveBackground,
+    color: isActive ? config.activeColor : config.inactiveColor,
+  };
+}
 
 export default function App() {
   const {
@@ -238,7 +348,23 @@ export default function App() {
 
   function navigate(key) {
     setActive(key);
-    mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+    const ancestors = findAncestorKeys(appTree, key) || [];
+    setOpenMenus((prev) => {
+      const next = {};
+      Object.keys(prev).forEach((menuKey) => {
+        next[menuKey] = ancestors.includes(menuKey);
+      });
+      return next;
+    });
+    mainRef.current?.scrollTo({ top: 0, behavior: "auto" });
+  }
+
+  function handleMenuNodeClick(node) {
+    if (node.children) {
+      toggleMenu(node.key);
+      return;
+    }
+    navigate(node.key);
   }
 
   const TOP_LEVEL = ["veranstaltungen", "verein"];
@@ -272,102 +398,43 @@ export default function App() {
   const activeLabel = findActiveLabel(appTree, active);
 
   function renderContent() {
-  if (active === "rote-garde") {
-    return <GroupPage key={active} group={roteGarde} />;
-  }
-  if (active === "blaue-garde") {
-    return <GroupPage key={active} group={blaueGarde} />;
-  }
-  if (active === "gruene-garde") {
-    return <GroupPage key={active} group={grueneGarde} />;
-  }
-  if (active === "boeckli-garde") {
-    return <GroupPage key={active} group={boeckliGarde} />;
-  }
-  if (active === "boeck2beat") {
-    return <GroupPage key={active} group={boeck2Beat} />;
-  }
-  if (active === "maennerballett") {
-    return <GroupPage key={active} group={maennerBallett} />;
-  }
-  if (active === "elfinnen") {
-    return <GroupPage key={active} group={elfInnen} />;
-  }
-  if (active === "elferraete") {
-    return <GroupPage key={active} group={elferRaete} />;
-  }
-  if (active === "buettenredner") {
-    return <GroupPage key={active} group={buettenRedner} />;
-  }
-  if (active === "zdl") {
-    return <GroupPage key={active} group={zellerDallerLacker} />;
-  }
-  if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {
-    const typ = active.endsWith("-aufbau") ? "Aufbau" : "Abbau";
-    const eventKey = active.slice(0, active.lastIndexOf("-"));
-    const eventData = interneVeranstaltungen[eventKey];
-    if (eventData) {
-      return <AufbauAbbauPage key={active} data={eventData[typ.toLowerCase()]} typ={typ} />;
+    const groupData = GROUP_DATA_BY_KEY[active];
+    if (groupData) {
+      return <GroupPage key={active} group={groupData} />;
     }
+
+    if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {
+      const typ = active.endsWith("-aufbau") ? "Aufbau" : "Abbau";
+      const eventKey = active.slice(0, active.lastIndexOf("-"));
+      const eventData = interneVeranstaltungen[eventKey];
+      if (eventData) {
+        return <AufbauAbbauPage key={active} data={eventData[typ.toLowerCase()]} typ={typ} />;
+      }
+    }
+
+    if (active === "faschingszug") {
+      return <FaschingszugPage key={active} veranstaltung={externeVeranstaltungen[active]} />;
+    }
+
+    if (EXTERNE_STANDARD_KEYS.has(active)) {
+      return <ExterneVeranstaltungPage key={active} veranstaltung={externeVeranstaltungen[active]} />;
+    }
+
+    const StaticPage = STATIC_PAGE_BY_KEY[active];
+    if (StaticPage) {
+      return <StaticPage />;
+    }
+
+    return <div>Übersicht</div>;
   }
-  if (active === "faschingszug") {
-    const data = externeVeranstaltungen[active];
-    return <FaschingszugPage key={active} veranstaltung={data} />;
-  }
-  if (["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"].includes(active)) {
-    const data = externeVeranstaltungen[active];
-    return <ExterneVeranstaltungPage key={active} veranstaltung={data} />;
-  }
-  if (active === "finanzen") {
-    return <FinanzPage />;
-  }
-  if (active === "vorstand") {
-    return <VorstandsPage />
-  }
-  if (active === "kommitee") {
-    return <EthikkommiteePage />;
-  }
-  if (active === "meldung") {
-    return <MeldungPage />;
-  }
-  if (active === "kummerkasten") {
-    return <BoeckFeedbackPage />;
-  }
-  if (active === "datenschutz") {
-    return <DatenschutzPage />;
-  }
-  if (active === "app-dokumentation") {
-    return <AppDokumentationPage />;
-  }
-  if (active === "uebersicht") {
-    return <ToDosPage />;
-  }
-  if (active === "zugaenge") {
-    return <ZugaengePage />;
-  }
-  if (active === "kagezellcarta") {
-    return <KaGeCartaPage />;
-  }
-  if (active === "ahndung") {
-    return <AhndungPage />;
-  }
-  if (active === "nutzerverwaltung") {
-    return <AdminPage />;
-  }
-  if (active === "kalender") {
-    return <KalenderPage />;
-  }
-  if (active === "einstellungen") {
-    return <EinstellungenPage />;
-  }
-  return <div>Übersicht</div>;
-}
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif" }}>
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif" }}>
       <aside
         style={{
           width: "300px",
+          height: "100vh",
+          overflowY: "auto",
           background: "#b91c1c",
           color: "white",
           padding: "20px",
@@ -425,27 +492,8 @@ export default function App() {
           }).map((item) => (
             <div key={item.key} style={{ marginBottom: "8px" }}>
               <button
-                onClick={() => {
-                  if (item.children) {
-                    toggleMenu(item.key);
-                  } else {
-                    navigate(item.key);
-                  }
-                }}
-                style={{
-                  width: "100%",
-                  padding: "12px",
-                  background: active === item.key ? "white" : "transparent",
-                  color: active === item.key ? "#111" : "white",
-                  border: "none",
-                  borderRadius: "10px",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
+                onClick={() => handleMenuNodeClick(item)}
+                style={getMenuButtonStyle("top", active === item.key)}
               >
                 <span>{item.label}</span>
                 {item.children && <span>{openMenus[item.key] ? "▾" : "▸"}</span>}
@@ -456,28 +504,8 @@ export default function App() {
                   {item.children.map((child) => (
                     <div key={child.key}>
                       <button
-                        onClick={() => {
-                          if (child.children) {
-                            toggleMenu(child.key);
-                          } else {
-                            navigate(child.key);
-                          }
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "10px",
-                          marginBottom: "6px",
-                          background: active === child.key ? "#fca5a5" : "rgba(255,255,255,0.08)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "8px",
-                          textAlign: "left",
-                          cursor: "pointer",
-                          fontSize: "18px",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                        }}
+                        onClick={() => handleMenuNodeClick(child)}
+                        style={getMenuButtonStyle("child", active === child.key)}
                       >
                         <span>{child.label}</span>
                         {child.children && <span>{openMenus[child.key] ? "▾" : "▸"}</span>}
@@ -487,25 +515,8 @@ export default function App() {
                           {child.children.map((grand) => (
                             <div key={grand.key}>
                               <button
-                                onClick={() => {
-                                  if (grand.children) toggleMenu(grand.key);
-                                  else navigate(grand.key);
-                                }}
-                                style={{
-                                  width: "100%",
-                                  padding: "8px 10px",
-                                  marginBottom: "4px",
-                                  background: active === grand.key ? "#fca5a5" : "rgba(255,255,255,0.05)",
-                                  color: "white",
-                                  border: "none",
-                                  borderRadius: "6px",
-                                  textAlign: "left",
-                                  cursor: "pointer",
-                                  fontSize: "18px",
-                                  display: "flex",
-                                  justifyContent: "space-between",
-                                  alignItems: "center",
-                                }}
+                                onClick={() => handleMenuNodeClick(grand)}
+                                style={getMenuButtonStyle("grand", active === grand.key)}
                               >
                                 <span>{grand.label}</span>
                                 {grand.children && <span>{openMenus[grand.key] ? "▾" : "▸"}</span>}
@@ -516,18 +527,7 @@ export default function App() {
                                     <button
                                       key={gg.key}
                                       onClick={() => navigate(gg.key)}
-                                      style={{
-                                        width: "100%",
-                                        padding: "7px 10px",
-                                        marginBottom: "3px",
-                                        background: active === gg.key ? "#fca5a5" : "rgba(255,255,255,0.04)",
-                                        color: "white",
-                                        border: "none",
-                                        borderRadius: "5px",
-                                        textAlign: "left",
-                                        cursor: "pointer",
-                                        fontSize: "18px",
-                                      }}
+                                      style={getMenuButtonStyle("great", active === gg.key)}
                                     >
                                       {gg.label}
                                     </button>
@@ -590,7 +590,7 @@ export default function App() {
         </div>
       </aside>
 
-      <main ref={mainRef} style={{ flex: 1, padding: "24px", background: "#f3f4f6", overflowY: "auto", position: "relative" }}>
+      <main ref={mainRef} style={{ flex: 1, height: "100vh", padding: "24px", background: "#f3f4f6", overflowY: "auto", position: "relative" }}>
         <h1 style={{ marginTop: 0 }}>{activeLabel}</h1>
         {renderContent()}
         <button

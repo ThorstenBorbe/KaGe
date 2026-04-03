@@ -15,7 +15,7 @@ export default function AufbauAbbauPage({ data, typ }) {
       >
         {/* Zeitraum & Treffpunkt */}
         <InfoSection icon={typ === "Aufbau" ? "🔧" : "📦"} title={typ}>
-          <InfoRow label="Zeitraum" value={d.zeitraum} />
+          <InfoRow label="Uhrzeit" value={d.uhrzeit} />
           <InfoRow label="Treffpunkt" value={d.treffpunkt} />
         </InfoSection>
 

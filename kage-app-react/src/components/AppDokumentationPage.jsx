@@ -11,6 +11,9 @@ export default function AppDokumentationPage() {
         }}
       >
         <h2 style={{ marginTop: 0, color: "#b91c1c" }}>App-Dokumentation</h2>
+        <p style={{ color: "#b91c1c", fontWeight: 700, marginTop: 0 }}>
+          Dieser Bereich ist aktuell noch in der Planung.
+        </p>
         <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
           In diesem Bereich wird die technische Dokumentation der KaGe-App gebündelt dargestellt.
         </p>

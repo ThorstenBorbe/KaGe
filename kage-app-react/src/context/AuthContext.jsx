@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { auth, db } from "../firebase/firebaseConfig";
+import { auth, db, rtdb } from "../firebase/firebaseConfig";
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -9,6 +9,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { onDisconnect, onValue, ref, serverTimestamp, set } from "firebase/database";
 
 const AuthContext = createContext(null);
 
@@ -61,6 +62,33 @@ export function AuthProvider({ children }) {
     });
     return unsubscribe;
   }, []);
+
+  useEffect(() => {
+    if (!currentUser?.uid || currentUser.uid === "dev") return;
+
+    const statusRef = ref(rtdb, `status/${currentUser.uid}`);
+    const connectedRef = ref(rtdb, ".info/connected");
+
+    const unsubscribeConnected = onValue(connectedRef, async (snap) => {
+      if (snap.val() !== true) return;
+
+      await onDisconnect(statusRef).set({
+        state: "offline",
+        lastChanged: serverTimestamp(),
+      });
+
+      await set(statusRef, {
+        state: "online",
+        role: userRole,
+        name: currentUser.name ?? "",
+        lastChanged: serverTimestamp(),
+      });
+    });
+
+    return () => {
+      unsubscribeConnected();
+    };
+  }, [currentUser, userRole]);
 
   const login = async (email, password) => {
     await signInWithEmailAndPassword(auth, email, password);
