@@ -4,7 +4,7 @@ import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import { db } from "./firebase/firebaseConfig";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 
-const APP_VERSION = "v0.0.7";
+const APP_VERSION = "v0.0.8";
 
 { /* hier die java imports */ }
 import GroupPage from "./components/GroupPage";
