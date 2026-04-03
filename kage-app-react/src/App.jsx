@@ -18,7 +18,7 @@ import {
 } from "./utils/appNavigation";
 import { theme } from "./styles/theme";
 
-const APP_VERSION = "v0.0.9";
+const APP_VERSION = "v0.1.0";
 
 export default function App() {
   const {
