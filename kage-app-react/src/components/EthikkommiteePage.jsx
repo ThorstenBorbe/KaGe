@@ -2,7 +2,7 @@ import ethikKommitee from "../data/ethikKommitee";
 
 export default function EthikkommiteePage() {
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", paddingBottom: "80px" }}>
 
         <p style={{ marginTop: "8px", opacity: 0.9, textAlign: "justify" }}>
            Die Ethikkommission prüft, ob Vorhaben moralisch und rechtlich vertretbar sind.<br />
@@ -17,6 +17,7 @@ export default function EthikkommiteePage() {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: "20px",
+          marginBottom: "60px",
         }}
       >
         <p><br /></p>

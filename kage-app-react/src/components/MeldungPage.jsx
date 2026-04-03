@@ -34,6 +34,7 @@ export default function MeldungPage() {
           padding: "24px",
           boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
           maxWidth: "800px",
+          marginBottom: "60px",
         }}
       >
         <form onSubmit={handleSubmit}>

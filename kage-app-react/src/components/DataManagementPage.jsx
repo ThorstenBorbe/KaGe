@@ -63,7 +63,7 @@ export default function DataManagementPage() {
 
   return (
     <div style={{ padding: "24px" }}>
-      <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
+      <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", marginBottom: "60px" }}>
         <h2 style={{ marginTop: 0, color: "#b91c1c" }}>📁 Datenverwaltung (Firebase Storage)</h2>
 
         {/* Feedback */}

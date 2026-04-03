@@ -26,7 +26,7 @@ export default function BoeckFeedbackPage() {
   };
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", paddingBottom: "80px" }}>
 
 
       <div
@@ -36,6 +36,7 @@ export default function BoeckFeedbackPage() {
           padding: "24px",
           boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
           maxWidth: "800px",
+          marginBottom: "60px",
         }}
       >
         <form onSubmit={handleSubmit}>

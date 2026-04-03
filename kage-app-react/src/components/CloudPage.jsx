@@ -4,6 +4,7 @@ import { getMetadata, listAll, ref } from "firebase/storage";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db, rtdb, storage } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const card = {
   background: "white",
@@ -54,6 +55,7 @@ async function readStorageUsage() {
 }
 
 export default function CloudPage() {
+  const isMobile = useIsMobile(960);
   const authContext = useAuth();
   const hasRole = typeof authContext?.hasRole === "function"
     ? authContext.hasRole
@@ -189,8 +191,8 @@ export default function CloudPage() {
     : Math.min((traffic.downloadBytesToday / SPARK_DAILY_DOWNLOAD_LIMIT_BYTES) * 100, 100);
 
   return (
-    <div style={{ display: "grid", gap: 16, maxWidth: 1100 }}>
-      <div style={card}>
+    <div style={{ display: "grid", gap: 16, maxWidth: 1100, marginBottom: "60px" }}>
+      <div style={{ ...card, padding: isMobile ? 14 : 20 }}>
         <div
           style={{
             display: "flex",
@@ -208,7 +210,8 @@ export default function CloudPage() {
               border: "none",
               borderRadius: 8,
               padding: "8px 12px",
-              minWidth: 220,
+              minWidth: isMobile ? 0 : 220,
+              width: isMobile ? "100%" : "auto",
               background: usage.loading ? "#9ca3af" : "#b91c1c",
               color: "white",
               cursor: usage.loading ? "not-allowed" : "pointer",
@@ -257,7 +260,7 @@ export default function CloudPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
+            <div style={{ display: "flex", gap: isMobile ? 6 : 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14, flexDirection: isMobile ? "column" : "row" }}>
               <span>Belegt: {formatBytes(usage.totalBytes)}</span>
               <span>Limit: {formatBytes(SPARK_STORAGE_LIMIT_BYTES)}</span>
               <span>Auslastung: {usedPercent.toFixed(2)}%</span>
@@ -284,7 +287,7 @@ export default function CloudPage() {
         </p>
       </div>
 
-      <div style={card}>
+      <div style={{ ...card, padding: isMobile ? 14 : 20 }}>
         <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827" }}>Tages-Traffic (Spark Free)</h3>
         <p style={{ marginTop: 0, color: "#4b5563", marginBottom: 10 }}>
           Tageslimit Download im Spark-Tarif: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}.
@@ -323,7 +326,7 @@ export default function CloudPage() {
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14 }}>
+            <div style={{ display: "flex", gap: isMobile ? 6 : 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14, flexDirection: isMobile ? "column" : "row" }}>
               <span>Heute geladen: {traffic.downloadBytesToday == null ? "Keine Daten" : formatBytes(traffic.downloadBytesToday)}</span>
               <span>Limit: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}</span>
               <span>Auslastung: {traffic.downloadBytesToday == null ? "-" : `${trafficPercent.toFixed(2)}%`}</span>
@@ -350,7 +353,7 @@ export default function CloudPage() {
       </div>
 
       {hasRole("vorstand") && (
-        <div style={{ ...card, display: "flex", flexDirection: "column", alignItems: "center" }}>
+        <div style={{ ...card, padding: isMobile ? 14 : 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827", textAlign: "center" }}>
             Aktuell online
           </h3>

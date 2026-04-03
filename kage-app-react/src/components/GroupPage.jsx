@@ -1,6 +1,8 @@
 import { useAuth } from "../context/AuthContext";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function GroupPage({ group }) {
+  const isMobile = useIsMobile(960);
   const { hasRole } = useAuth();
   const isSessionGroup = group.name === "11'n" || group.name === "Elferräte";
   const canCancelSessionOrTraining = hasRole("vorstand");
@@ -8,9 +10,9 @@ export default function GroupPage({ group }) {
   return (
     <div
       style={{
-        padding: "24px",
+        padding: isMobile ? "12px" : "24px",
         background: "#f3f4f6",
-        minHeight: "100vh",
+        minHeight: isMobile ? "auto" : "100vh",
         fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
       }}
     >
@@ -19,16 +21,17 @@ export default function GroupPage({ group }) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-          gap: "20px",
+          gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: isMobile ? "12px" : "20px",
         }}
       >
         <div
           style={{
             background: "white",
             borderRadius: "18px",
-            padding: "20px",
+            padding: isMobile ? "14px" : "20px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            marginBottom: "60px",
           }}
         >
           <h2 style={{ marginTop: 0 }}>👤 Ansprechpartner</h2>
@@ -36,16 +39,16 @@ export default function GroupPage({ group }) {
             <div
               key={person.email}
               style={{
-                padding: "14px",
+                padding: isMobile ? "11px" : "14px",
                 borderRadius: "12px",
                 background: "#f9fafb",
                 marginBottom: "12px",
                 border: "1px solid #e5e7eb",
               }}
             >
-              <div style={{ fontWeight: "bold", fontSize: "18px" }}>{person.name}</div>
-              <div style={{ marginTop: "6px", color: "#374151" }}>📞 {person.telefon}</div>
-              <div style={{ marginTop: "4px", color: "#374151" }}>✉️ {person.email}</div>
+              <div style={{ fontWeight: "bold", fontSize: isMobile ? "16px" : "18px" }}>{person.name}</div>
+              <div style={{ marginTop: "6px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>📞 {person.telefon}</div>
+              <div style={{ marginTop: "4px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>✉️ {person.email}</div>
             </div>
           ))}
         </div>
@@ -54,8 +57,9 @@ export default function GroupPage({ group }) {
           style={{
             background: "white",
             borderRadius: "18px",
-            padding: "20px",
+            padding: isMobile ? "14px" : "20px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            marginBottom: "60px",
           }}
         >
           <h2 style={{ marginTop: 0 }}>
@@ -65,16 +69,16 @@ export default function GroupPage({ group }) {
             <div
               key={index}
               style={{
-                padding: "14px",
+                padding: isMobile ? "11px" : "14px",
                 borderRadius: "12px",
                 background: "#f9fafb",
                 marginBottom: "12px",
                 border: "1px solid #e5e7eb",
               }}
             >
-              <div style={{ fontWeight: "bold", fontSize: "17px" }}>{termin.tag}</div>
-              <div style={{ marginTop: "6px", color: "#374151" }}>🕒 {termin.uhrzeit}</div>
-              <div style={{ marginTop: "4px", color: "#374151" }}>📍 {termin.ort}</div>
+              <div style={{ fontWeight: "bold", fontSize: isMobile ? "15px" : "17px" }}>{termin.tag}</div>
+              <div style={{ marginTop: "6px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>🕒 {termin.uhrzeit}</div>
+              <div style={{ marginTop: "4px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>📍 {termin.ort}</div>
             </div>
           ))}
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "4px", justifyContent: "center" }}>
@@ -87,10 +91,10 @@ export default function GroupPage({ group }) {
                   border: "none",
                   borderRadius: "12px",
                   padding: "10px 16px",
-                  width: "220px",
+                  width: isMobile ? "100%" : "220px",
                   minHeight: "44px",
                   fontWeight: "bold",
-                  fontSize: "16px",
+                  fontSize: isMobile ? "14px" : "16px",
                   fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
                   cursor: "pointer",
                 }}
@@ -106,10 +110,10 @@ export default function GroupPage({ group }) {
                 border: "none",
                 borderRadius: "12px",
                 padding: "10px 16px",
-                width: "220px",
+                width: isMobile ? "100%" : "220px",
                 minHeight: "44px",
                 fontWeight: "bold",
-                fontSize: "16px",
+                fontSize: isMobile ? "14px" : "16px",
                 fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
                 cursor: "pointer",
               }}
@@ -123,8 +127,9 @@ export default function GroupPage({ group }) {
           style={{
             background: "white",
             borderRadius: "18px",
-            padding: "20px",
+            padding: isMobile ? "14px" : "20px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            marginBottom: "60px",
           }}
         >
           <h2 style={{ marginTop: 0 }}>📄 Terminplan</h2>
@@ -145,7 +150,7 @@ export default function GroupPage({ group }) {
               padding: "12px 18px",
               borderRadius: "12px",
               fontWeight: "bold",
-              fontSize: "16px",
+              fontSize: isMobile ? "14px" : "16px",
               fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
             }}
           >
@@ -157,8 +162,9 @@ export default function GroupPage({ group }) {
           style={{
             background: "white",
             borderRadius: "18px",
-            padding: "20px",
+            padding: isMobile ? "14px" : "20px",
             boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            marginBottom: "60px",
           }}
         >
           <h2 style={{ marginTop: 0 }}>🎤 Nächste Auftritte</h2>
@@ -166,7 +172,7 @@ export default function GroupPage({ group }) {
             <div
               key={index}
               style={{
-                padding: "14px",
+                padding: isMobile ? "11px" : "14px",
                 borderRadius: "12px",
                 background: "#f9fafb",
                 marginBottom: "12px",
@@ -176,8 +182,8 @@ export default function GroupPage({ group }) {
               <div style={{ fontWeight: "bold", fontSize: "17px" }}>
                 {auftritt.veranstaltung}
               </div>
-              <div style={{ marginTop: "6px", color: "#374151" }}>📅 {auftritt.datum}</div>
-              <div style={{ marginTop: "4px", color: "#374151" }}>📍 {auftritt.ort}</div>
+              <div style={{ marginTop: "6px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>📅 {auftritt.datum}</div>
+              <div style={{ marginTop: "4px", color: "#374151", fontSize: isMobile ? "13px" : "16px" }}>📍 {auftritt.ort}</div>
             </div>
           ))}
         </div>

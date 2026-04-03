@@ -9,6 +9,7 @@ export default function VorstandsPage() {
           display: "grid",
           gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
           gap: "20px",
+          marginBottom: "60px",
         }}
       >
         {vorstand.map((person) => (

@@ -1,6 +1,6 @@
 export default function AhndungPage() {
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", paddingBottom: "80px" }}>
 
       <div
         style={{
@@ -9,6 +9,7 @@ export default function AhndungPage() {
           padding: "24px",
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
           maxWidth: "800px",
+          marginBottom: "60px",
         }}
       >
 

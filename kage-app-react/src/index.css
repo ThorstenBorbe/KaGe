@@ -53,6 +53,7 @@
 body {
   margin: 0;
   font-family: 'Century Gothic', 'CenturyGothic', 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
 }
 
 button,
@@ -74,6 +75,13 @@ textarea {
   box-sizing: border-box;
 }
 
+@media (max-width: 960px) {
+  #root {
+    width: 100%;
+    border-inline: none;
+  }
+}
+
 h1,
 h2 {
   font-family: var(--heading);
@@ -88,6 +96,21 @@ h1 {
   @media (max-width: 1024px) {
     font-size: 36px;
     margin: 20px 0;
+  }
+}
+
+@media (max-width: 960px) {
+  h1 {
+    font-size: 28px;
+    letter-spacing: -0.4px;
+    margin: 12px 0 14px;
+    line-height: 1.2;
+  }
+
+  h2 {
+    font-size: 18px;
+    line-height: 1.25;
+    margin: 0 0 6px;
   }
 }
 h2 {

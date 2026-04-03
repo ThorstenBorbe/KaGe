@@ -42,7 +42,7 @@ export default function ExterneVeranstaltungenDynamic() {
   }
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", marginBottom: "60px" }}>
       <h2>🌍 Externe Veranstaltungen (von Firebase)</h2>
       
       {Object.entries(data).map(([key, veranstaltung]) => (

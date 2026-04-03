@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 const BRAND_RED = "#b91c1c";
-const ROLES = ["gast", "mitglied", "trainer", "vorstand", "admin", "gesperrt"];
+const ROLES = ["mitglied", "trainer", "vorstand", "admin", "gesperrt"];
 
 const ROLE_COLORS = {
   pending: "#f97316",
@@ -16,6 +17,7 @@ const ROLE_COLORS = {
 };
 
 export default function AdminPage() {
+  const isMobile = useIsMobile(960);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null); // uid der gerade gespeichert wird
@@ -114,6 +116,7 @@ export default function AdminPage() {
           borderRadius: 16,
           padding: 24,
           boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+          marginBottom: "60px",
         }}
       >
         <h2 style={{ color: BRAND_RED, marginTop: 0, marginBottom: 4 }}>
@@ -168,21 +171,6 @@ export default function AdminPage() {
                   >
                     ✓ Freischalten
                   </button>
-                  <button
-                    onClick={() => changeRole(u.uid, "gast")}
-                    disabled={saving === u.uid}
-                    style={{
-                      padding: "5px 12px",
-                      background: "#9ca3af",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 6,
-                      cursor: "pointer",
-                      fontSize: 13,
-                    }}
-                  >
-                    Gast
-                  </button>
                 </div>
               </div>
             ))}
@@ -234,13 +222,92 @@ export default function AdminPage() {
           </div>
         ) : filtered.length === 0 ? (
           <p style={{ color: "#6b7280" }}>Keine Nutzer gefunden.</p>
+        ) : isMobile ? (
+          <div style={{ display: "grid", gap: 10 }}>
+            {filtered.map((user) => (
+              <div
+                key={user.uid}
+                style={{
+                  border: "1px solid #e5e7eb",
+                  borderRadius: 10,
+                  padding: 12,
+                  background: "#fff",
+                }}
+              >
+                <div style={{ display: "grid", gap: 8 }}>
+                  <div style={{ fontSize: 12, color: "#6b7280" }}>Vorname Nachname</div>
+                  <div style={{ fontSize: 14, color: "#111827", fontWeight: 600 }}>
+                    {(user.vorname || "-") + " " + (user.nachname || "-")}
+                  </div>
+
+                  <div style={{ fontSize: 12, color: "#6b7280" }}>Rolle ändern</div>
+                  <select
+                    value={ROLES.includes(user.role) ? user.role : "mitglied"}
+                    disabled={saving === user.uid}
+                    onChange={(e) => changeRole(user.uid, e.target.value)}
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid rgba(0,0,0,0.15)",
+                      fontSize: 13,
+                      cursor: "pointer",
+                      background: saving === user.uid ? "#f3f4f6" : (ROLE_COLORS[ROLES.includes(user.role) ? user.role : "mitglied"] ?? "#3b82f6"),
+                      color: "white",
+                      fontWeight: 600,
+                      textAlign: "center",
+                      textAlignLast: "center",
+                    }}
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r} style={{ background: "white", color: "#111827" }}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <button
+                      onClick={() => openEditor(user)}
+                      disabled={saving === user.uid}
+                      style={{
+                        flex: 1,
+                        padding: "8px 10px",
+                        borderRadius: 8,
+                        border: "1px solid #d1d5db",
+                        background: saving === user.uid ? "#f3f4f6" : "white",
+                        cursor: saving === user.uid ? "not-allowed" : "pointer",
+                        fontSize: 13,
+                        fontWeight: 600,
+                      }}
+                    >
+                      User bearbeiten
+                    </button>
+                    <button
+                      onClick={() => deleteUser(user.uid, user.email)}
+                      title="Aus Firestore löschen"
+                      style={{
+                        width: 42,
+                        borderRadius: 8,
+                        background: "#fff1f2",
+                        border: "1px solid #fecdd3",
+                        cursor: "pointer",
+                        fontSize: 16,
+                        color: "#dc2626",
+                      }}
+                    >
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: "2px solid #f3f4f6", textAlign: "left" }}>
-                <th style={th}>Vorname</th>
-                <th style={th}>Nachname</th>
-                <th style={{ ...th, width: 150 }}>Rolle ändern</th>
+                <th style={th}>Name</th>
+                <th style={{ ...th, width: 150, textAlign: "center" }}>Rolle ändern</th>
                 <th style={{ ...th, width: 130 }}>User bearbeiten</th>
                 <th style={{ ...th, width: 80 }}>Aktion</th>
               </tr>
@@ -252,22 +319,16 @@ export default function AdminPage() {
                   style={{ borderBottom: "1px solid #f3f4f6" }}
                 >
                   <td style={td}>
-                    {user.vorname ?? (
-                      <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
-                        -
-                      </span>
-                    )}
+                    <div style={{ color: "#6b7280", fontSize: 12, marginBottom: 4 }}>
+                      Vorname Nachname
+                    </div>
+                    <div style={{ color: "#111827", fontSize: 14, fontWeight: 600 }}>
+                      {(user.vorname || "-") + " " + (user.nachname || "-")}
+                    </div>
                   </td>
-                  <td style={td}>
-                    {user.nachname ?? (
-                      <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
-                        -
-                      </span>
-                    )}
-                  </td>
-                  <td style={td}>
+                  <td style={{ ...td, textAlign: "center" }}>
                     <select
-                      value={user.role ?? "gast"}
+                      value={ROLES.includes(user.role) ? user.role : "mitglied"}
                       disabled={saving === user.uid}
                       onChange={(e) => changeRole(user.uid, e.target.value)}
                       style={{
@@ -276,9 +337,11 @@ export default function AdminPage() {
                         border: "1px solid rgba(0,0,0,0.15)",
                         fontSize: 13,
                         cursor: "pointer",
-                        background: saving === user.uid ? "#f3f4f6" : (ROLE_COLORS[user.role ?? "gast"] ?? "#9ca3af"),
+                        background: saving === user.uid ? "#f3f4f6" : (ROLE_COLORS[ROLES.includes(user.role) ? user.role : "mitglied"] ?? "#3b82f6"),
                         color: "white",
                         fontWeight: 600,
+                        textAlign: "center",
+                        textAlignLast: "center",
                       }}
                     >
                       {ROLES.map((r) => (
@@ -417,7 +480,7 @@ export default function AdminPage() {
                 </label>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
                 <button
                   onClick={closeEditor}
                   disabled={saving === editingUser.uid}

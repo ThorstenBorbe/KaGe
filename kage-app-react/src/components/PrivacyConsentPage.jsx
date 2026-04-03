@@ -30,6 +30,7 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
           boxShadow: "0 6px 20px rgba(0,0,0,0.1)",
           padding: "28px",
           textAlign: "left",
+          marginBottom: "60px",
         }}
       >
         <h1 style={{ marginTop: 0, marginBottom: 10, color: "#b91c1c", fontSize: "18px" }}>

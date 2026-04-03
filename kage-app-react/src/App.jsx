@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "./context/AuthContext";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import LoginPage from "./components/LoginPage";
@@ -7,6 +7,7 @@ import AppSidebar from "./components/layout/AppSidebar";
 import AppMainContent from "./components/layout/AppMainContent";
 import WelcomeToast from "./components/layout/WelcomeToast";
 import { useWelcomeToast } from "./hooks/useWelcomeToast";
+import { useIsMobile } from "./hooks/useIsMobile";
 import { appTree, TOP_LEVEL, SUB_LEVEL, GRAND_LEVEL } from "./config/appNavigation";
 import { renderAppContent } from "./content/renderAppContent";
 import { useSessionSetting } from "./hooks/useSessionSetting";
@@ -43,6 +44,7 @@ export default function App() {
   }
 
   const [active, setActive] = useState("uebersicht");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({
     veranstaltungen: false,
     interne: false,
@@ -59,6 +61,7 @@ export default function App() {
   });
 
   const mainRef = useRef(null);
+  const isMobile = useIsMobile(960);
 
   const canEditSession = hasRole("vorstand");
   const { sessionValue, sessionSaving, handleSessionChange } = useSessionSetting(canEditSession, currentUser);
@@ -78,6 +81,7 @@ export default function App() {
     setActive(key);
     const ancestors = findAncestorKeys(appTree, key) || [];
     setOpenMenus((prev) => buildCollapsedMenuState(prev, ancestors));
+    if (isMobile) setMobileMenuOpen(false);
     mainRef.current?.scrollTo({ top: 0, behavior: "auto" });
   }
 
@@ -88,9 +92,28 @@ export default function App() {
   const activeLabel = findActiveLabel(appTree, active);
   const { visible: showWelcome, dismiss: dismissWelcome } = useWelcomeToast(currentUser);
 
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileMenuOpen(false);
+    }
+  }, [isMobile]);
+
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: theme.font.base }}>
       <WelcomeToast name={currentUser?.vorname || currentUser?.name} visible={showWelcome} onClose={dismissWelcome} />
+
+      {isMobile && mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.45)",
+            zIndex: 900,
+          }}
+        />
+      )}
+
       <AppSidebar
         logoSrc={kageLogo}
         active={active}
@@ -105,6 +128,9 @@ export default function App() {
         hasRole={hasRole}
         onLogout={logout}
         appVersion={APP_VERSION}
+        isMobile={isMobile}
+        mobileMenuOpen={mobileMenuOpen}
+        onCloseMobileMenu={() => setMobileMenuOpen(false)}
       />
 
       <AppMainContent
@@ -112,6 +138,8 @@ export default function App() {
         active={active}
         activeLabel={activeLabel}
         onScrollToTop={scrollToTop}
+        isMobile={isMobile}
+        onOpenMobileMenu={() => setMobileMenuOpen(true)}
       >
         {renderAppContent(active)}
       </AppMainContent>

@@ -10,8 +10,10 @@ import {
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
 import { useAuth } from "../context/AuthContext";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function EinstellungenPage() {
+  const isMobile = useIsMobile(960);
   const { currentUser, updateName } = useAuth();
   const user = auth.currentUser;
 
@@ -112,9 +114,9 @@ export default function EinstellungenPage() {
   }
 
   return (
-    <div style={{ padding: "24px" }}>
-      <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}>
-        <p style={{ color: "#6b7280", fontSize: 18, marginTop: 0 }}>
+    <div style={{ padding: isMobile ? "12px" : "24px" }}>
+      <div style={{ background: "white", borderRadius: 16, padding: isMobile ? 14 : 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", marginBottom: "60px" }}>
+        <p style={{ color: "#6b7280", fontSize: isMobile ? 14 : 18, marginTop: 0 }}>
           Angemeldet als: <strong>{user?.email}</strong>
         </p>
 
@@ -125,12 +127,13 @@ export default function EinstellungenPage() {
             desc="Lege deinen Vor- und Nachnamen fest"
             open={section === "name"}
             onToggle={() => open(section === "name" ? null : "name")}
+            isMobile={isMobile}
           >
             <form onSubmit={handleName}>
-              <Field id="s-vorname" label="Vorname" value={vorname} onChange={setVorname} />
-              <Field id="s-nachname" label="Nachname" value={nachname} onChange={setNachname} last />
-              <Feedback msg={msg} />
-              <Btn busy={busy}>Speichern</Btn>
+              <Field id="s-vorname" label="Vorname" value={vorname} onChange={setVorname} isMobile={isMobile} />
+              <Field id="s-nachname" label="Nachname" value={nachname} onChange={setNachname} last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
           </SettingsCard>
           <SettingsCard
@@ -138,12 +141,13 @@ export default function EinstellungenPage() {
             desc="Ändere deine Anmelde-E-Mail"
             open={section === "email"}
             onToggle={() => open(section === "email" ? null : "email")}
+            isMobile={isMobile}
           >
             <form onSubmit={handleEmail}>
-              <Field id="s-email-cur-pw" label="Aktuelles Passwort" type="password" value={currentPw} onChange={setCurrentPw} />
-              <Field id="s-new-email" label="Neue E-Mail-Adresse" type="email" value={newEmail} onChange={setNewEmail} last />
-              <Feedback msg={msg} />
-              <Btn busy={busy}>Speichern</Btn>
+              <Field id="s-email-cur-pw" label="Aktuelles Passwort" type="password" value={currentPw} onChange={setCurrentPw} isMobile={isMobile} />
+              <Field id="s-new-email" label="Neue E-Mail-Adresse" type="email" value={newEmail} onChange={setNewEmail} last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
           </SettingsCard>
 
@@ -152,11 +156,12 @@ export default function EinstellungenPage() {
             desc="Hinterlege oder aktualisiere deine Nummer"
             open={section === "telefon"}
             onToggle={() => open(section === "telefon" ? null : "telefon")}
+            isMobile={isMobile}
           >
             <form onSubmit={handleTelefon}>
-              <Field id="s-tel" label="Telefonnummer" type="tel" value={telefon} onChange={setTelefon} placeholder="+49 123 456789" last />
-              <Feedback msg={msg} />
-              <Btn busy={busy}>Speichern</Btn>
+              <Field id="s-tel" label="Telefonnummer" type="tel" value={telefon} onChange={setTelefon} placeholder="+49 123 456789" last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
           </SettingsCard>
 
@@ -165,13 +170,14 @@ export default function EinstellungenPage() {
             desc="Lege ein neues Passwort fest"
             open={section === "passwort"}
             onToggle={() => open(section === "passwort" ? null : "passwort")}
+            isMobile={isMobile}
           >
             <form onSubmit={handlePasswort}>
-              <Field id="s-cur-pw" label="Aktuelles Passwort" type="password" value={currentPw} onChange={setCurrentPw} />
-              <Field id="s-new-pw" label="Neues Passwort" type="password" value={newPw} onChange={setNewPw} />
-              <Field id="s-new-pw2" label="Neues Passwort wiederholen" type="password" value={newPw2} onChange={setNewPw2} last />
-              <Feedback msg={msg} />
-              <Btn busy={busy}>Speichern</Btn>
+              <Field id="s-cur-pw" label="Aktuelles Passwort" type="password" value={currentPw} onChange={setCurrentPw} isMobile={isMobile} />
+              <Field id="s-new-pw" label="Neues Passwort" type="password" value={newPw} onChange={setNewPw} isMobile={isMobile} />
+              <Field id="s-new-pw2" label="Neues Passwort wiederholen" type="password" value={newPw2} onChange={setNewPw2} last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
           </SettingsCard>
         </div>
@@ -182,26 +188,26 @@ export default function EinstellungenPage() {
 
 // ── Hilfs-Komponenten ──────────────────────────────
 
-function SettingsCard({ title, desc, open, onToggle, children }) {
+function SettingsCard({ title, desc, open, onToggle, children, isMobile }) {
   return (
     <div style={{ border: "1px solid #e5e7eb", borderRadius: 10, overflow: "hidden" }}>
       <button
         type="button"
         onClick={onToggle}
         style={{
-          width: "100%", padding: "14px 16px", background: open ? "#fef2f2" : "white",
+          width: "100%", padding: isMobile ? "11px 12px" : "14px 16px", background: open ? "#fef2f2" : "white",
           border: "none", textAlign: "left", cursor: "pointer",
           display: "flex", justifyContent: "space-between", alignItems: "center",
         }}
       >
         <div>
-          <div style={{ fontWeight: 600, fontSize: 18, color: "#111827" }}>{title}</div>
-          <div style={{ fontSize: 18, color: "#6b7280", marginTop: 2 }}>{desc}</div>
+          <div style={{ fontWeight: 600, fontSize: isMobile ? 15 : 18, color: "#111827" }}>{title}</div>
+          <div style={{ fontSize: isMobile ? 13 : 18, color: "#6b7280", marginTop: 2 }}>{desc}</div>
         </div>
-        <span style={{ color: "#b91c1c", fontSize: 18 }}>{open ? "▴" : "▾"}</span>
+        <span style={{ color: "#b91c1c", fontSize: isMobile ? 16 : 18 }}>{open ? "▴" : "▾"}</span>
       </button>
       {open && (
-        <div style={{ padding: "16px", borderTop: "1px solid #f3f4f6", background: "#fafafa" }}>
+        <div style={{ padding: isMobile ? "12px" : "16px", borderTop: "1px solid #f3f4f6", background: "#fafafa" }}>
           {children}
         </div>
       )}
@@ -209,10 +215,10 @@ function SettingsCard({ title, desc, open, onToggle, children }) {
   );
 }
 
-function Field({ id, label, type = "text", value, onChange, placeholder, last }) {
+function Field({ id, label, type = "text", value, onChange, placeholder, last, isMobile }) {
   return (
     <div style={{ marginBottom: last ? "16px" : "12px" }}>
-      <label htmlFor={id} style={{ display: "block", marginBottom: 5, fontSize: 18, color: "#374151", fontWeight: 600 }}>
+      <label htmlFor={id} style={{ display: "block", marginBottom: 5, fontSize: isMobile ? 14 : 18, color: "#374151", fontWeight: 600 }}>
         {label}
       </label>
       <input
@@ -220,23 +226,23 @@ function Field({ id, label, type = "text", value, onChange, placeholder, last })
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? ""}
         style={{
-          width: "100%", padding: "9px 11px", borderRadius: 7,
-          border: "1px solid #d1d5db", fontSize: 18, outline: "none", boxSizing: "border-box",
+          width: "100%", padding: isMobile ? "8px 10px" : "9px 11px", borderRadius: 7,
+          border: "1px solid #d1d5db", fontSize: isMobile ? 14 : 18, outline: "none", boxSizing: "border-box",
         }}
       />
     </div>
   );
 }
 
-function Btn({ children, busy }) {
+function Btn({ children, busy, isMobile }) {
   return (
     <button
       type="submit"
       disabled={busy}
       style={{
-        padding: "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c",
+        padding: isMobile ? "8px 14px" : "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c",
         color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7,
-        fontSize: 18, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
+        fontSize: isMobile ? 14 : 18, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
       }}
     >
       {busy ? "…" : children}
@@ -244,10 +250,10 @@ function Btn({ children, busy }) {
   );
 }
 
-function Feedback({ msg }) {
+function Feedback({ msg, isMobile }) {
   if (!msg.text) return null;
   return (
-    <p style={{ color: msg.error ? "#b91c1c" : "#16a34a", fontSize: 18, marginBottom: 10, marginTop: -4 }}>
+    <p style={{ color: msg.error ? "#b91c1c" : "#16a34a", fontSize: isMobile ? 13 : 18, marginBottom: 10, marginTop: -4 }}>
       {msg.text}
     </p>
   );

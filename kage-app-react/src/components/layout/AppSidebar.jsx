@@ -16,12 +16,31 @@ export default function AppSidebar({
   hasRole,
   onLogout,
   appVersion,
+  isMobile,
+  mobileMenuOpen,
+  onCloseMobileMenu,
 }) {
+  const drawerStyle = isMobile
+    ? {
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "min(86vw, 320px)",
+        height: "100vh",
+        zIndex: 1000,
+        transform: mobileMenuOpen ? "translateX(0)" : "translateX(-105%)",
+        transition: "transform 220ms ease",
+        boxShadow: "0 12px 28px rgba(0,0,0,0.35)",
+      }
+    : {
+        width: "300px",
+        height: "100vh",
+      };
+
   return (
     <aside
       style={{
-        width: "300px",
-        height: "100vh",
+        ...drawerStyle,
         overflowY: "auto",
         background: theme.colors.sidebarBg,
         color: theme.colors.sidebarText,
@@ -30,6 +49,28 @@ export default function AppSidebar({
         boxSizing: "border-box",
       }}
     >
+      {isMobile && (
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
+          <button
+            onClick={onCloseMobileMenu}
+            title="Menü schließen"
+            style={{
+              border: `1px solid ${theme.colors.borderSoft}`,
+              background: "rgba(255,255,255,0.1)",
+              color: "white",
+              borderRadius: 8,
+              width: 34,
+              height: 34,
+              cursor: "pointer",
+              fontSize: 18,
+              lineHeight: 1,
+            }}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       <div style={{ textAlign: "center", marginBottom: "10px" }}>
         <img
           src={logoSrc}
@@ -88,14 +129,15 @@ export default function AppSidebar({
           onClick={() => onNavigate("einstellungen")}
           style={{
             width: "100%",
-            padding: "8px",
+            padding: "10px 8px",
             marginBottom: 8,
+            minHeight: 44,
             background: active === "einstellungen" ? theme.colors.white : "rgba(255,255,255,0.1)",
             color: active === "einstellungen" ? "#111" : "white",
             border: `1px solid ${theme.colors.borderSoft}`,
             borderRadius: 8,
             cursor: "pointer",
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 400,
             textAlign: "center",
           }}
@@ -106,14 +148,16 @@ export default function AppSidebar({
           onClick={onLogout}
           style={{
             width: "100%",
-            padding: "8px",
+            padding: "10px 8px",
+            minHeight: 44,
             background: "rgba(255,255,255,0.15)",
             color: "white",
             border: `1px solid ${theme.colors.borderSoft}`,
             borderRadius: 8,
             cursor: "pointer",
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: 400,
+            textAlign: "center",
           }}
         >
           Abmelden

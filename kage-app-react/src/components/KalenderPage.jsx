@@ -1,6 +1,8 @@
 import kalenderTermine from "../data/kalenderTermine";
+import { useIsMobile } from "../hooks/useIsMobile";
 
 function KalenderPage() {
+  const isMobile = useIsMobile(960);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -14,17 +16,20 @@ function KalenderPage() {
     .slice(0, 6);
 
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: isMobile ? "12px" : "24px" }}>
       <div
         style={{
           background: "white",
           borderRadius: "16px",
-          padding: "24px",
+          padding: isMobile ? "14px" : "24px",
           boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
           maxWidth: "900px",
+          width: "100%",
+          boxSizing: "border-box",
+          marginBottom: "60px",
         }}
       >
-        <h2 style={{ marginTop: 0 }}>Kommende Termine</h2>
+        <h2 style={{ marginTop: 0, fontSize: isMobile ? "20px" : undefined }}>Kommende Termine</h2>
 
         <div style={{ display: "grid", gap: "12px" }}>
           {nextSixTermine.map((termin) => (
@@ -33,14 +38,14 @@ function KalenderPage() {
               style={{
                 border: "1px solid #e5e7eb",
                 borderRadius: "12px",
-                padding: "14px 16px",
+                padding: isMobile ? "12px" : "14px 16px",
                 background: "#f9fafb",
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
                 <div>
-                  <div style={{ fontWeight: 700, color: "#111827", fontSize: "16px" }}>{termin.titel}</div>
-                  <div style={{ marginTop: "4px", color: "#6b7280", fontSize: "13px" }}>
+                  <div style={{ fontWeight: 700, color: "#111827", fontSize: isMobile ? "15px" : "16px" }}>{termin.titel}</div>
+                  <div style={{ marginTop: "4px", color: "#6b7280", fontSize: isMobile ? "12px" : "13px" }}>
                     {formatDate(termin.datum)} um {termin.uhrzeit}
                   </div>
                 </div>
@@ -49,7 +54,7 @@ function KalenderPage() {
                     background: termin.kategorie === "Extern" ? "#fee2e2" : "#e5e7eb",
                     color: termin.kategorie === "Extern" ? "#b91c1c" : "#374151",
                     borderRadius: "999px",
-                    padding: "4px 10px",
+                    padding: isMobile ? "3px 9px" : "4px 10px",
                     fontSize: "12px",
                     fontWeight: 700,
                   }}
@@ -57,7 +62,7 @@ function KalenderPage() {
                   {termin.kategorie}
                 </span>
               </div>
-              <div style={{ marginTop: "8px", color: "#374151", fontSize: "13px" }}>📍 {termin.ort}</div>
+              <div style={{ marginTop: "8px", color: "#374151", fontSize: isMobile ? "12px" : "13px" }}>📍 {termin.ort}</div>
             </div>
           ))}
         </div>

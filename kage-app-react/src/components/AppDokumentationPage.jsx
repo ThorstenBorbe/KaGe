@@ -1,6 +1,6 @@
 export default function AppDokumentationPage() {
   return (
-    <div style={{ padding: "24px" }}>
+    <div style={{ padding: "24px", paddingBottom: "80px" }}>
       <div
         style={{
           background: "white",
@@ -8,6 +8,7 @@ export default function AppDokumentationPage() {
           padding: "24px",
           boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
           maxWidth: "900px",
+          marginBottom: "60px",
         }}
       >
         <h2 style={{ marginTop: 0, color: "#b91c1c" }}>App-Dokumentation</h2>
