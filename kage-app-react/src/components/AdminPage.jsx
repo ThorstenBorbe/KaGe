@@ -20,6 +20,10 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(null); // uid der gerade gespeichert wird
   const [search, setSearch] = useState("");
+  const [editingUser, setEditingUser] = useState(null);
+  const [editorVorname, setEditorVorname] = useState("");
+  const [editorNachname, setEditorNachname] = useState("");
+  const [editorEmail, setEditorEmail] = useState("");
 
   useEffect(() => {
     loadUsers();
@@ -43,6 +47,48 @@ export default function AdminPage() {
     setSaving(null);
   }
 
+  function openEditor(user) {
+    setEditingUser(user);
+    setEditorVorname(user?.vorname ?? "");
+    setEditorNachname(user?.nachname ?? "");
+    setEditorEmail(user?.email ?? "");
+  }
+
+  function closeEditor() {
+    setEditingUser(null);
+    setEditorVorname("");
+    setEditorNachname("");
+    setEditorEmail("");
+  }
+
+  async function saveUserProfile() {
+    if (!editingUser?.uid) return;
+
+    const safeVorname = editorVorname.trim();
+    const safeNachname = editorNachname.trim();
+    const safeEmail = editorEmail.trim();
+    const fullName = [safeVorname, safeNachname].filter(Boolean).join(" ");
+
+    setSaving(editingUser.uid);
+    await updateDoc(doc(db, "users", editingUser.uid), {
+      vorname: safeVorname,
+      nachname: safeNachname,
+      email: safeEmail,
+      name: fullName,
+    });
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u.uid === editingUser.uid
+          ? { ...u, vorname: safeVorname, nachname: safeNachname, email: safeEmail, name: fullName }
+          : u
+      )
+    );
+
+    setSaving(null);
+    closeEditor();
+  }
+
   async function deleteUser(uid, email) {
     if (!window.confirm(`Firestore-Eintrag von "${email ?? "Anonym"}" wirklich löschen?`)) return;
     await deleteDoc(doc(db, "users", uid));
@@ -53,7 +99,11 @@ export default function AdminPage() {
   const filtered = users
     .filter((u) => u.role !== "pending")
     .filter((u) =>
-    (u.email ?? "").toLowerCase().includes(search.toLowerCase())
+      [u.email, u.vorname, u.nachname, u.name]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
 
   return (
@@ -142,7 +192,7 @@ export default function AdminPage() {
         {/* Suche */}
         <input
           type="text"
-          placeholder="Nach E-Mail suchen…"
+          placeholder="Nach Name oder E-Mail suchen…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{
@@ -188,9 +238,10 @@ export default function AdminPage() {
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: "2px solid #f3f4f6", textAlign: "left" }}>
-                <th style={th}>E-Mail</th>
-                <th style={th}>Rolle</th>
-                <th style={{ ...th, width: 140 }}>Ändern</th>
+                <th style={th}>Vorname</th>
+                <th style={th}>Nachname</th>
+                <th style={{ ...th, width: 150 }}>Rolle ändern</th>
+                <th style={{ ...th, width: 130 }}>User bearbeiten</th>
                 <th style={{ ...th, width: 80 }}>Aktion</th>
               </tr>
             </thead>
@@ -201,25 +252,18 @@ export default function AdminPage() {
                   style={{ borderBottom: "1px solid #f3f4f6" }}
                 >
                   <td style={td}>
-                    {user.email ?? (
+                    {user.vorname ?? (
                       <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
-                        Anonym
+                        -
                       </span>
                     )}
                   </td>
                   <td style={td}>
-                    <span
-                      style={{
-                        background: ROLE_COLORS[user.role] ?? "#9ca3af",
-                        color: "white",
-                        borderRadius: 20,
-                        padding: "2px 10px",
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {user.role ?? "gast"}
-                    </span>
+                    {user.nachname ?? (
+                      <span style={{ color: "#9ca3af", fontStyle: "italic" }}>
+                        -
+                      </span>
+                    )}
                   </td>
                   <td style={td}>
                     <select
@@ -229,14 +273,16 @@ export default function AdminPage() {
                       style={{
                         padding: "6px 8px",
                         borderRadius: 6,
-                        border: "1px solid #d1d5db",
+                        border: "1px solid rgba(0,0,0,0.15)",
                         fontSize: 13,
                         cursor: "pointer",
-                        background: saving === user.uid ? "#f3f4f6" : "white",
+                        background: saving === user.uid ? "#f3f4f6" : (ROLE_COLORS[user.role ?? "gast"] ?? "#9ca3af"),
+                        color: "white",
+                        fontWeight: 600,
                       }}
                     >
                       {ROLES.map((r) => (
-                        <option key={r} value={r}>
+                        <option key={r} value={r} style={{ background: "white", color: "#111827" }}>
                           {r}
                         </option>
                       ))}
@@ -246,6 +292,23 @@ export default function AdminPage() {
                         …
                       </span>
                     )}
+                  </td>
+                  <td style={td}>
+                    <button
+                      onClick={() => openEditor(user)}
+                      disabled={saving === user.uid}
+                      style={{
+                        padding: "6px 10px",
+                        borderRadius: 6,
+                        border: "1px solid #d1d5db",
+                        background: saving === user.uid ? "#f3f4f6" : "white",
+                        cursor: saving === user.uid ? "not-allowed" : "pointer",
+                        fontSize: 12,
+                        fontWeight: 600,
+                      }}
+                    >
+                      Bearbeiten
+                    </button>
                   </td>
                   <td style={td}>
                     <button
@@ -284,6 +347,112 @@ export default function AdminPage() {
         >
           ↻ Aktualisieren
         </button>
+
+        {editingUser && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0,0,0,0.45)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+            }}
+          >
+            <div
+              style={{
+                width: "min(92vw, 520px)",
+                background: "white",
+                borderRadius: 14,
+                padding: 20,
+                boxShadow: "0 18px 40px rgba(0,0,0,0.22)",
+              }}
+            >
+              <h3 style={{ marginTop: 0, marginBottom: 6, color: "#111827" }}>User bearbeiten</h3>
+              <p style={{ marginTop: 0, marginBottom: 16, color: "#6b7280", fontSize: 13 }}>
+                UID: {editingUser.uid}
+              </p>
+
+              <div style={{ display: "grid", gap: 10 }}>
+                <label style={{ display: "grid", gap: 4, fontSize: 13, color: "#374151" }}>
+                  Vorname
+                  <input
+                    value={editorVorname}
+                    onChange={(e) => setEditorVorname(e.target.value)}
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid #d1d5db",
+                      fontSize: 14,
+                    }}
+                  />
+                </label>
+                <label style={{ display: "grid", gap: 4, fontSize: 13, color: "#374151" }}>
+                  Nachname
+                  <input
+                    value={editorNachname}
+                    onChange={(e) => setEditorNachname(e.target.value)}
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid #d1d5db",
+                      fontSize: 14,
+                    }}
+                  />
+                </label>
+                <label style={{ display: "grid", gap: 4, fontSize: 13, color: "#374151" }}>
+                  E-Mail-Adresse
+                  <input
+                    type="email"
+                    value={editorEmail}
+                    onChange={(e) => setEditorEmail(e.target.value)}
+                    style={{
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      border: "1px solid #d1d5db",
+                      fontSize: 14,
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
+                <button
+                  onClick={closeEditor}
+                  disabled={saving === editingUser.uid}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    border: "1px solid #d1d5db",
+                    background: "white",
+                    cursor: "pointer",
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  Abbrechen
+                </button>
+                <button
+                  onClick={saveUserProfile}
+                  disabled={saving === editingUser.uid}
+                  style={{
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    border: "none",
+                    background: "#b91c1c",
+                    color: "white",
+                    cursor: saving === editingUser.uid ? "not-allowed" : "pointer",
+                    fontSize: 13,
+                    fontWeight: 600,
+                  }}
+                >
+                  {saving === editingUser.uid ? "Speichert..." : "Speichern"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

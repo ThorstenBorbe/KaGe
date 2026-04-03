@@ -8,7 +8,7 @@ import {
   signOut,
   updateProfile,
 } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { onDisconnect, onValue, ref, serverTimestamp, set } from "firebase/database";
 
 const AuthContext = createContext(null);
@@ -36,11 +36,19 @@ export function AuthProvider({ children }) {
           role = data.role ?? "mitglied";
           accepted = data.privacyConsent?.accepted === true
             && data.privacyConsent?.version === PRIVACY_POLICY_VERSION;
+          setCurrentUser({
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName ?? firebaseUser.email,
+            vorname: data.vorname ?? "",
+            nachname: data.nachname ?? "",
+          });
         } else {
           // Nutzer ist in Firebase Auth, hat aber noch keinen Firestore-Eintrag → anlegen
           await setDoc(userRef, {
             name: firebaseUser.displayName ?? "",
             email: firebaseUser.email ?? "",
+            vorname: "",
+            nachname: "",
             role: "mitglied",
             privacyConsent: {
               accepted: false,
@@ -49,8 +57,8 @@ export function AuthProvider({ children }) {
               acceptedAt: null,
             },
           });
+          setCurrentUser({ uid: firebaseUser.uid, name: firebaseUser.displayName ?? firebaseUser.email, vorname: "", nachname: "" });
         }
-        setCurrentUser({ uid: firebaseUser.uid, name: firebaseUser.displayName ?? firebaseUser.email });
         setUserRole(role);
         setPrivacyAccepted(accepted);
       } else {
@@ -125,6 +133,16 @@ export function AuthProvider({ children }) {
     await signOut(auth);
   };
 
+  const updateName = async (vorname, nachname) => {
+    if (!currentUser?.uid || currentUser.uid === "dev") return;
+    const fullName = [vorname, nachname].filter(Boolean).join(" ");
+    await updateDoc(doc(db, "users", currentUser.uid), { vorname, nachname, name: fullName });
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, { displayName: fullName });
+    }
+    setCurrentUser((prev) => ({ ...prev, vorname, nachname, name: fullName }));
+  };
+
   const devLogin = () => {
     setCurrentUser({ uid: "dev", name: "Dev" });
     setUserRole("admin");
@@ -172,6 +190,7 @@ export function AuthProvider({ children }) {
         logout,
         devLogin,
         hasRole,
+        updateName,
         privacyAccepted,
         privacyBusy,
         acceptPrivacyConsent,

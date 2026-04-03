@@ -9,11 +9,13 @@ import {
 } from "firebase/auth";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebaseConfig";
+import { useAuth } from "../context/AuthContext";
 
 export default function EinstellungenPage() {
+  const { currentUser, updateName } = useAuth();
   const user = auth.currentUser;
 
-  const [section, setSection] = useState(null); // "email" | "telefon" | "passwort"
+  const [section, setSection] = useState(null); // "name" | "email" | "telefon" | "passwort"
 
   // Felder
   const [currentPw, setCurrentPw] = useState("");
@@ -21,6 +23,8 @@ export default function EinstellungenPage() {
   const [telefon, setTelefon] = useState("");
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
+  const [vorname, setVorname] = useState(currentUser?.vorname ?? "");
+  const [nachname, setNachname] = useState(currentUser?.nachname ?? "");
 
   const [msg, setMsg] = useState({ text: "", error: false });
   const [busy, setBusy] = useState(false);
@@ -36,6 +40,20 @@ export default function EinstellungenPage() {
   async function reauth() {
     const cred = EmailAuthProvider.credential(user.email, currentPw);
     await reauthenticateWithCredential(user, cred);
+  }
+
+  async function handleName(e) {
+    e.preventDefault();
+    if (!vorname.trim()) {
+      setMsg({ text: "Bitte mindestens den Vornamen eingeben.", error: true }); return;
+    }
+    setBusy(true);
+    try {
+      await updateName(vorname.trim(), nachname.trim());
+      setMsg({ text: "Name erfolgreich gespeichert.", error: false });
+    } catch {
+      setMsg({ text: "Fehler beim Speichern des Namens.", error: true });
+    } finally { setBusy(false); }
   }
 
   async function handleEmail(e) {
@@ -102,6 +120,19 @@ export default function EinstellungenPage() {
 
         {/* Kacheln */}
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <SettingsCard
+            title="Name ändern"
+            desc="Lege deinen Vor- und Nachnamen fest"
+            open={section === "name"}
+            onToggle={() => open(section === "name" ? null : "name")}
+          >
+            <form onSubmit={handleName}>
+              <Field id="s-vorname" label="Vorname" value={vorname} onChange={setVorname} />
+              <Field id="s-nachname" label="Nachname" value={nachname} onChange={setNachname} last />
+              <Feedback msg={msg} />
+              <Btn busy={busy}>Speichern</Btn>
+            </form>
+          </SettingsCard>
           <SettingsCard
             title="E-Mail-Adresse ändern"
             desc="Ändere deine Anmelde-E-Mail"
