@@ -17,6 +17,10 @@ const ROLE_HIERARCHY = ["gast", "mitglied", "trainer", "vorstand", "admin"];
 const PRIVACY_POLICY_VERSION = "2026-05-10";
 const PRIVACY_POLICY_STAND = "10.05.2026";
 
+function normalizeRole(role) {
+  return String(role ?? "gast").trim().toLowerCase();
+}
+
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState("gast");
@@ -33,7 +37,7 @@ export function AuthProvider({ children }) {
         let accepted = false;
         if (snap.exists()) {
           const data = snap.data();
-          role = data.role ?? "mitglied";
+          role = normalizeRole(data.role ?? "mitglied");
           accepted = data.privacyConsent?.accepted === true
             && data.privacyConsent?.version === PRIVACY_POLICY_VERSION;
           setCurrentUser({
@@ -179,8 +183,8 @@ export function AuthProvider({ children }) {
   };
 
   const hasRole = (requiredRole) => {
-    const userIndex = ROLE_HIERARCHY.indexOf(userRole);
-    const requiredIndex = ROLE_HIERARCHY.indexOf(requiredRole);
+    const userIndex = ROLE_HIERARCHY.indexOf(normalizeRole(userRole));
+    const requiredIndex = ROLE_HIERARCHY.indexOf(normalizeRole(requiredRole));
     return userIndex >= requiredIndex;
   };
 
