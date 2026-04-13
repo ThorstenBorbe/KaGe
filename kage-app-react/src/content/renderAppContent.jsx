@@ -11,6 +11,7 @@ import KaGeCartaPage from "../components/KaGeCartaPage";
 import AhndungPage from "../components/AhndungPage";
 import AdminPage from "../components/AdminPage";
 import KalenderPage from "../components/KalenderPage";
+import MeineAufgabenPage from "../components/MeineAufgabenPage";
 import EinstellungenPage from "../components/EinstellungenPage";
 import EthikkommiteePage from "../components/EthikkommiteePage";
 import MeldungPage from "../components/MeldungPage";
@@ -61,6 +62,7 @@ const STATIC_PAGE_BY_KEY = {
   cloud: CloudPage,
   listen: ListenPage,
   kalender: KalenderPage,
+  "meine-aufgaben": MeineAufgabenPage,
   einstellungen: EinstellungenPage,
 };
 

@@ -105,7 +105,9 @@ const cardHeaderStyle = (typ) => {
 export default function AufbauAbbauPage({ data, typ, embedded = false }) {
   const isMobile = useIsMobile(960);
   const details = data || {};
-  const location = details.ort || details.treffpunkt;
+  const location = details.ort || "";
+  const meetingTime = details.treffzeit || "";
+  const isEventSection = typ === "Veranstaltung";
   const hasScheduleInfo = Boolean(details.datum || details.uhrzeit || location);
   const phaseBadge = PHASE_BADGE_BY_TYPE[typ] ?? PHASE_BADGE_BY_TYPE.Aufbau;
   const hasResponsibleInfo = Array.isArray(details.verantwortliche) && details.verantwortliche.length > 0;
@@ -121,10 +123,24 @@ export default function AufbauAbbauPage({ data, typ, embedded = false }) {
 
       {hasScheduleInfo && (
         <>
-          <InfoSection icon="🕒" title="Datum, Uhrzeit & Ort" isMobile={isMobile}>
+          <InfoSection
+            icon="🕒"
+            title={isEventSection ? "Datum, Treffzeit, Ort & Beginn" : "Datum, Uhrzeit & Ort"}
+            isMobile={isMobile}
+          >
             <InfoRow label="Datum" value={details.datum} isMobile={isMobile} />
-            <InfoRow label="Uhrzeit" value={details.uhrzeit} isMobile={isMobile} />
-            <InfoRow label="Ort" value={location} isMobile={isMobile} />
+            {isEventSection ? (
+              <>
+                <InfoRow label="Treffzeit" value={meetingTime} isMobile={isMobile} />
+                <InfoRow label="Ort" value={location} isMobile={isMobile} />
+                <InfoRow label="Beginn" value={details.uhrzeit} isMobile={isMobile} />
+              </>
+            ) : (
+              <>
+                <InfoRow label="Uhrzeit" value={details.uhrzeit} isMobile={isMobile} />
+                <InfoRow label="Ort" value={location} isMobile={isMobile} />
+              </>
+            )}
           </InfoSection>
         </>
       )}

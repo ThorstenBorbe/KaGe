@@ -1,6 +1,7 @@
 export const appTree = [
   { key: "uebersicht", label: "ToDo's für die App" },
   { key: "kalender", label: "Kalender" },
+  { key: "meine-aufgaben", label: "Meine Aufgaben" },
   {
     key: "veranstaltungen",
     label: "Veranstaltungen",
@@ -78,6 +79,7 @@ export const MENU_ROLES = {
   finanzen: "vorstand",
   zugaenge: "vorstand",
   mitglieder: "mitglied",
+  "meine-aufgaben": "mitglied",
   nutzerverwaltung: "admin",
   cloud: "vorstand",
   listen: "vorstand",

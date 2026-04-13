@@ -4,9 +4,13 @@ import { EXCEL_LINKS } from "../config/excelLinks";
 
 export default function GroupPage({ group, groupKey }) {
   const isMobile = useIsMobile(960);
-  const { hasRole } = useAuth();
+  const { currentUser, hasRole } = useAuth();
   const isSessionGroup = group.name === "11'n" || group.name === "Elferräte";
-  const canCancelSessionOrTraining = hasRole("vorstand");
+  const isGroupContact = group.ansprechpartner.some(
+    (person) => person.email?.toLowerCase() === currentUser?.email?.toLowerCase()
+  );
+  const canCancelSessionOrTraining = isGroupContact || hasRole("admin");
+  const canReportAbsence = hasRole("mitglied");
   const canSeeExcel = hasRole("vorstand");
   const excelUrl = EXCEL_LINKS.gruppen?.[groupKey] ?? "";
 
@@ -105,24 +109,26 @@ export default function GroupPage({ group, groupKey }) {
                 {isSessionGroup ? "Sitzung fällt aus" : "Training fällt aus"}
               </button>
             )}
-            <button
-              type="button"
-              style={{
-                background: "#b91c1c",
-                color: "white",
-                border: "none",
-                borderRadius: "12px",
-                padding: "10px 16px",
-                width: isMobile ? "100%" : "220px",
-                minHeight: "44px",
-                fontWeight: "bold",
-                fontSize: isMobile ? "14px" : "16px",
-                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
-                cursor: "pointer",
-              }}
-            >
-              Verhindert
-            </button>
+            {canReportAbsence && (
+              <button
+                type="button"
+                style={{
+                  background: "#b91c1c",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "12px",
+                  padding: "10px 16px",
+                  width: isMobile ? "100%" : "220px",
+                  minHeight: "44px",
+                  fontWeight: "bold",
+                  fontSize: isMobile ? "14px" : "16px",
+                  fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+                  cursor: "pointer",
+                }}
+              >
+                Verhindert
+              </button>
+            )}
           </div>
         </div>
 

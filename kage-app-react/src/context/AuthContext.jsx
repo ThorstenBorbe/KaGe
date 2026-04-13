@@ -39,6 +39,7 @@ export function AuthProvider({ children }) {
           setCurrentUser({
             uid: firebaseUser.uid,
             name: firebaseUser.displayName ?? firebaseUser.email,
+            email: data.email ?? firebaseUser.email ?? "",
             vorname: data.vorname ?? "",
             nachname: data.nachname ?? "",
           });
@@ -57,7 +58,13 @@ export function AuthProvider({ children }) {
               acceptedAt: null,
             },
           });
-          setCurrentUser({ uid: firebaseUser.uid, name: firebaseUser.displayName ?? firebaseUser.email, vorname: "", nachname: "" });
+          setCurrentUser({
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName ?? firebaseUser.email,
+            email: firebaseUser.email ?? "",
+            vorname: "",
+            nachname: "",
+          });
         }
         setUserRole(role);
         setPrivacyAccepted(accepted);
@@ -144,7 +151,7 @@ export function AuthProvider({ children }) {
   };
 
   const devLogin = () => {
-    setCurrentUser({ uid: "dev", name: "Dev" });
+    setCurrentUser({ uid: "dev", name: "Dev", email: "dev@example.com" });
     setUserRole("admin");
     setPrivacyAccepted(true);
   };
