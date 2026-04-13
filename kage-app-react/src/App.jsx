@@ -19,7 +19,7 @@ import {
 } from "./utils/appNavigation";
 import { theme } from "./styles/theme";
 
-const APP_VERSION = "v0.1.0";
+const APP_VERSION = "v0.1.1";
 
 export default function App() {
   const {
@@ -31,17 +31,6 @@ export default function App() {
     acceptPrivacyConsent,
     privacyPolicyStand,
   } = useAuth();
-
-  if (!currentUser) return <LoginPage />;
-  if (!privacyAccepted) {
-    return (
-      <PrivacyConsentPage
-        onAccept={acceptPrivacyConsent}
-        busy={privacyBusy}
-        stand={privacyPolicyStand}
-      />
-    );
-  }
 
   const [active, setActive] = useState("uebersicht");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -72,6 +61,26 @@ export default function App() {
     "Session 2029/2030",
   ];
 
+  const activeLabel = findActiveLabel(appTree, active);
+  const { visible: showWelcome, dismiss: dismissWelcome } = useWelcomeToast(currentUser);
+
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileMenuOpen(false);
+    }
+  }, [isMobile]);
+
+  if (!currentUser) return <LoginPage />;
+  if (!privacyAccepted) {
+    return (
+      <PrivacyConsentPage
+        onAccept={acceptPrivacyConsent}
+        busy={privacyBusy}
+        stand={privacyPolicyStand}
+      />
+    );
+  }
+
   function scrollToTop() {
     mainRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -88,15 +97,6 @@ export default function App() {
   const toggleMenu = (key) => {
     setOpenMenus((prev) => buildToggledMenuState(prev, key, TOP_LEVEL, SUB_LEVEL, GRAND_LEVEL));
   };
-
-  const activeLabel = findActiveLabel(appTree, active);
-  const { visible: showWelcome, dismiss: dismissWelcome } = useWelcomeToast(currentUser);
-
-  useEffect(() => {
-    if (!isMobile) {
-      setMobileMenuOpen(false);
-    }
-  }, [isMobile]);
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: theme.font.base }}>

@@ -34,6 +34,7 @@ export default function LoginPage() {
     try {
       await login(email.trim(), password);
     } catch (err) {
+      console.error("[Login-Fehler] Code:", err.code, "| Message:", err.message);
       setMessage({ text: firebaseError(err.code), error: true });
     } finally {
       setBusy(false);

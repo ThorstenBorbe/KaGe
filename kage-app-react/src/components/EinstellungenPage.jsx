@@ -195,7 +195,7 @@ function SettingsCard({ title, desc, open, onToggle, children, isMobile }) {
         type="button"
         onClick={onToggle}
         style={{
-          width: "100%", padding: isMobile ? "11px 12px" : "14px 16px", background: open ? "#fef2f2" : "white",
+          width: "100%", padding: isMobile ? "11px 12px" : "14px 16px", background: open ? "#fef2f2" : "white", // Aufgeklapptes Hellrot als dezente Rueckmeldung; alternativ neutrales Grau
           border: "none", textAlign: "left", cursor: "pointer",
           display: "flex", justifyContent: "space-between", alignItems: "center",
         }}
@@ -226,7 +226,7 @@ function Field({ id, label, type = "text", value, onChange, placeholder, last, i
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder ?? ""}
         style={{
-          width: "100%", padding: isMobile ? "8px 10px" : "9px 11px", borderRadius: 7,
+          width: "100%", padding: isMobile ? "8px 10px" : "9px 11px", borderRadius: 7, // Feldform: 0 = kantig, 7 = unaufdringlich, 14 = weicher
           border: "1px solid #d1d5db", fontSize: isMobile ? 14 : 18, outline: "none", boxSizing: "border-box",
         }}
       />
@@ -240,8 +240,8 @@ function Btn({ children, busy, isMobile }) {
       type="submit"
       disabled={busy}
       style={{
-        padding: isMobile ? "8px 14px" : "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c",
-        color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7,
+        padding: isMobile ? "8px 14px" : "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c", // Rot = Primaeraktion; Grau = deaktiviert
+        color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7, // Buttonform: 4 = sachlicher, 7 = Standard, 999 = pillenartig
         fontSize: isMobile ? 14 : 18, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
       }}
     >

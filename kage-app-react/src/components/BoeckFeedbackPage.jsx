@@ -1,10 +1,117 @@
 import { useState } from "react";
 
+const pageContainerStyle = {
+  padding: "24px",
+  paddingBottom: "80px",
+};
+
+const formCardStyle = {
+  background: "white",
+  borderRadius: "16px", // Kartenform: "0px" = eckig, "10px" = neutral, "24px" = weicher
+  padding: "24px",
+  boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
+  maxWidth: "800px",
+  marginBottom: "60px",
+};
+
+const fieldGroupStyle = {
+  marginBottom: "20px",
+};
+
+const fieldLabelStyle = {
+  display: "block",
+  marginBottom: "8px",
+  fontWeight: "bold",
+  fontSize: "18px", // Beschriftungsgroesse; alternativ "16px" kompakter oder "20px" praegnenter
+};
+
+const inputControlStyle = {
+  width: "100%",
+  padding: "12px", // Eingabegroesse: "10px" kompakter, "14px" komfortabler
+  borderRadius: "10px", // Feldform: "0px" = eckig, "8px" = Standard, "999px" = pillenartig
+  border: "1px solid #d1d5db", // Alternativ dunkler fuer mehr Kontrast oder farbiger Akzent fuer Fokus
+  fontSize: "18px",
+  boxSizing: "border-box",
+};
+
+const textareaStyle = {
+  ...inputControlStyle,
+  resize: "vertical",
+  fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+  boxSizing: "border-box",
+};
+
+const counterTextStyle = {
+  textAlign: "right",
+  marginBottom: "20px",
+  fontSize: "18px",
+  color: "#6b7280",
+};
+
+const attachmentHintStyle = {
+  marginTop: "8px",
+  marginBottom: 0,
+  fontSize: "14px",
+  color: "#6b7280",
+};
+
+const uploadButtonStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  background: "#f9fafb", // Sekundaerfarbe fuer Upload-Aktion; alternativ weiss oder leicht getoentes Rot
+  color: "#111827",
+  border: "1px solid #d1d5db",
+  borderRadius: "10px", // Buttonform: "4px" = technischer, "10px" = freundlich, "999px" = pillenfoermig
+  padding: "12px 16px", // Klickflaeche fuer Desktop und Touch; alternativ "10px 14px" kompakter
+  cursor: "pointer",
+  fontSize: "16px",
+  fontWeight: 600,
+};
+
+const hiddenFileInputStyle = {
+  display: "none",
+};
+
+const selectedFileStyle = {
+  marginTop: "10px",
+  fontSize: "15px",
+  color: "#374151",
+};
+
+const submitButtonStyle = {
+  background: "#b91c1c", // Primaerfarbe des Buttons; Alternativen z. B. "#111827" oder "#2563eb"
+  color: "white",
+  border: "none",
+  borderRadius: "10px", // Buttonform: "4px" = technisch, "10px" = freundlich, "999px" = pillenfoermig
+  padding: "12px 20px", // Hoehe und Breite des Buttons; alternativ "10px 16px" kompakter
+  cursor: "pointer",
+  fontSize: "18px",
+  fontWeight: "bold",
+};
+
 export default function BoeckFeedbackPage() {
   const [kategorie, setKategorie] = useState("");
   const [nachricht, setNachricht] = useState("");
+  const [anhang, setAnhang] = useState(null);
 
   const maxZeichen = 2000;
+
+  const isRechnung = kategorie === "Rechnung";
+
+  const handleKategorieChange = (event) => {
+    const nextKategorie = event.target.value;
+    setKategorie(nextKategorie);
+
+    if (nextKategorie !== "Rechnung") {
+      setAnhang(null);
+    }
+  };
+
+  const handleAttachmentChange = (event) => {
+    const selectedFile = event.target.files?.[0] ?? null;
+    setAnhang(selectedFile);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -19,36 +126,24 @@ export default function BoeckFeedbackPage() {
       return;
     }
 
-    alert("Deine Nachricht wurde abgesendet.");
+    const attachmentMessage = anhang ? `\nAnhang: ${anhang.name}` : "";
+    alert(`Deine Nachricht wurde abgesendet.${attachmentMessage}`);
 
     setKategorie("");
     setNachricht("");
+    setAnhang(null);
   };
 
   return (
-    <div style={{ padding: "24px", paddingBottom: "80px" }}>
+    <div style={pageContainerStyle}>
 
 
-      <div
-        style={{
-          background: "white",
-          borderRadius: "16px",
-          padding: "24px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-          maxWidth: "800px",
-          marginBottom: "60px",
-        }}
-      >
+      <div style={formCardStyle}>
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "20px" }}>
+          <div style={fieldGroupStyle}>
             <label
               htmlFor="kategorie"
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "bold",
-                fontSize: "18px",
-              }}
+              style={fieldLabelStyle}
             >
               Betreff / Kategorie
             </label>
@@ -56,32 +151,44 @@ export default function BoeckFeedbackPage() {
             <select
               id="kategorie"
               value={kategorie}
-              onChange={(e) => setKategorie(e.target.value)}
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #d1d5db",
-                fontSize: "18px",
-              }}
+              onChange={handleKategorieChange}
+              style={inputControlStyle}
             >
               <option value="">Bitte auswählen</option>
-              <option value="Kategorie 1">Kategorie 1</option>
-              <option value="Kategorie 2">Kategorie 2</option>
-              <option value="Kategorie 3">Kategorie 3</option>
+              <option value="Rechnung">Rechnung</option>
+              <option value="Verbesserungsvorschlag">Verbesserungsvorschlag</option>
+              <option value="Positives Feedback">Positives Feedback</option>
+              <option value="Negatives Feedback">Negatives Feedback</option>
               <option value="Sonstiges">Sonstiges</option>
             </select>
+
+            {isRechnung && (
+              <div style={{ marginTop: "16px" }}>
+                <label htmlFor="rechnung-anhang" style={fieldLabelStyle}>
+                  Anhang zur Rechnung
+                </label>
+                <label htmlFor="rechnung-anhang" style={uploadButtonStyle}>
+                  Anhang auswählen
+                </label>
+                <input
+                  id="rechnung-anhang"
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png,.webp"
+                  onChange={handleAttachmentChange}
+                  style={hiddenFileInputStyle}
+                />
+                <p style={attachmentHintStyle}>
+                  Erlaubte Formate: PDF, JPG, PNG oder WEBP. Fuer Rechnungen kann der Button spaeter leicht anders geformt oder farblich hervorgehoben werden.
+                </p>
+                {anhang && <p style={selectedFileStyle}>Ausgewählt: {anhang.name}</p>}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: "12px" }}>
             <label
               htmlFor="nachricht"
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "bold",
-                fontSize: "18px",
-              }}
+              style={fieldLabelStyle}
             >
               Nachricht
             </label>
@@ -93,42 +200,17 @@ export default function BoeckFeedbackPage() {
               maxLength={maxZeichen}
               rows={15}
               placeholder="Bitte schreibe hier deine Nachricht..."
-              style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "10px",
-                border: "1px solid #d1d5db",
-                fontSize: "18px",
-                resize: "vertical",
-                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
-                boxSizing: "border-box",
-              }}
+              style={textareaStyle}
             />
           </div>
 
-          <div
-            style={{
-              textAlign: "right",
-              marginBottom: "20px",
-              fontSize: "18px",
-              color: "#6b7280",
-            }}
-          >
+          <div style={counterTextStyle}>
             {nachricht.length} / {maxZeichen} Zeichen
           </div>
 
           <button
             type="submit"
-            style={{
-              background: "#b91c1c",
-              color: "white",
-              border: "none",
-              borderRadius: "10px",
-              padding: "12px 20px",
-              cursor: "pointer",
-              fontSize: "18px",
-              fontWeight: "bold",
-            }}
+            style={submitButtonStyle}
           >
             Absenden
           </button>

@@ -62,6 +62,7 @@ export const appTree = [
           { key: "meldung", label: "Meldung" },
         ],
       },
+      { key: "listen", label: "Listen & Dokumente" },
     ],
   },
   { key: "finanzen", label: "Finanzen" },
@@ -79,6 +80,7 @@ export const MENU_ROLES = {
   mitglieder: "mitglied",
   nutzerverwaltung: "admin",
   cloud: "vorstand",
+  listen: "vorstand",
 };
 
 export const TOP_LEVEL = ["veranstaltungen", "verein"];

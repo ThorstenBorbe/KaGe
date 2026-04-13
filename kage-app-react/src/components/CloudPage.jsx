@@ -8,9 +8,52 @@ import { useIsMobile } from "../hooks/useIsMobile";
 
 const card = {
   background: "white",
-  borderRadius: 16,
-  padding: 20,
+  borderRadius: 16, // Kartenform: 0 = eckig, 12 = neutral, 24 = weicher
+  padding: 20, // Standard-Innenabstand; mobil wird unten gezielt reduziert
   boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+};
+
+const pageGridStyle = {
+  display: "grid",
+  gap: 16,
+  maxWidth: 1100,
+  marginBottom: "60px",
+};
+
+const usageButtonStyle = (isMobile, isLoading) => ({
+  border: "none",
+  borderRadius: 8, // Buttonform: 4 = sachlicher, 8 = Standard, 999 = pillenartig
+  padding: "8px 12px", // Groesse leicht anpassbar, ohne den Rest der Karte zu veraendern
+  minWidth: isMobile ? 0 : 220,
+  width: isMobile ? "100%" : "auto",
+  background: isLoading ? "#9ca3af" : "#b91c1c", // Grau deaktiviert, Rot aktive Primaeraktion
+  color: "white",
+  cursor: isLoading ? "not-allowed" : "pointer",
+  fontWeight: 600,
+  textAlign: "center",
+});
+
+const progressTrackStyle = {
+  width: "100%",
+  height: 24,
+  borderRadius: 999, // Pillenform fuer Fortschrittsbalken; alternativ 8 fuer kantigeres Design
+  overflow: "hidden",
+  background: "#e5e7eb",
+  border: "1px solid #d1d5db",
+};
+
+const onlineBadgeStyle = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 96,
+  borderRadius: 12, // Badge-Form: 6 = kompakter, 12 = freundlich, 999 = pillenartig
+  padding: "10px 14px",
+  background: "#ecfdf5",
+  border: "1px solid #a7f3d0",
+  color: "#065f46",
+  fontSize: 26,
+  fontWeight: 700,
 };
 
 const SPARK_STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024;
@@ -191,7 +234,7 @@ export default function CloudPage() {
     : Math.min((traffic.downloadBytesToday / SPARK_DAILY_DOWNLOAD_LIMIT_BYTES) * 100, 100);
 
   return (
-    <div style={{ display: "grid", gap: 16, maxWidth: 1100, marginBottom: "60px" }}>
+    <div style={pageGridStyle}>
       <div style={{ ...card, padding: isMobile ? 14 : 20 }}>
         <div
           style={{
@@ -206,18 +249,7 @@ export default function CloudPage() {
           <button
             onClick={loadUsage}
             disabled={usage.loading}
-            style={{
-              border: "none",
-              borderRadius: 8,
-              padding: "8px 12px",
-              minWidth: isMobile ? 0 : 220,
-              width: isMobile ? "100%" : "auto",
-              background: usage.loading ? "#9ca3af" : "#b91c1c",
-              color: "white",
-              cursor: usage.loading ? "not-allowed" : "pointer",
-              fontWeight: 600,
-              textAlign: "center",
-            }}
+            style={usageButtonStyle(isMobile, usage.loading)}
           >
             {usage.loading ? "Lädt..." : "Verbrauch aktualisieren"}
           </button>
@@ -240,20 +272,13 @@ export default function CloudPage() {
           <>
             <div style={{ marginBottom: 8 }}>
               <div
-                style={{
-                  width: "100%",
-                  height: 24,
-                  borderRadius: 999,
-                  overflow: "hidden",
-                  background: "#e5e7eb",
-                  border: "1px solid #d1d5db",
-                }}
+                style={progressTrackStyle}
               >
                 <div
                   style={{
                     width: `${usedPercent}%`,
                     height: "100%",
-                    background: usedPercent > 85 ? "#dc2626" : "#b91c1c",
+                    background: usedPercent > 85 ? "#dc2626" : "#b91c1c", // Ab 85% signalisiert dunkleres Rot die hohe Auslastung
                     transition: "width 300ms ease",
                   }}
                 />
@@ -306,20 +331,13 @@ export default function CloudPage() {
           <>
             <div style={{ marginBottom: 8 }}>
               <div
-                style={{
-                  width: "100%",
-                  height: 24,
-                  borderRadius: 999,
-                  overflow: "hidden",
-                  background: "#e5e7eb",
-                  border: "1px solid #d1d5db",
-                }}
+                style={progressTrackStyle}
               >
                 <div
                   style={{
                     width: `${trafficPercent}%`,
                     height: "100%",
-                    background: trafficPercent > 85 ? "#dc2626" : "#2563eb",
+                    background: trafficPercent > 85 ? "#dc2626" : "#2563eb", // Blau trennt den Traffic visuell vom Speicherverbrauch
                     transition: "width 300ms ease",
                   }}
                 />
@@ -365,19 +383,7 @@ export default function CloudPage() {
             <div className="skeleton" style={{ height: 56, width: 96, borderRadius: 12 }} />
           ) : (
             <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                minWidth: 96,
-                borderRadius: 12,
-                padding: "10px 14px",
-                background: "#ecfdf5",
-                border: "1px solid #a7f3d0",
-                color: "#065f46",
-                fontSize: 26,
-                fontWeight: 700,
-              }}
+              style={onlineBadgeStyle}
             >
               {onlineStats.count}
             </div>

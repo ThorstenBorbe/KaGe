@@ -17,6 +17,7 @@ import MeldungPage from "../components/MeldungPage";
 import DatenschutzPage from "../components/DatenschutzPage";
 import AppDokumentationPage from "../components/AppDokumentationPage";
 import CloudPage from "../components/CloudPage";
+import ListenPage from "../components/ListenPage";
 
 import roteGarde from "../data/roteGarde";
 import blaueGarde from "../data/blaueGarde";
@@ -58,6 +59,7 @@ const STATIC_PAGE_BY_KEY = {
   ahndung: AhndungPage,
   nutzerverwaltung: AdminPage,
   cloud: CloudPage,
+  listen: ListenPage,
   kalender: KalenderPage,
   einstellungen: EinstellungenPage,
 };
@@ -67,7 +69,7 @@ const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-
 export function renderAppContent(active) {
   const groupData = GROUP_DATA_BY_KEY[active];
   if (groupData) {
-    return <GroupPage key={active} group={groupData} />;
+    return <GroupPage key={active} groupKey={active} group={groupData} />;
   }
 
   if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {

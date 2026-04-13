@@ -79,36 +79,33 @@ export default function AppSidebar({
         />
       </div>
 
-      <div style={{ marginTop: "36px", marginBottom: "6px" }}>
-        <select
-          value={sessionValue}
-          onChange={(e) => onSessionChange(e.target.value)}
-          disabled={!canEditSession || sessionSaving}
-          style={{
-            width: "100%",
-            padding: "8px 10px",
-            borderRadius: "8px",
-            border: "1px solid rgba(255,255,255,0.35)",
-            background: !canEditSession ? "rgba(255,255,255,0.08)" : "white",
-            color: !canEditSession ? "white" : "#111",
-            fontSize: "18px",
-            textAlign: "center",
-            cursor: !canEditSession ? "not-allowed" : "pointer",
-            boxSizing: "border-box",
-          }}
-        >
-          {sessionOptions.map((session) => (
-            <option key={session} value={session}>
-              {session}
-            </option>
-          ))}
-        </select>
-        {!canEditSession && (
-          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.8)", marginTop: "6px", marginBottom: 0 }}>
-            Nur Vorstand/Admin kann die Session ändern.
-          </p>
-        )}
-      </div>
+      {canEditSession && (
+        <div style={{ marginTop: "36px", marginBottom: "6px" }}>
+          <select
+            value={sessionValue}
+            onChange={(e) => onSessionChange(e.target.value)}
+            disabled={sessionSaving}
+            style={{
+              width: "100%",
+              padding: "8px 10px",
+              borderRadius: "8px",
+              border: "1px solid rgba(255,255,255,0.35)",
+              background: "white",
+              color: "#111",
+              fontSize: "18px",
+              textAlign: "center",
+              cursor: "pointer",
+              boxSizing: "border-box",
+            }}
+          >
+            {sessionOptions.map((session) => (
+              <option key={session} value={session}>
+                {session}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <SidebarNavigation
         items={appTree}

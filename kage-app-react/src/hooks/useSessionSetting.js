@@ -7,6 +7,7 @@ export function useSessionSetting(canEditSession, currentUser) {
   const [sessionSaving, setSessionSaving] = useState(false);
 
   useEffect(() => {
+    if (currentUser?.uid === "dev") return;
     const sessionRef = doc(db, "appSettings", "session");
     const unsub = onSnapshot(sessionRef, (snap) => {
       const value = snap.data()?.activeSession;
@@ -15,11 +16,11 @@ export function useSessionSetting(canEditSession, currentUser) {
       }
     });
     return () => unsub();
-  }, []);
+  }, [currentUser]);
 
   async function handleSessionChange(nextSession) {
     setSessionValue(nextSession);
-    if (!canEditSession) return;
+    if (!canEditSession || currentUser?.uid === "dev") return;
 
     setSessionSaving(true);
     try {

@@ -2,6 +2,82 @@ import { useState } from "react";
 import { ref, uploadBytes, listAll, getBytes, deleteObject } from "firebase/storage";
 import { storage } from "../firebase/firebaseConfig";
 
+const pageContainerStyle = {
+  padding: "24px",
+};
+
+const contentCardStyle = {
+  background: "white",
+  borderRadius: 16, // Hauptkartenform: 0 = eckig, 12 = Standard, 24 = weicher
+  padding: 28,
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  marginBottom: "60px",
+};
+
+const uploadLabelStyle = {
+  display: "block",
+  marginBottom: 8,
+  fontWeight: 600,
+  fontSize: 14,
+};
+
+const fileInputStyle = {
+  padding: 10, // Klickflaeche des Datei-Inputs; alternativ 8 fuer kompakter oder 12 fuer touchfreundlicher
+  border: "1px solid #d1d5db",
+  borderRadius: 8, // Feldform: 0 = eckig, 8 = Standard, 16 = weicher
+  cursor: "pointer",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+const primaryButtonStyle = {
+  padding: "8px 16px", // Buttongroesse; alternativ "10px 18px" fuer groessere Touchflaeche
+  marginBottom: 16,
+  background: "#b91c1c", // Primaerfarbe; Alternativen z. B. "#111827" oder "#2563eb"
+  color: "white",
+  border: "none",
+  borderRadius: 8, // Buttonform: 4 = kantiger, 8 = neutral, 999 = pillenartig
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const deleteButtonStyle = {
+  padding: "4px 8px", // Kleine Sekundaeraktion innerhalb der Liste
+  fontSize: 11,
+  background: "#fca5a5", // Helles Rot signalisiert Loeschen; fuer mehr Kontrast dunkleres Rot waehlen
+  border: "none",
+  borderRadius: 4, // Alternativ 0 fuer tabellarisch oder 8 fuer runder
+  cursor: "pointer",
+};
+
+const helpBoxStyle = {
+  marginTop: 24,
+  padding: 16,
+  background: "#f9fafb",
+  borderRadius: 8, // Hinweisbox-Form einfach zentral anpassbar
+  fontSize: 12,
+};
+
+const codePreviewStyle = {
+  background: "#111827", // Dunkler Code-Hintergrund; alternativ helles Grau fuer dokumentarischen Look
+  color: "#10b981",
+  padding: 12,
+  borderRadius: 6,
+  fontSize: 11,
+  overflow: "auto",
+};
+
+function getFeedbackStyle(isError) {
+  return {
+    padding: 12,
+    borderRadius: 8, // Feedbackform: 0 = kantig, 8 = Standard, 16 = weicher
+    marginBottom: 16,
+    background: isError ? "#fee2e2" : "#dcfce7", // Rot fuer Fehler, Gruen fuer Erfolg
+    color: isError ? "#991b1b" : "#166534",
+    fontSize: 13,
+  };
+}
+
 export default function DataManagementPage() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -62,27 +138,20 @@ export default function DataManagementPage() {
   };
 
   return (
-    <div style={{ padding: "24px" }}>
-      <div style={{ background: "white", borderRadius: 16, padding: 28, boxShadow: "0 4px 12px rgba(0,0,0,0.08)", marginBottom: "60px" }}>
+    <div style={pageContainerStyle}>
+      <div style={contentCardStyle}>
         <h2 style={{ marginTop: 0, color: "#b91c1c" }}>📁 Datenverwaltung (Firebase Storage)</h2>
 
         {/* Feedback */}
         {message.text && (
-          <div style={{
-            padding: 12,
-            borderRadius: 8,
-            marginBottom: 16,
-            background: message.error ? "#fee2e2" : "#dcfce7",
-            color: message.error ? "#991b1b" : "#166534",
-            fontSize: 13,
-          }}>
+          <div style={getFeedbackStyle(message.error)}>
             {message.text}
           </div>
         )}
 
         {/* Upload-Bereich */}
         <div style={{ marginBottom: 24 }}>
-          <label style={{ display: "block", marginBottom: 8, fontWeight: 600, fontSize: 14 }}>
+          <label style={uploadLabelStyle}>
             📤 JSON-Datei hochladen:
           </label>
           <input
@@ -90,14 +159,7 @@ export default function DataManagementPage() {
             accept=".json"
             onChange={handleUpload}
             disabled={loading}
-            style={{
-              padding: 10,
-              border: "1px solid #d1d5db",
-              borderRadius: 8,
-              cursor: "pointer",
-              width: "100%",
-              boxSizing: "border-box",
-            }}
+            style={fileInputStyle}
           />
           <p style={{ fontSize: 12, color: "#6b7280", margin: "8px 0 0 0" }}>
             💡 Tipp: Dateien sollten <code>daten/externeVeranstaltungen.json</code> oder <code>daten/interneVeranstaltungen.json</code> heißen
@@ -109,16 +171,7 @@ export default function DataManagementPage() {
           <button
             onClick={loadFiles}
             disabled={loading}
-            style={{
-              padding: "8px 16px",
-              marginBottom: 16,
-              background: "#b91c1c",
-              color: "white",
-              border: "none",
-              borderRadius: 8,
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
+            style={primaryButtonStyle}
           >
             {loading ? "⏳ Lädt..." : "🔄 Dateien aktualisieren"}
           </button>
@@ -132,14 +185,7 @@ export default function DataManagementPage() {
                     <span style={{ fontSize: 13 }}>{file}</span>
                     <button
                       onClick={() => deleteFile(file)}
-                      style={{
-                        padding: "4px 8px",
-                        fontSize: 11,
-                        background: "#fca5a5",
-                        border: "none",
-                        borderRadius: 4,
-                        cursor: "pointer",
-                      }}
+                      style={deleteButtonStyle}
                     >
                       Löschen
                     </button>
@@ -153,7 +199,7 @@ export default function DataManagementPage() {
         </div>
 
         {/* Anleitung */}
-        <div style={{ marginTop: 24, padding: 16, background: "#f9fafb", borderRadius: 8, fontSize: 12 }}>
+        <div style={helpBoxStyle}>
           <h4 style={{ marginTop: 0, color: "#111827" }}>📚 Wie es funktioniert:</h4>
           <ol style={{ margin: "8px 0", paddingLeft: 16 }}>
             <li>Du erstellst eine JSON-Datei mit deinen Veranstaltungsdaten</li>
@@ -163,14 +209,7 @@ export default function DataManagementPage() {
           </ol>
 
           <h4 style={{ marginTop: 16, color: "#111827" }}>📄 Beispiel-JSON für externe Veranstaltungen:</h4>
-          <pre style={{
-            background: "#111827",
-            color: "#10b981",
-            padding: 12,
-            borderRadius: 6,
-            fontSize: 11,
-            overflow: "auto",
-          }}>
+          <pre style={codePreviewStyle}>
 {`{
   "auswaerts-x": {
     "titel": "1. Auswärtssitzung",

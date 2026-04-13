@@ -1,25 +1,36 @@
+const pageContainerStyle = {
+  padding: "24px",
+  paddingBottom: "80px",
+};
+
+const contentCardStyle = {
+  background: "white",
+  borderRadius: "18px", // Kartenform: "0px" = eckig, "10px" = moderat, "24px" = weicher
+  padding: "24px",
+  boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  maxWidth: "800px",
+  marginBottom: "60px",
+};
+
+const charterListStyle = {
+  marginTop: "12px",
+  color: "#4b5563",
+  lineHeight: 1.6,
+  textAlign: "justify",
+  paddingLeft: "20px", // Listen-Einzug: "16px" kompakter, "24px" grosszuegiger
+};
+
+const closingTextStyle = {
+  marginTop: "20px",
+  fontWeight: "bold",
+  textAlign: "center",
+};
+
 export default function KaGeCartaPage() {
   return (
-    <div style={{ padding: "24px", paddingBottom: "80px" }}>
-      <div
-        style={{
-          background: "white",
-          borderRadius: "18px",
-          padding: "24px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-          maxWidth: "800px",
-          marginBottom: "60px",
-        }}
-      >
-        <ol
-          style={{
-            marginTop: "12px",
-            color: "#4b5563",
-            lineHeight: 1.6,
-            textAlign: "justify",
-            paddingLeft: "20px",
-          }}
-        >
+    <div style={pageContainerStyle}>
+      <div style={contentCardStyle}>
+        <ol style={charterListStyle}>
           <li>Jeder Mensch im Verein wird wertgeschätzt – unabhängig von Herkunft, Alter, Geschlecht oder Fähigkeiten.</li>
           <br />  
           <li>Wir halten zusammen – auf der Bühne und dahinter. Wir unterstützen uns und feiern gemeinsam unsere Leidenschaft.</li>
@@ -49,7 +60,7 @@ export default function KaGeCartaPage() {
           <li>Wir repräsentieren unseren Verein auch außerhalb – im öffentlichen Raum und in sozialen Medien respektvoll und verantwortungsvoll.</li>
         </ol>
 
-        <p style={{ marginTop: "20px", fontWeight: "bold", textAlign: "center" }}>
+        <p style={closingTextStyle}>
           Die KaGe Zell ist mehr als eine Abteilung – wir sind eine Gemeinschaft, die verbindet, schützt und begeistert. Wir sind eine Lebenseinstellung.
         </p>
       </div>

@@ -1,11 +1,14 @@
 import { useAuth } from "../context/AuthContext";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { EXCEL_LINKS } from "../config/excelLinks";
 
-export default function GroupPage({ group }) {
+export default function GroupPage({ group, groupKey }) {
   const isMobile = useIsMobile(960);
   const { hasRole } = useAuth();
   const isSessionGroup = group.name === "11'n" || group.name === "Elferräte";
   const canCancelSessionOrTraining = hasRole("vorstand");
+  const canSeeExcel = hasRole("vorstand");
+  const excelUrl = EXCEL_LINKS.gruppen?.[groupKey] ?? "";
 
   return (
     <div
@@ -188,6 +191,60 @@ export default function GroupPage({ group }) {
           ))}
         </div>
       </div>
+
+      {canSeeExcel && (
+        <div
+          style={{
+            background: "white",
+            borderRadius: "18px",
+            padding: isMobile ? "14px" : "24px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+            marginTop: isMobile ? "12px" : "20px",
+            marginBottom: "60px",
+          }}
+        >
+          <h2 style={{ marginTop: 0 }}>📊 Mitgliederliste (Excel)</h2>
+          <p style={{ color: "#4b5563", lineHeight: 1.6 }}>
+            Hier kannst du die Mitgliederliste dieser Gruppe als Excel-Datei öffnen.
+          </p>
+          {excelUrl ? (
+            <a
+              href={excelUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: "inline-block",
+                marginTop: "8px",
+                background: "#b91c1c",
+                color: "white",
+                textDecoration: "none",
+                padding: "12px 18px",
+                borderRadius: "12px",
+                fontWeight: "bold",
+                fontSize: isMobile ? "14px" : "16px",
+                fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+              }}
+            >
+              Excel-Liste öffnen
+            </a>
+          ) : (
+            <span
+              style={{
+                display: "inline-block",
+                marginTop: "8px",
+                background: "#e5e7eb",
+                color: "#9ca3af",
+                padding: "12px 18px",
+                borderRadius: "12px",
+                fontWeight: "bold",
+                fontSize: isMobile ? "14px" : "16px",
+              }}
+            >
+              Link noch nicht hinterlegt
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
