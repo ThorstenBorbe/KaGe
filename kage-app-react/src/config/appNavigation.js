@@ -9,13 +9,13 @@ export const appTree = [
         key: "interne",
         label: "Intern",
         children: [
-          { key: "11-11", label: "11.11. Jetzt geht los", children: [{ key: "11-11-aufbau", label: "Aufbau" }, { key: "11-11-abbau", label: "Abbau" }] },
-          { key: "prunksitzung-1", label: "1. Prunksitzung", children: [{ key: "prunksitzung-1-aufbau", label: "Aufbau" }, { key: "prunksitzung-1-abbau", label: "Abbau" }] },
-          { key: "prunksitzung-2", label: "2. Prunksitzung", children: [{ key: "prunksitzung-2-aufbau", label: "Aufbau" }, { key: "prunksitzung-2-abbau", label: "Abbau" }] },
-          { key: "bunter-nachmittag", label: "Bunter Nachmittag", children: [{ key: "bunter-nachmittag-aufbau", label: "Aufbau" }, { key: "bunter-nachmittag-abbau", label: "Abbau" }] },
-          { key: "beatbox-party", label: "Beat-Bocks-Party", children: [{ key: "beatbox-party-aufbau", label: "Aufbau" }, { key: "beatbox-party-abbau", label: "Abbau" }] },
-          { key: "kinderfasching", label: "Kinderfasching", children: [{ key: "kinderfasching-aufbau", label: "Aufbau" }, { key: "kinderfasching-abbau", label: "Abbau" }] },
-          { key: "kehraus", label: "Kehraus", children: [{ key: "kehraus-aufbau", label: "Aufbau" }, { key: "kehraus-abbau", label: "Abbau" }] },
+          { key: "11-11", label: "11.11. Jetzt geht los" },
+          { key: "prunksitzung-1", label: "1. Prunksitzung" },
+          { key: "prunksitzung-2", label: "2. Prunksitzung" },
+          { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
+          { key: "beatbox-party", label: "Beat-Bocks-Party" },
+          { key: "kinderfasching", label: "Kinderfasching" },
+          { key: "kehraus", label: "Kehraus" },
         ],
       },
       {
@@ -85,4 +85,4 @@ export const MENU_ROLES = {
 
 export const TOP_LEVEL = ["veranstaltungen", "verein"];
 export const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
-export const GRAND_LEVEL = ["11-11", "prunksitzung-1", "prunksitzung-2", "bunter-nachmittag", "beatbox-party", "kinderfasching", "kehraus"];
+export const GRAND_LEVEL = [];

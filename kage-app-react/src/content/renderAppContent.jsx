@@ -65,11 +65,77 @@ const STATIC_PAGE_BY_KEY = {
 };
 
 const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"]);
+const INTERNAL_EVENT_PHASES = [
+  { key: "vorbereitung", label: "Vorbereitung" },
+  { key: "aufbau", label: "Aufbau" },
+  { key: "veranstaltung", label: "Veranstaltung" },
+  { key: "abbau", label: "Abbau" },
+];
+
+const INTERNAL_EVENT_LABELS = {
+  "11-11": "11.11. Jetzt geht los",
+  "prunksitzung-1": "1. Prunksitzung",
+  "prunksitzung-2": "2. Prunksitzung",
+  "bunter-nachmittag": "Bunter Nachmittag",
+  "beatbox-party": "Beat-Bocks-Party",
+  kinderfasching: "Kinderfasching",
+  kehraus: "Kehraus",
+};
+
+const internalEventPageStyle = {
+  padding: "24px",
+  paddingBottom: "60px",
+  width: "100%",
+  boxSizing: "border-box",
+};
+
+const internalEventHeaderStyle = {
+  marginBottom: "20px",
+  padding: "20px 24px",
+  borderRadius: "20px", // Grosser Header-Block fuer klare optische Absetzung der Eventansicht
+  background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 100%)",
+  border: "1px solid #fed7aa",
+  boxShadow: "0 10px 24px rgba(185, 28, 28, 0.06)",
+};
+
+const internalEventGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "1fr",
+  gap: "20px",
+  alignItems: "start",
+};
 
 export function renderAppContent(active) {
   const groupData = GROUP_DATA_BY_KEY[active];
   if (groupData) {
     return <GroupPage key={active} groupKey={active} group={groupData} />;
+  }
+
+  const internalEventData = interneVeranstaltungen[active];
+  if (internalEventData) {
+    const availablePhases = INTERNAL_EVENT_PHASES.filter(({ key }) => internalEventData[key]);
+
+    return (
+      <div style={internalEventPageStyle}>
+        <div style={internalEventHeaderStyle}>
+          <h2 style={{ margin: 0, color: "#9f1239" }}>{INTERNAL_EVENT_LABELS[active] || active}</h2>
+          <p style={{ margin: "8px 0 0 0", color: "#6b7280", lineHeight: 1.5 }}>
+            Die Bereiche werden in der Reihenfolge Vorbereitung, Aufbau, Veranstaltung und Abbau ueber die volle Breite dargestellt, damit Datum, Uhrzeit, Ort und Aufgaben schneller erfassbar sind.
+          </p>
+        </div>
+
+        <div style={internalEventGridStyle}>
+          {availablePhases.map((phase) => (
+            <AufbauAbbauPage
+              key={`${active}-${phase.key}`}
+              data={internalEventData[phase.key]}
+              typ={phase.label}
+              embedded
+            />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {

@@ -1,5 +1,12 @@
 import { useFirebaseData } from "../hooks/useFirebaseData";
 
+const PHASE_ORDER = [
+  { key: "vorbereitung", label: "Vorbereitung", icon: "🧭" },
+  { key: "aufbau", label: "Aufbau", icon: "🔧" },
+  { key: "veranstaltung", label: "Veranstaltung", icon: "🎉" },
+  { key: "abbau", label: "Abbau", icon: "📦" },
+];
+
 /**
  * Beispiel-Komponente: Zeigt, wie man Aufbau/Abbau-Daten von Firebase Storage lädt
  * 
@@ -54,58 +61,70 @@ export default function InterneVeranstaltungenDynamic() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
         }}>
           <h3 style={{ marginTop: 0, color: "#b91c1c" }}>{eventKey}</h3>
-          
-          {/* Aufbau */}
-          <details style={{ marginBottom: 12 }}>
-            <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
-              🔧 Aufbau
-            </summary>
-            <div style={{ paddingLeft: 16, fontSize: 13 }}>
-              <p><strong>Zeitraum:</strong> {veranstaltung.aufbau.zeitraum || "—"}</p>
-              <p><strong>Treffpunkt:</strong> {veranstaltung.aufbau.treffpunkt || "—"}</p>
-              {veranstaltung.aufbau.verantwortliche?.length > 0 && (
-                <p><strong>Verantwortliche:</strong> {veranstaltung.aufbau.verantwortliche.join(", ")}</p>
-              )}
-              {veranstaltung.aufbau.aufgaben?.length > 0 && (
-                <div>
-                  <strong>Aufgaben:</strong>
-                  <ul style={{ margin: "4px 0", paddingLeft: 20 }}>
-                    {veranstaltung.aufbau.aufgaben.map((task, i) => (
-                      <li key={i} style={{ fontSize: 12 }}>{task}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <p><strong>Bemerkungen:</strong> {veranstaltung.aufbau.bemerkungen || "—"}</p>
-            </div>
-          </details>
 
-          {/* Abbau */}
-          <details>
-            <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
-              📦 Abbau
-            </summary>
-            <div style={{ paddingLeft: 16, fontSize: 13 }}>
-              <p><strong>Zeitraum:</strong> {veranstaltung.abbau.zeitraum || "—"}</p>
-              <p><strong>Treffpunkt:</strong> {veranstaltung.abbau.treffpunkt || "—"}</p>
-              {veranstaltung.abbau.verantwortliche?.length > 0 && (
-                <p><strong>Verantwortliche:</strong> {veranstaltung.abbau.verantwortliche.join(", ")}</p>
-              )}
-              {veranstaltung.abbau.aufgaben?.length > 0 && (
-                <div>
-                  <strong>Aufgaben:</strong>
-                  <ul style={{ margin: "4px 0", paddingLeft: 20 }}>
-                    {veranstaltung.abbau.aufgaben.map((task, i) => (
-                      <li key={i} style={{ fontSize: 12 }}>{task}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              <p><strong>Bemerkungen:</strong> {veranstaltung.abbau.bemerkungen || "—"}</p>
-            </div>
-          </details>
+          {PHASE_ORDER.filter((phase) => veranstaltung[phase.key]).map((phase) => (
+            <details key={phase.key} style={{ marginBottom: 12 }}>
+              <summary style={{ cursor: "pointer", fontWeight: 600, fontSize: 14, marginBottom: 8 }}>
+                {phase.icon} {phase.label}
+              </summary>
+              <div style={{ paddingLeft: 16, fontSize: 13 }}>
+                {renderPhaseMeta(veranstaltung[phase.key])}
+                {veranstaltung[phase.key].verantwortliche?.length > 0 && (
+                  <p><strong>Verantwortliche:</strong> {veranstaltung[phase.key].verantwortliche.join(", ")}</p>
+                )}
+                {veranstaltung[phase.key].aufgaben?.length > 0 && (
+                  <div>
+                    <strong>Aufgaben:</strong>
+                    <ul style={{ margin: "4px 0", paddingLeft: 20 }}>
+                      {veranstaltung[phase.key].aufgaben.map((task, index) => (
+                        <li key={index} style={{ fontSize: 12 }}>
+                          {getTaskLabel(task)}
+                          {getTaskResponsible(task) && (
+                            <span style={{ color: "#6b7280" }}>
+                              {" "}
+                              - Verantwortlich: {getTaskResponsible(task)}
+                            </span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {veranstaltung[phase.key].bemerkungen && (
+                  <p><strong>Bemerkungen:</strong> {veranstaltung[phase.key].bemerkungen}</p>
+                )}
+              </div>
+            </details>
+          ))}
         </div>
       ))}
     </div>
   );
+}
+
+function renderPhaseMeta(phase) {
+  const location = phase.ort || phase.treffpunkt;
+
+  return (
+    <>
+      {phase.datum && <p><strong>Datum:</strong> {phase.datum}</p>}
+      {phase.uhrzeit && <p><strong>Uhrzeit:</strong> {phase.uhrzeit}</p>}
+      {location && <p><strong>Ort:</strong> {location}</p>}
+    </>
+  );
+}
+
+function getTaskLabel(task) {
+  if (typeof task === "string") return task;
+  return task?.text || task?.aufgabe || task?.titel || "Ohne Bezeichnung";
+}
+
+function getTaskResponsible(task) {
+  if (!task || typeof task !== "object") return "";
+
+  const responsible = task.verantwortlich ?? task.verantwortliche;
+  if (Array.isArray(responsible)) {
+    return responsible.join(", ");
+  }
+  return responsible || "";
 }

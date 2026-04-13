@@ -40,13 +40,6 @@ export default function App() {
     externe: false,
     verein: false,
     gruppen: false,
-    "11-11": false,
-    "prunksitzung-1": false,
-    "prunksitzung-2": false,
-    "bunter-nachmittag": false,
-    "beatbox-party": false,
-    kinderfasching: false,
-    kehraus: false,
   });
 
   const mainRef = useRef(null);
