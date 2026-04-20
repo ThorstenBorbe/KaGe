@@ -19,7 +19,7 @@ import {
 } from "./utils/appNavigation";
 import { theme } from "./styles/theme";
 
-const APP_VERSION = "v0.2.0";
+const APP_VERSION = "v0.2.1";
 
 export default function App() {
   const {
@@ -137,13 +137,5 @@ export default function App() {
         {renderAppContent(active)}
       </AppMainContent>
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
   );
 }
