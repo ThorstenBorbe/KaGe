@@ -18,13 +18,13 @@ export default function ToDosPage() {
           Folgende Punkte müssen noch implementiert werden.
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          1. Ansprechpartner müssen von einer Excelliste gezogen werden, welche auf der Cloud liegt um auch ohne Coding ändern zu können
+          1. Datenbank mit Mitgliedern und Gruppenzuordnung komplementieren
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           2. Email für Ethikkommite und Kummerkasten erstellen und anbinden, dann Test der Schnittstelle
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          3. Cloudspeicher reservieren und Daten dort ablegen
+          3. Cloudspeicher reservieren und Daten dort ablegen (supabase Konto angelegt, da Deutscher Standort)
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           4. Erstellung VMI Matrix (Verantwortlichkeiten, Mitwirkende, Informierte) für die verschiedenen Bereiche um die Zuständigkeiten zu klären

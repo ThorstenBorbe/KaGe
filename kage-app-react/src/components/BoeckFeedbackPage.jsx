@@ -1,48 +1,48 @@
 import { useState } from "react";
 
 const pageContainerStyle = {
-  padding: "24px",
-  paddingBottom: "80px",
+  padding: "24px", // Abstand rund um die Seite: Innenabstand für den gesamten Content
+  paddingBottom: "80px", // Extra Platz unten, damit der Footer-Bereich nicht zu nahe am Formular liegt
 };
 
 const formCardStyle = {
-  background: "white",
-  borderRadius: "16px", // Kartenform: "0px" = eckig, "10px" = neutral, "24px" = weicher
-  padding: "24px",
-  boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-  maxWidth: "800px",
-  marginBottom: "60px",
+  background: "white", // Heller Hintergrund für die Karte, damit das Formular klar heraussticht
+  borderRadius: "16px", // Rundung der Karte: groesser = weicher, kleiner = technischer Look
+  padding: "24px", // Innenabstand innerhalb der Karte, damit die Inhalte nicht am Rand kleben
+  boxShadow: "0 4px 10px rgba(0,0,0,0.08)", // Schatten fuer Tiefe und Abgrenzung vom Hintergrund
+  maxWidth: "800px", // Maximale Breite, damit das Formular nicht zu breit wird
+  marginBottom: "60px", // Abstand nach unten zu weiteren Seiteninhalten
 };
 
 const fieldGroupStyle = {
-  marginBottom: "20px",
+  marginBottom: "20px", // Abstand zwischen Formularabschnitten
 };
 
 const fieldLabelStyle = {
-  display: "block",
-  marginBottom: "8px",
+  display: "block", // Label immer als Block, damit es ueber dem Feld steht
+  marginBottom: "8px", // Abstand zwischen Label und Eingabefeld
   fontWeight: "bold",
-  fontSize: "18px", // Beschriftungsgroesse; alternativ "16px" kompakter oder "20px" praegnenter
+  fontSize: "18px", // Schriftgroesse des Labels
 };
 
 const inputControlStyle = {
-  width: "100%",
-  padding: "12px", // Eingabegroesse: "10px" kompakter, "14px" komfortabler
-  borderRadius: "10px", // Feldform: "0px" = eckig, "8px" = Standard, "999px" = pillenartig
-  border: "1px solid #d1d5db", // Alternativ dunkler fuer mehr Kontrast oder farbiger Akzent fuer Fokus
-  fontSize: "18px",
+  width: "100%", // Volle Breite im umgebenden Container
+  padding: "12px", // Innenabstand im Eingabefeld, fuer gute Klick- und Touch-Fläche
+  borderRadius: "10px", // Abgerundete Ecken fuer ein moderneres Erscheinungsbild
+  border: "1px solid #d1d5db", // Standardrahmenfarbe, dezenter Grau-Ton
+  fontSize: "18px", // Lesbare Schriftgroesse im Feld
   boxSizing: "border-box",
 };
 
 const textareaStyle = {
   ...inputControlStyle,
-  resize: "vertical",
-  fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",
+  resize: "vertical", // Textarea kann nur vertikal vergrößert werden
+  fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif", // Einheitliche Schriftfamilie
   boxSizing: "border-box",
 };
 
 const counterTextStyle = {
-  textAlign: "right",
+  textAlign: "right", // Zeichenanzahl rechtsbündig zum Feldausgleich
   marginBottom: "20px",
   fontSize: "18px",
   color: "#6b7280",
@@ -56,21 +56,23 @@ const attachmentHintStyle = {
 };
 
 const uploadButtonStyle = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#f9fafb", // Sekundaerfarbe fuer Upload-Aktion; alternativ weiss oder leicht getoentes Rot
+  display: "inline-flex", // Button-Inhalt zentrieren
+  alignItems: "center", // Vertikale Zentrierung innerhalb des Buttons
+  justifyContent: "center", // Inhalt horizontal zentrieren
+  background: "#f9fafb", // Hellgrauer Hintergrund fuer sekundäre Aktion
   color: "#111827",
-  border: "1px solid #d1d5db",
-  borderRadius: "10px", // Buttonform: "4px" = technischer, "10px" = freundlich, "999px" = pillenfoermig
-  padding: "12px 16px", // Klickflaeche fuer Desktop und Touch; alternativ "10px 14px" kompakter
+  border: "1px solid #d1d5db", // Gleicher Rahmen wie die Eingabefelder
+  borderRadius: "10px",
+  padding: "12px", // Gleiches Innenpolster wie das Eingabefeld fuer optische Konsistenz
   cursor: "pointer",
-  fontSize: "16px",
+  fontSize: "18px",
   fontWeight: 600,
+  height: "48px", // Gleiche Höhe wie die Eingabefelder: sorgt für parallele Ausrichtung
+  boxSizing: "border-box",
 };
 
 const hiddenFileInputStyle = {
-  display: "none",
+  display: "none", // Verstecktes Native-Input, der Label-Button steuert die Auswahl
 };
 
 const selectedFileStyle = {
@@ -80,11 +82,11 @@ const selectedFileStyle = {
 };
 
 const submitButtonStyle = {
-  background: "#b91c1c", // Primaerfarbe des Buttons; Alternativen z. B. "#111827" oder "#2563eb"
+  background: "#b91c1c",
   color: "white",
   border: "none",
-  borderRadius: "10px", // Buttonform: "4px" = technisch, "10px" = freundlich, "999px" = pillenfoermig
-  padding: "12px 20px", // Hoehe und Breite des Buttons; alternativ "10px 16px" kompakter
+  borderRadius: "10px",
+  padding: "12px 20px",
   cursor: "pointer",
   fontSize: "18px",
   fontWeight: "bold",
@@ -94,6 +96,7 @@ export default function BoeckFeedbackPage() {
   const [kategorie, setKategorie] = useState("");
   const [nachricht, setNachricht] = useState("");
   const [anhang, setAnhang] = useState(null);
+  const [betrag, setBetrag] = useState("");
 
   const maxZeichen = 2000;
 
@@ -105,6 +108,7 @@ export default function BoeckFeedbackPage() {
 
     if (nextKategorie !== "Rechnung") {
       setAnhang(null);
+      setBetrag("");
     }
   };
 
@@ -126,12 +130,19 @@ export default function BoeckFeedbackPage() {
       return;
     }
 
+    if (isRechnung && !betrag.trim()) {
+      alert("Bitte gib den Betrag in € ein.");
+      return;
+    }
+
     const attachmentMessage = anhang ? `\nAnhang: ${anhang.name}` : "";
-    alert(`Deine Nachricht wurde abgesendet.${attachmentMessage}`);
+    const betragMessage = isRechnung ? `\nBetrag: ${betrag} €` : "";
+    alert(`Deine Nachricht wurde abgesendet.${attachmentMessage}${betragMessage}`);
 
     setKategorie("");
     setNachricht("");
     setAnhang(null);
+    setBetrag("");
   };
 
   return (
@@ -164,12 +175,28 @@ export default function BoeckFeedbackPage() {
 
             {isRechnung && (
               <div style={{ marginTop: "16px" }}>
-                <label htmlFor="rechnung-anhang" style={fieldLabelStyle}>
-                  Anhang zur Rechnung
+                {/* Rechnungs-Layout: Zeile mit Betrag und Upload-Button nebeneinander */}
+                <label htmlFor="betrag" style={fieldLabelStyle}>
+                  Betrag (€) *
                 </label>
-                <label htmlFor="rechnung-anhang" style={uploadButtonStyle}>
-                  Anhang auswählen
-                </label>
+                <p style={{ fontSize: "10px", color: "#6b7280", margin: "4px 0 8px 0" }}>Pflichtfeld</p>
+                <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                  {/* Betrag und Button teilen den Platz gleichmäßig (beide flex: 1); Breite jedes Elements: halbe verfügbare Breite minus halbem Gap */}
+                  <input
+                    id="betrag"
+                    type="number"
+                    value={betrag}
+                    onChange={(e) => setBetrag(e.target.value)}
+                    placeholder="z.B. 50.00"
+                    style={{ ...inputControlStyle, borderColor: betrag.trim() ? '#d1d5db' : 'red', flex: 1 }}
+                    min="0"
+                    step="0.01"
+                  />
+                  <label htmlFor="rechnung-anhang" style={{ ...uploadButtonStyle, flex: 1 }}>
+                    Anhang auswählen
+                  </label>
+                </div>
+                {/* Verstecktes Datei-Input-Element, das vom Label gesteuert wird */}
                 <input
                   id="rechnung-anhang"
                   type="file"
@@ -178,7 +205,7 @@ export default function BoeckFeedbackPage() {
                   style={hiddenFileInputStyle}
                 />
                 <p style={attachmentHintStyle}>
-                  Erlaubte Formate: PDF, JPG, PNG oder WEBP. Fuer Rechnungen kann der Button spaeter leicht anders geformt oder farblich hervorgehoben werden.
+                  Erlaubte Formate: PDF, JPG, PNG, BMP.
                 </p>
                 {anhang && <p style={selectedFileStyle}>Ausgewählt: {anhang.name}</p>}
               </div>

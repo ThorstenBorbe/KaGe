@@ -1,5 +1,4 @@
 export const appTree = [
-  { key: "uebersicht", label: "ToDo's für die App" },
   { key: "kalender", label: "Kalender" },
   { key: "meine-aufgaben", label: "Meine Aufgaben" },
   {
@@ -67,12 +66,19 @@ export const appTree = [
     ],
   },
   { key: "finanzen", label: "Finanzen" },
-  { key: "zugaenge", label: "Zugänge & Anleitungen" },
+  {
+    key: "allgemein",
+    label: "Allgemein",
+    children: [
+      { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
+      { key: "cloud", label: "Cloud" },
+      { key: "datenschutz", label: "Datenschutz" },
+      { key: "zugaenge", label: "Zugänge & Anleitungen" },
+      { key: "uebersicht", label: "ToDo´s für die App" },
+      { key: "app-dokumentation", label: "App-Dokumentation" },
+    ],
+  },
   { key: "kummerkasten", label: "Böck-Feedback" },
-  { key: "datenschutz", label: "Datenschutz" },
-  { key: "app-dokumentation", label: "App-Dokumentation" },
-  { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
-  { key: "cloud", label: "Cloud" },
 ];
 
 export const MENU_ROLES = {
@@ -85,6 +91,6 @@ export const MENU_ROLES = {
   listen: "vorstand",
 };
 
-export const TOP_LEVEL = ["veranstaltungen", "verein"];
+export const TOP_LEVEL = ["veranstaltungen", "verein", "allgemein"];
 export const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
 export const GRAND_LEVEL = [];
