@@ -19,6 +19,7 @@ import DatenschutzPage from "../components/DatenschutzPage";
 import AppDokumentationPage from "../components/AppDokumentationPage";
 import CloudPage from "../components/CloudPage";
 import ListenPage from "../components/ListenPage";
+import NutzungPage from "../components/NutzungPage";
 
 import roteGarde from "../data/roteGarde";
 import blaueGarde from "../data/blaueGarde";
@@ -64,6 +65,7 @@ const STATIC_PAGE_BY_KEY = {
   kalender: KalenderPage,
   "meine-aufgaben": MeineAufgabenPage,
   einstellungen: EinstellungenPage,
+  nutzung: NutzungPage,
 };
 
 const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"]);
