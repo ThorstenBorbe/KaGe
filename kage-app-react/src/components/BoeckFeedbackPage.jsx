@@ -94,10 +94,13 @@ export default function BoeckFeedbackPage() {
   const [kategorie, setKategorie] = useState("");
   const [nachricht, setNachricht] = useState("");
   const [anhang, setAnhang] = useState(null);
+  const [betrag, setBetrag] = useState("");
+  const [betragTouched, setBetragTouched] = useState(false);
 
   const maxZeichen = 2000;
 
   const isRechnung = kategorie === "Rechnung";
+  const betragInvalid = isRechnung && (betragTouched || betrag === "") && (!betrag || isNaN(Number(betrag)) || Number(betrag) <= 0);
 
   const handleKategorieChange = (event) => {
     const nextKategorie = event.target.value;
@@ -105,6 +108,8 @@ export default function BoeckFeedbackPage() {
 
     if (nextKategorie !== "Rechnung") {
       setAnhang(null);
+      setBetrag("");
+      setBetragTouched(false);
     }
   };
 
@@ -121,17 +126,26 @@ export default function BoeckFeedbackPage() {
       return;
     }
 
+    if (isRechnung && (!betrag || isNaN(Number(betrag)) || Number(betrag) <= 0)) {
+      setBetragTouched(true);
+      alert("Bitte gib einen gültigen Betrag in Euro ein.");
+      return;
+    }
+
     if (!nachricht.trim()) {
       alert("Bitte gib eine Nachricht ein.");
       return;
     }
 
     const attachmentMessage = anhang ? `\nAnhang: ${anhang.name}` : "";
-    alert(`Deine Nachricht wurde abgesendet.${attachmentMessage}`);
+    const betragMessage = isRechnung ? `\nBetrag: ${betrag} €` : "";
+    alert(`Deine Nachricht wurde abgesendet.${betragMessage}${attachmentMessage}`);
 
     setKategorie("");
     setNachricht("");
     setAnhang(null);
+    setBetrag("");
+    setBetragTouched(false);
   };
 
   return (
@@ -163,24 +177,52 @@ export default function BoeckFeedbackPage() {
             </select>
 
             {isRechnung && (
-              <div style={{ marginTop: "16px" }}>
-                <label htmlFor="rechnung-anhang" style={fieldLabelStyle}>
-                  Anhang zur Rechnung
-                </label>
-                <label htmlFor="rechnung-anhang" style={uploadButtonStyle}>
-                  Anhang auswählen
-                </label>
-                <input
-                  id="rechnung-anhang"
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png,.webp"
-                  onChange={handleAttachmentChange}
-                  style={hiddenFileInputStyle}
-                />
-                <p style={attachmentHintStyle}>
-                  Erlaubte Formate: PDF, JPG, PNG oder WEBP. Fuer Rechnungen kann der Button spaeter leicht anders geformt oder farblich hervorgehoben werden.
-                </p>
-                {anhang && <p style={selectedFileStyle}>Ausgewählt: {anhang.name}</p>}
+              <div style={{ display: "flex", gap: 24, alignItems: "flex-end", marginTop: 16 }}>
+                <div style={{ flex: 1 }}>
+                  <label htmlFor="betrag-euro" style={fieldLabelStyle}>
+                    Betrag in € <span style={{ color: "#b91c1c" }}>*</span>
+                  </label>
+                  <input
+                    id="betrag-euro"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={betrag}
+                    onChange={e => { setBetrag(e.target.value); setBetragTouched(true); }}
+                    onBlur={() => setBetragTouched(true)}
+                    placeholder="z. B. 123.45"
+                    style={{
+                      ...inputControlStyle,
+                      width: 170,
+                      border: betragInvalid ? "2px solid #b91c1c" : inputControlStyle.border,
+                      background: betragInvalid ? "#fff1f2" : undefined,
+                    }}
+                  />
+                  {betragInvalid && (
+                    <div style={{ color: "#b91c1c", fontSize: 14, marginTop: 4 }}>
+                      Bitte gültigen Betrag eingeben
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label htmlFor="rechnung-anhang" style={fieldLabelStyle}>
+                    Anhang zur Rechnung
+                  </label>
+                  <label htmlFor="rechnung-anhang" style={uploadButtonStyle}>
+                    Anhang auswählen
+                  </label>
+                  <input
+                    id="rechnung-anhang"
+                    type="file"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                    onChange={handleAttachmentChange}
+                    style={hiddenFileInputStyle}
+                  />
+                  <p style={attachmentHintStyle}>
+                    Erlaubte Formate: PDF, JPG, PNG, BMP
+                  </p>
+                  {anhang && <p style={selectedFileStyle}>Ausgewählt: {anhang.name}</p>}
+                </div>
               </div>
             )}
           </div>

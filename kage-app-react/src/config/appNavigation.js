@@ -1,5 +1,5 @@
 export const appTree = [
-  { key: "uebersicht", label: "ToDo's für die App" },
+  // entfernt, jetzt unter Allgemein
   { key: "kalender", label: "Kalender" },
   { key: "meine-aufgaben", label: "Meine Aufgaben" },
   {
@@ -67,12 +67,22 @@ export const appTree = [
     ],
   },
   { key: "finanzen", label: "Finanzen" },
-  { key: "zugaenge", label: "Zugänge & Anleitungen" },
+  // entfernt, jetzt unter Allgemein
   { key: "kummerkasten", label: "Böck-Feedback" },
   { key: "datenschutz", label: "Datenschutz" },
-  { key: "app-dokumentation", label: "App-Dokumentation" },
-  { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
-  { key: "cloud", label: "Cloud" },
+  {
+    key: "allgemein",
+    label: "Allgemein",
+    children: [
+      { key: "cloud", label: "Cloud" },
+      { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
+      { key: "app-dokumentation", label: "App-Dokumentation" },
+      { key: "uebersicht", label: "ToDo's für die App" },
+      { key: "zugaenge", label: "Zugänge & Anleitungen" },
+      { key: "nutzung", label: "Nutzung der App" },
+    ],
+  },
+  // ...existing code...
 ];
 
 export const MENU_ROLES = {

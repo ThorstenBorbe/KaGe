@@ -1,0 +1,31 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "status": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && auth.uid === $uid",
+        "state": {
+          ".validate": "newData.isString() && (newData.val() === 'online' || newData.val() === 'offline')"
+        },
+        "lastChanged": {
+          ".validate": "newData.isNumber()"
+        },
+        "name": {
+          ".validate": "!newData.exists() || (newData.isString() && newData.val().length <= 120)"
+        },
+        "role": {
+          ".validate": "!newData.exists() || (newData.isString() && (newData.val() === 'gast' || newData.val() === 'mitglied' || newData.val() === 'trainer' || newData.val() === 'vorstand' || newData.val() === 'admin'))"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "statusOverview": {
+      ".read": "auth != null",
+      ".write": "auth != null && auth.token.admin === true"
+    }
+  }
+}
