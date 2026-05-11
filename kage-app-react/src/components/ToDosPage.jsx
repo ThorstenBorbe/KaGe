@@ -21,31 +21,28 @@ export default function ToDosPage() {
           1. Datenbank mit Mitgliedern und Gruppenzuordnung komplementieren
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          2. Email für Ethikkommite und Kummerkasten erstellen und anbinden, dann Test der Schnittstelle
+          2. Cloudspeicher reservieren und Daten dort ablegen (supabase Konto angelegt, da Deutscher Standort)
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          3. Cloudspeicher reservieren und Daten dort ablegen (supabase Konto angelegt, da Deutscher Standort)
+          3. Erstellung VMI Matrix (Verantwortlichkeiten, Mitwirkende, Informierte) für die verschiedenen Bereiche um die Zuständigkeiten zu klären
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          4. Erstellung VMI Matrix (Verantwortlichkeiten, Mitwirkende, Informierte) für die verschiedenen Bereiche um die Zuständigkeiten zu klären
+          4. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          5. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
-        </p>
-        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          6. Datenbank für verschiedene Termine anlegen und auf Cloud stellen, dass auch Bilder vom Aufbau eingesehen werden können
+          5. Datenbank für verschiedene Termine anlegen und auf Cloud stellen, dass auch Bilder vom Aufbau eingesehen werden können
         </p>        
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          7. Nach Eintragung der Termin bei der Gema entrichtet werden muss, automatisiert eine Email zur Anmeldung verschicken
+          6. Nach Eintragung der Termin bei der Gema entrichtet werden muss, automatisiert eine Email zur Anmeldung verschicken
         </p>    
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          8. Protokolle über App jederzeit lesbar machen (Cloud)
+          7. Protokolle über App jederzeit lesbar machen (Cloud)
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          9. Ideen vom Workshop einholen und in die App einarbeiten
+          8. Ideen vom Workshop einholen und in die App einarbeiten
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          10. Sessionsumschaltung über Cloud für die einzelnen Veranstaltungen umschalten. Ausser Admin und Vorstand ist nur die aktuelle Session sichbar
+          9. Sessionsumschaltung über Cloud für die einzelnen Veranstaltungen umschalten
         </p>        <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           <br />
 

@@ -34,6 +34,8 @@ export default function AppSidebar({
       }
     : {
         width: "300px",
+        minWidth: "300px",  // verhindert, dass der Flex-Container die Sidebar schmaler macht
+        flexShrink: 0,      // Breite bleibt fix, egal wie viel Inhalt aufgeklappt wird
         height: "100vh",
       };
 

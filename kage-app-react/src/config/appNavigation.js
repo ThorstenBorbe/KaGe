@@ -74,6 +74,7 @@ export const appTree = [
     label: "Allgemein",
     children: [
       { key: "cloud", label: "Cloud" },
+      { key: "protokolle", label: "Protokolle" },
       { key: "nutzerverwaltung", label: "Nutzerverwaltung" },
       { key: "app-dokumentation", label: "App-Dokumentation" },
       { key: "uebersicht", label: "ToDo's für die App" },
