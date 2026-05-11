@@ -8,14 +8,15 @@ import FinanzPage from "../components/FinanzPage";
 import ToDosPage from "../components/ToDosPage";
 import ZugaengePage from "../components/ZugaengePage";
 import KaGeCartaPage from "../components/KaGeCartaPage";
+import UnsereWertePage from "../components/UnsereWertePage";
 import AhndungPage from "../components/AhndungPage";
 import AdminPage from "../components/AdminPage";
 import KalenderPage from "../components/KalenderPage";
 import MeineAufgabenPage from "../components/MeineAufgabenPage";
 import EinstellungenPage from "../components/EinstellungenPage";
-import EthikkommiteePage from "../components/EthikkommiteePage";
 import MeldungPage from "../components/MeldungPage";
 import DatenschutzPage from "../components/DatenschutzPage";
+import ImpressumPage from "../components/ImpressumPage";
 import AppDokumentationPage from "../components/AppDokumentationPage";
 import CloudPage from "../components/CloudPage";
 import ListenPage from "../components/ListenPage";
@@ -50,14 +51,15 @@ const GROUP_DATA_BY_KEY = {
 const STATIC_PAGE_BY_KEY = {
   finanzen: FinanzPage,
   vorstand: VorstandsPage,
-  kommitee: EthikkommiteePage,
   meldung: MeldungPage,
   kummerkasten: BoeckFeedbackPage,
   datenschutz: DatenschutzPage,
+  impressum: ImpressumPage,
   "app-dokumentation": AppDokumentationPage,
   uebersicht: ToDosPage,
   zugaenge: ZugaengePage,
   kagezellcarta: KaGeCartaPage,
+  "unsere-werte": UnsereWertePage,
   ahndung: AhndungPage,
   nutzerverwaltung: AdminPage,
   cloud: CloudPage,

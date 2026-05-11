@@ -53,23 +53,22 @@ export const appTree = [
           { key: "elferraete", label: "Elferräte" },
         ],
       },
-      {
-        key: "ethikKommitee",
-        label: "Ethikkommitee",
-        children: [
-          { key: "kommitee", label: "Kommitee" },
-          { key: "kagezellcarta", label: "KaGe-Carta" },
-          { key: "ahndung", label: "Ahndung" },
-          { key: "meldung", label: "Meldung" },
-        ],
-      },
+      { key: "ethikKommitee", label: "KaGe-Carta" },
       { key: "listen", label: "Listen & Dokumente" },
     ],
   },
   { key: "finanzen", label: "Finanzen" },
+  {
+    key: "kagezellcarta",
+    label: "KaGe-Carta",
+    children: [
+      { key: "unsere-werte", label: "Unsere Werte" },
+      { key: "ahndung", label: "Ahndung" },
+      { key: "meldung", label: "Meldung" },
+    ],
+  },
   // entfernt, jetzt unter Allgemein
   { key: "kummerkasten", label: "Böck-Feedback" },
-  { key: "datenschutz", label: "Datenschutz" },
   {
     key: "allgemein",
     label: "Allgemein",
@@ -95,6 +94,6 @@ export const MENU_ROLES = {
   listen: "vorstand",
 };
 
-export const TOP_LEVEL = ["veranstaltungen", "verein", "allgemein"];
-export const SUB_LEVEL = ["interne", "externe", "gruppen", "ethikKommitee"];
+export const TOP_LEVEL = ["veranstaltungen", "verein", "kagezellcarta", "allgemein"];
+export const SUB_LEVEL = ["interne", "externe", "gruppen"];
 export const GRAND_LEVEL = [];

@@ -159,6 +159,35 @@ export default function AppSidebar({
         >
           Abmelden
         </button>
+
+        {/* Impressum & Datenschutz Links */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: "16px",
+            marginTop: "12px",
+          }}
+        >
+          {["impressum", "datenschutz"].map((key) => (
+            <button
+              key={key}
+              onClick={() => onNavigate(key)}
+              style={{
+                background: "none",
+                border: "none",
+                color: "rgba(255,255,255,0.55)",
+                fontSize: "12px",
+                cursor: "pointer",
+                padding: "2px 0",
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+              }}
+            >
+              {key === "impressum" ? "Impressum" : "Datenschutz"}
+            </button>
+          ))}
+        </div>
       </div>
     </aside>
   );
