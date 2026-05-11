@@ -82,7 +82,7 @@ export const appTree = [
       { key: "nutzung", label: "Nutzung der App" },
     ],
   },
-  // ...existing code...
+  // Weitere Menueeintraege koennen hier bei Bedarf ergaenzt werden.
 ];
 
 export const MENU_ROLES = {

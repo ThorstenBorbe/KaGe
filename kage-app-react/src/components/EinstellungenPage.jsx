@@ -1,21 +1,12 @@
 import { useState } from "react";
-import { auth } from "../firebase/firebaseConfig";
-import {
-  updateEmail,
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-  updateProfile,
-} from "firebase/auth";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "../supabase/supabaseConfig";
+import { useAuth } from "../context/useAuth";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function EinstellungenPage() {
   const isMobile = useIsMobile(960);
   const { currentUser, updateName } = useAuth();
-  const user = auth.currentUser;
+  const user = currentUser;
 
   const [section, setSection] = useState(null); // "name" | "email" | "telefon" | "passwort"
 
@@ -40,8 +31,11 @@ export default function EinstellungenPage() {
   function open(s) { reset(); setSection(s); }
 
   async function reauth() {
-    const cred = EmailAuthProvider.credential(user.email, currentPw);
-    await reauthenticateWithCredential(user, cred);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPw,
+    });
+    if (error) throw error;
   }
 
   async function handleName(e) {
@@ -66,12 +60,19 @@ export default function EinstellungenPage() {
     setBusy(true);
     try {
       await reauth();
-      await updateEmail(user, newEmail.trim());
-      await updateDoc(doc(db, "users", user.uid), { email: newEmail.trim() });
-      setMsg({ text: "E-Mail erfolgreich geändert.", error: false });
+      const { error: authError } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (authError) throw authError;
+
+      const { error: profileError } = await supabase
+        .from("users")
+        .update({ email: newEmail.trim() })
+        .eq("id", user.uid);
+      if (profileError) throw profileError;
+
+      setMsg({ text: "E-Mail-Änderung gestartet. Bitte Postfach bestätigen.", error: false });
       setCurrentPw(""); setNewEmail("");
     } catch (err) {
-      setMsg({ text: firebaseError(err.code), error: true });
+      setMsg({ text: supabaseAuthError(err), error: true });
     } finally { setBusy(false); }
   }
 
@@ -82,11 +83,14 @@ export default function EinstellungenPage() {
     }
     setBusy(true);
     try {
-      await updateDoc(doc(db, "users", user.uid), { telefon: telefon.trim() });
-      await updateProfile(user, { phoneNumber: telefon.trim() });
+      const { error } = await supabase
+        .from("users")
+        .update({ telefon: telefon.trim() })
+        .eq("id", user.uid);
+      if (error) throw error;
       setMsg({ text: "Telefonnummer erfolgreich gespeichert.", error: false });
       setTelefon("");
-    } catch (err) {
+    } catch {
       setMsg({ text: "Fehler beim Speichern.", error: true });
     } finally { setBusy(false); }
   }
@@ -105,11 +109,12 @@ export default function EinstellungenPage() {
     setBusy(true);
     try {
       await reauth();
-      await updatePassword(user, newPw);
+      const { error } = await supabase.auth.updateUser({ password: newPw });
+      if (error) throw error;
       setMsg({ text: "Passwort erfolgreich geändert.", error: false });
       setCurrentPw(""); setNewPw(""); setNewPw2("");
     } catch (err) {
-      setMsg({ text: firebaseError(err.code), error: true });
+      setMsg({ text: supabaseAuthError(err), error: true });
     } finally { setBusy(false); }
   }
 
@@ -241,7 +246,7 @@ function Btn({ children, busy, isMobile }) {
       disabled={busy}
       style={{
         padding: isMobile ? "8px 14px" : "9px 20px", background: busy ? "#e5e7eb" : "#b91c1c", // Rot = Primaeraktion; Grau = deaktiviert
-        color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7, // Buttonform: 4 = sachlicher, 7 = Standard, 999 = pillenartig
+        color: busy ? "#9ca3af" : "white", border: "none", borderRadius: 7, // Schaltflaechenform: 4 = sachlicher, 7 = Standard, 999 = pillenartig
         fontSize: isMobile ? 14 : 18, fontWeight: 700, cursor: busy ? "not-allowed" : "pointer",
       }}
     >
@@ -259,14 +264,18 @@ function Feedback({ msg, isMobile }) {
   );
 }
 
-function firebaseError(code) {
+function supabaseAuthError(err) {
+  const code = err?.code ?? "";
+  const message = String(err?.message ?? "").toLowerCase();
   const map = {
-    "auth/wrong-password": "Aktuelles Passwort falsch.",
-    "auth/invalid-credential": "Aktuelles Passwort falsch.",
-    "auth/email-already-in-use": "Diese E-Mail wird bereits verwendet.",
-    "auth/invalid-email": "Ungültige E-Mail-Adresse.",
-    "auth/requires-recent-login": "Bitte erneut anmelden und dann nochmal versuchen.",
-    "auth/too-many-requests": "Zu viele Versuche. Bitte später erneut versuchen.",
+    invalid_credentials: "Aktuelles Passwort falsch.",
+    email_exists: "Diese E-Mail wird bereits verwendet.",
   };
-  return map[code] ?? "Ein Fehler ist aufgetreten.";
+  if (map[code]) return map[code];
+  if (message.includes("invalid login credentials")) return "Aktuelles Passwort falsch.";
+  if (message.includes("password should be")) return "Passwort muss mindestens 6 Zeichen haben.";
+  if (message.includes("already registered") || message.includes("already exists")) return "Diese E-Mail wird bereits verwendet.";
+  if (message.includes("invalid email")) return "Ungültige E-Mail-Adresse.";
+  if (message.includes("rate limit")) return "Zu viele Versuche. Bitte später erneut versuchen.";
+  return "Ein Fehler ist aufgetreten.";
 }

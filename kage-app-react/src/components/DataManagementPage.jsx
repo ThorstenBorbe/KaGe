@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ref, uploadBytes, listAll, getBytes, deleteObject } from "firebase/storage";
-import { storage } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseConfig";
+
+const STORAGE_BUCKET = "daten";
 
 const pageContainerStyle = {
   padding: "24px",
@@ -31,12 +32,12 @@ const fileInputStyle = {
 };
 
 const primaryButtonStyle = {
-  padding: "8px 16px", // Buttongroesse; alternativ "10px 18px" fuer groessere Touchflaeche
+  padding: "8px 16px", // Schaltflaechengroesse; alternativ "10px 18px" fuer groessere Touchflaeche
   marginBottom: 16,
   background: "#b91c1c", // Primaerfarbe; Alternativen z. B. "#111827" oder "#2563eb"
   color: "white",
   border: "none",
-  borderRadius: 8, // Buttonform: 4 = kantiger, 8 = neutral, 999 = pillenartig
+  borderRadius: 8, // Schaltflaechenform: 4 = kantiger, 8 = neutral, 999 = pillenartig
   cursor: "pointer",
   fontWeight: 600,
 };
@@ -83,13 +84,21 @@ export default function DataManagementPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", error: false });
 
-  // Dateien aus Storage laden
+  // Dateien aus dem Speicher laden
   const loadFiles = async () => {
     try {
       setLoading(true);
-      const listRef = ref(storage, "daten/");
-      const res = await listAll(listRef);
-      setFiles(res.items.map((item) => item.name));
+      const { data, error } = await supabase
+        .storage
+        .from(STORAGE_BUCKET)
+        .list("", { limit: 1000, sortBy: { column: "name", order: "asc" } });
+
+      if (error) throw error;
+      const names = (data ?? [])
+        .filter((item) => item.id)
+        .map((item) => item.name);
+
+      setFiles(names);
       setMessage({ text: "Dateien geladen", error: false });
     } catch (err) {
       setMessage({ text: `Fehler: ${err.message}`, error: true });
@@ -110,8 +119,13 @@ export default function DataManagementPage() {
 
     try {
       setLoading(true);
-      const fileRef = ref(storage, `daten/${file.name}`);
-      await uploadBytes(fileRef, file);
+      const { error } = await supabase
+        .storage
+        .from(STORAGE_BUCKET)
+        .upload(file.name, file, { upsert: true, contentType: "application/json" });
+
+      if (error) throw error;
+
       setMessage({ text: `✅ ${file.name} hochgeladen!`, error: false });
       await loadFiles();
     } catch (err) {
@@ -126,8 +140,9 @@ export default function DataManagementPage() {
     if (!window.confirm(`${filename} wirklich löschen?`)) return;
     try {
       setLoading(true);
-      const fileRef = ref(storage, `daten/${filename}`);
-      await deleteObject(fileRef);
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).remove([filename]);
+      if (error) throw error;
+
       setMessage({ text: `✅ ${filename} gelöscht!`, error: false });
       await loadFiles();
     } catch (err) {
@@ -140,7 +155,7 @@ export default function DataManagementPage() {
   return (
     <div style={pageContainerStyle}>
       <div style={contentCardStyle}>
-        <h2 style={{ marginTop: 0, color: "#b91c1c" }}>📁 Datenverwaltung (Firebase Storage)</h2>
+        <h2 style={{ marginTop: 0, color: "#b91c1c" }}>📁 Datenverwaltung (Supabase-Speicher)</h2>
 
         {/* Feedback */}
         {message.text && (
@@ -162,7 +177,7 @@ export default function DataManagementPage() {
             style={fileInputStyle}
           />
           <p style={{ fontSize: 12, color: "#6b7280", margin: "8px 0 0 0" }}>
-            💡 Tipp: Dateien sollten <code>daten/externeVeranstaltungen.json</code> oder <code>daten/interneVeranstaltungen.json</code> heißen
+            💡 Tipp: Dateien sollten <code>externeVeranstaltungen.json</code> oder <code>interneVeranstaltungen.json</code> heißen
           </p>
         </div>
 
@@ -178,7 +193,7 @@ export default function DataManagementPage() {
 
           {files.length > 0 ? (
             <div>
-              <h3 style={{ fontSize: 14, marginTop: 0 }}>Geladen in Firebase Storage:</h3>
+              <h3 style={{ fontSize: 14, marginTop: 0 }}>Geladen im Supabase-Speicher:</h3>
               <ul style={{ margin: 0, paddingLeft: 20 }}>
                 {files.map((file) => (
                   <li key={file} style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>

@@ -1,17 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
-import { auth, db, rtdb } from "../firebase/firebaseConfig";
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendPasswordResetEmail,
-  signOut,
-  updateProfile,
-} from "firebase/auth";
-import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { onDisconnect, onValue, ref, serverTimestamp, set } from "firebase/database";
+import { createContext, useState, useEffect } from "react";
+import { supabase, SUPABASE_ANON_KEY, getSupabaseAuthBaseUrl } from "../supabase/supabaseConfig";
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 const ROLE_HIERARCHY = ["gast", "mitglied", "trainer", "vorstand", "admin"];
 const PRIVACY_POLICY_VERSION = "2026-05-10";
@@ -19,6 +9,132 @@ const PRIVACY_POLICY_STAND = "10.05.2026";
 
 function normalizeRole(role) {
   return String(role ?? "gast").trim().toLowerCase();
+}
+
+function getProfileName(authUser, profile) {
+  return profile?.name
+    ?? authUser?.user_metadata?.display_name
+    ?? authUser?.email
+    ?? "";
+}
+
+function getPrivacyAccepted(profile) {
+  const consent = profile?.privacy_consent;
+  return consent?.accepted === true && consent?.version === PRIVACY_POLICY_VERSION;
+}
+
+function withTimeout(promise, ms) {
+  const timeout = new Promise((resolve) => {
+    setTimeout(() => resolve({ data: null, timedOut: true }), ms);
+  });
+  return Promise.race([promise.then((result) => ({ data: result, timedOut: false })), timeout]);
+}
+
+async function loginViaRestFallback(email, password) {
+  const authBaseUrl = getSupabaseAuthBaseUrl();
+
+  console.log("[Login REST] Token-Anfrage startet...");
+  const result = await withTimeout(
+    fetch(`${authBaseUrl}/token?grant_type=password`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    }),
+    8000
+  );
+
+  if (result.timedOut) {
+    throw new Error("Login-Zeitüberschreitung (REST, 8s). Browser blockiert vermutlich Supabase-Verbindungen.");
+  }
+
+  const response = result.data;
+  console.log("[Login REST] Token-Antwort erhalten:", response.status);
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      payload?.msg
+      ?? payload?.error_description
+      ?? payload?.error
+      ?? `REST-Login fehlgeschlagen (HTTP ${response.status}).`
+    );
+  }
+
+  const accessToken = payload?.access_token;
+  const refreshToken = payload?.refresh_token;
+  if (!accessToken || !refreshToken) {
+    throw new Error("REST-Login erfolgreich, aber Session-Tokens fehlen.");
+  }
+
+  console.log("[Login REST] setSession startet...");
+  const sessionResult = await withTimeout(
+    supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    }),
+    200
+  );
+
+  if (sessionResult.timedOut) {
+    // In einigen Browser-Setups schreibt das SDK die Session trotzdem in den Storage,
+    // obwohl das Promise wegen Lockdown/CSP nicht sauber auflöst.
+    // Ein Reload übernimmt dann die Session zuverlässig.
+    console.warn("[Login REST] setSession-Timeout, führe automatischen Reload zur Session-Übernahme aus.");
+    setTimeout(() => {
+      window.location.reload();
+    }, 5);
+    return;
+  }
+
+  const { error } = sessionResult.data;
+  if (error) throw error;
+  console.log("[Login REST] setSession abgeschlossen.");
+}
+
+async function ensureUserProfile(authUser) {
+  const { data: existing, error: readError } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", authUser.id)
+    .maybeSingle();
+
+  if (readError) {
+    throw readError;
+  }
+
+  if (existing) {
+    return existing;
+  }
+
+  const profile = {
+    id: authUser.id,
+    name: authUser.user_metadata?.display_name ?? authUser.email ?? "",
+    email: authUser.email ?? "",
+    vorname: "",
+    nachname: "",
+    role: "mitglied",
+    privacy_consent: {
+      accepted: false,
+      version: PRIVACY_POLICY_VERSION,
+      stand: PRIVACY_POLICY_STAND,
+      acceptedAt: null,
+    },
+  };
+
+  const { error: insertError } = await supabase.from("users").upsert(profile, { onConflict: "id" });
+  if (insertError) {
+    throw insertError;
+  }
+
+  return profile;
 }
 
 export function AuthProvider({ children }) {
@@ -29,128 +145,211 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        const userRef = doc(db, "users", firebaseUser.uid);
-        const snap = await getDoc(userRef);
-        let role = "mitglied";
-        let accepted = false;
-        if (snap.exists()) {
-          const data = snap.data();
-          role = normalizeRole(data.role ?? "mitglied");
-          accepted = data.privacyConsent?.accepted === true
-            && data.privacyConsent?.version === PRIVACY_POLICY_VERSION;
-          setCurrentUser({
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName ?? firebaseUser.email,
-            email: data.email ?? firebaseUser.email ?? "",
-            vorname: data.vorname ?? "",
-            nachname: data.nachname ?? "",
-          });
-        } else {
-          // Nutzer ist in Firebase Auth, hat aber noch keinen Firestore-Eintrag → anlegen
-          await setDoc(userRef, {
-            name: firebaseUser.displayName ?? "",
-            email: firebaseUser.email ?? "",
-            vorname: "",
-            nachname: "",
-            role: "mitglied",
-            privacyConsent: {
-              accepted: false,
-              version: PRIVACY_POLICY_VERSION,
-              stand: PRIVACY_POLICY_STAND,
-              acceptedAt: null,
-            },
-          });
-          setCurrentUser({
-            uid: firebaseUser.uid,
-            name: firebaseUser.displayName ?? firebaseUser.email,
-            email: firebaseUser.email ?? "",
-            vorname: "",
-            nachname: "",
-          });
-        }
-        setUserRole(role);
-        setPrivacyAccepted(accepted);
-      } else {
-        setCurrentUser(null);
-        setUserRole("gast");
-        setPrivacyAccepted(false);
+    let mounted = true;
+
+    // Sicherheits-Timeout: Falls alle anderen Timeouts versagen, Ladezustand nach 5 Sekunden beenden.
+    const safetyTimer = setTimeout(() => {
+      if (mounted) {
+        console.warn("[Auth] Sicherheits-Timeout – Ladezustand wird erzwungen beendet.");
+        setLoading(false);
       }
-      setLoading(false);
+    }, 5000);
+
+    function applyLoggedOutState() {
+      setCurrentUser(null);
+      setUserRole("gast");
+      setPrivacyAccepted(false);
+    }
+
+    function applyAuthFallbackState(authUser) {
+      // Fallback: Auth-User ist vorhanden, aber Profilzugriff ist lokal nicht moeglich.
+      setCurrentUser({
+        uid: authUser.id,
+        name: authUser.user_metadata?.display_name ?? authUser.email ?? "",
+        email: authUser.email ?? "",
+        vorname: "",
+        nachname: "",
+      });
+      setUserRole("mitglied");
+      setPrivacyAccepted(false);
+    }
+
+    async function hydrateUser(authUser) {
+      if (!mounted) return;
+
+      if (!authUser) {
+        applyLoggedOutState();
+        return;
+      }
+
+      try {
+        const profile = await ensureUserProfile(authUser);
+
+        setCurrentUser({
+          uid: authUser.id,
+          name: getProfileName(authUser, profile),
+          email: profile.email ?? authUser.email ?? "",
+          vorname: profile.vorname ?? "",
+          nachname: profile.nachname ?? "",
+        });
+        setUserRole(normalizeRole(profile.role ?? "mitglied"));
+        setPrivacyAccepted(getPrivacyAccepted(profile));
+      } catch (error) {
+        console.error("[Auth Profilfehler]", error?.message ?? error);
+        applyAuthFallbackState(authUser);
+      }
+    }
+
+    const init = async () => {
+      try {
+        // getSession mit 4-Sekunden-Timeout absichern – verhindert langes Warten bei
+        // Supabase-Verbindungsproblemen (z. B. pausiertes Projekt oder kein Netzwerk).
+        console.log("[Auth Init] getSession() wird aufgerufen …");
+        const result = await withTimeout(supabase.auth.getSession(), 4000);
+
+        if (result.timedOut) {
+          console.warn("[Auth Init] getSession() Timeout nach 4s – Login-Screen wird angezeigt.");
+          applyLoggedOutState();
+          return;
+        }
+        console.log("[Auth Init] getSession() abgeschlossen.", result.data?.data?.session ? "Session vorhanden" : "Keine Session");
+
+        const { data, error } = result.data;
+        if (error) {
+          console.error("[Auth Init]", error.message);
+        }
+        await hydrateUser(data?.session?.user ?? null);
+      } catch (error) {
+        console.error("[Auth Init Exception]", error?.message ?? error);
+        applyLoggedOutState();
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    init();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      try {
+        await hydrateUser(session?.user ?? null);
+      } catch (error) {
+        console.error("[Auth State Change]", error?.message ?? error);
+        applyLoggedOutState();
+      } finally {
+        if (mounted) setLoading(false);
+      }
     });
-    return unsubscribe;
+
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimer);
+      subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     if (!currentUser?.uid || currentUser.uid === "dev") return;
 
-    const statusRef = ref(rtdb, `status/${currentUser.uid}`);
-    const connectedRef = ref(rtdb, ".info/connected");
+    const channel = supabase.channel("online-users", {
+      config: { presence: { key: currentUser.uid } },
+    });
 
-    const unsubscribeConnected = onValue(connectedRef, async (snap) => {
-      if (snap.val() !== true) return;
-
-      await onDisconnect(statusRef).set({
-        state: "offline",
-        lastChanged: serverTimestamp(),
-      });
-
-      await set(statusRef, {
-        state: "online",
+    channel.subscribe(async (status) => {
+      if (status !== "SUBSCRIBED") return;
+      await channel.track({
+        uid: currentUser.uid,
         role: userRole,
         name: currentUser.name ?? "",
-        lastChanged: serverTimestamp(),
+        email: currentUser.email ?? "",
+        onlineAt: new Date().toISOString(),
       });
     });
 
     return () => {
-      unsubscribeConnected();
+      channel.untrack();
+      supabase.removeChannel(channel);
     };
   }, [currentUser, userRole]);
 
   const login = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    // Primär über REST + lokalen Vite-Proxy anmelden.
+    // Das umgeht Browser-Schutzlisten, die direkte SDK-Aufrufe auf supabase.co blockieren.
+    await loginViaRestFallback(email, password);
   };
 
   const register = async (name, email, password) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(cred.user, { displayName: name });
-    await setDoc(doc(db, "users", cred.user.uid), {
+    const result = await withTimeout(
+      supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { display_name: name } },
+      }),
+      10000
+    );
+
+    if (result.timedOut) {
+      throw new Error("Registrierung-Zeitüberschreitung (10s). Prüfe Browser-Schutz/Adblocker/CSP.");
+    }
+
+    const { data, error } = result.data;
+    if (error) throw error;
+    if (!data.user) return;
+
+    const { error: profileError } = await supabase.from("users").upsert({
+      id: data.user.id,
       name,
       email,
       role: "mitglied",
-      privacyConsent: {
+      privacy_consent: {
         accepted: false,
         version: PRIVACY_POLICY_VERSION,
         stand: PRIVACY_POLICY_STAND,
         acceptedAt: null,
       },
     });
+    if (profileError) throw profileError;
   };
 
   const resetPassword = async (email) => {
-    await sendPasswordResetEmail(auth, email);
+    const result = await withTimeout(
+      supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      }),
+      10000
+    );
+
+    if (result.timedOut) {
+      throw new Error("Passwort-Reset-Zeitüberschreitung (10s). Prüfe Browser-Schutz/Adblocker/CSP.");
+    }
+
+    const { error } = result.data;
+    if (error) throw error;
   };
 
   const logout = async () => {
-    // Dev-Login nutzt keinen Firebase-Auth-User und muss lokal zurückgesetzt werden.
+    // Entwickler-Anmeldung nutzt keinen Supabase-Authentifizierungsnutzer und muss lokal zurueckgesetzt werden.
     if (currentUser?.uid === "dev") {
       setCurrentUser(null);
       setUserRole("gast");
       setPrivacyAccepted(false);
       return;
     }
-    await signOut(auth);
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
   };
 
   const updateName = async (vorname, nachname) => {
     if (!currentUser?.uid || currentUser.uid === "dev") return;
     const fullName = [vorname, nachname].filter(Boolean).join(" ");
-    await updateDoc(doc(db, "users", currentUser.uid), { vorname, nachname, name: fullName });
-    if (auth.currentUser) {
-      await updateProfile(auth.currentUser, { displayName: fullName });
-    }
+    const { error } = await supabase
+      .from("users")
+      .update({ vorname, nachname, name: fullName })
+      .eq("id", currentUser.uid);
+    if (error) throw error;
+
+    await supabase.auth.updateUser({ data: { display_name: fullName } });
     setCurrentUser((prev) => ({ ...prev, vorname, nachname, name: fullName }));
   };
 
@@ -167,15 +366,22 @@ export function AuthProvider({ children }) {
     }
     setPrivacyBusy(true);
     try {
-      const userRef = doc(db, "users", currentUser.uid);
-      await setDoc(userRef, {
-        privacyConsent: {
-          accepted: true,
-          version: PRIVACY_POLICY_VERSION,
-          stand: PRIVACY_POLICY_STAND,
-          acceptedAt: new Date().toISOString(),
-        },
-      }, { merge: true });
+      const { error } = await supabase
+        .from("users")
+        .update({
+          privacy_consent: {
+            accepted: true,
+            version: PRIVACY_POLICY_VERSION,
+            stand: PRIVACY_POLICY_STAND,
+            acceptedAt: new Date().toISOString(),
+          },
+        })
+        .eq("id", currentUser.uid);
+      if (error) {
+        // DB-Fehler protokollieren aber trotzdem lokal akzeptieren,
+        // damit der Nutzer nicht dauerhaft auf dieser Seite haengt.
+        console.error("[Datenschutz DB-Fehler]", error.message);
+      }
       setPrivacyAccepted(true);
     } finally {
       setPrivacyBusy(false);
@@ -188,7 +394,34 @@ export function AuthProvider({ children }) {
     return userIndex >= requiredIndex;
   };
 
-  if (loading) return null;
+  // Ladebildschirm anzeigen, solange der Auth-Status noch nicht bekannt ist.
+  if (loading) {
+    return (
+      <div style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100vh",
+        background: "#1a1a2e",           /* Hintergrundfarbe – z. B. "#fff" für weiß */
+        color: "#c8a84b",                /* Textfarbe – passend zum App-Theme */
+        fontSize: "1.1rem",
+        fontFamily: "sans-serif",
+        flexDirection: "column",
+        gap: "1rem",
+      }}>
+        <div style={{
+          width: 40,                       /* Spinner-Größe in px */
+          height: 40,
+          border: "4px solid rgba(200,168,75,0.3)",
+          borderTop: "4px solid #c8a84b", /* Spinner-Farbe */
+          borderRadius: "50%",
+          animation: "kage-spin 0.9s linear infinite",
+        }} />
+        <style>{"@keyframes kage-spin { to { transform: rotate(360deg); } }"}</style>
+        <span>App wird geladen …</span>
+      </div>
+    );
+  }
 
   return (
     <AuthContext.Provider
@@ -213,6 +446,4 @@ export function AuthProvider({ children }) {
   );
 }
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+

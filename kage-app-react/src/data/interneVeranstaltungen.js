@@ -1,5 +1,5 @@
 // Daten für interne Veranstaltungen – Vorbereitung, Aufbau, Veranstaltung & Abbau.
-// Cloud-JSON kann Aufgaben entweder als String oder als Objekt speichern.
+// Das Supabase-JSON kann Aufgaben entweder als Zeichenkette oder als Objekt speichern.
 // Beispiel fuer eine Aufgabe mit Verantwortlichen:
 // { text: "Getraenke bestellen", verantwortlich: ["Max Mueller", "Anna Schmidt"], status: "offen" }
 

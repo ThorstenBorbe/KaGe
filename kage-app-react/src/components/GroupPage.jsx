@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { EXCEL_LINKS } from "../config/excelLinks";
 

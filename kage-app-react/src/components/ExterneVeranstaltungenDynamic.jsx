@@ -1,4 +1,4 @@
-import { useFirebaseData } from "../hooks/useFirebaseData";
+import { useSupabaseData } from "../hooks/useSupabaseData";
 
 const loadingStateStyle = {
   padding: "24px",
@@ -35,15 +35,15 @@ const eventMetaStyle = {
 };
 
 /**
- * Beispiel-Komponente: Zeigt, wie man Daten von Firebase Storage lädt
+ * Beispiel-Komponente: Zeigt, wie man Daten von Supabase Storage lädt
  * 
  * Verwendung in App.jsx:
- * if (active === "externe-firebase") {
+ * if (active === "externe-supabase") {
  *   return <ExterneVeranstaltungenDynamic />;
  * }
  */
 export default function ExterneVeranstaltungenDynamic() {
-  const { data, loading, error } = useFirebaseData("externeVeranstaltungen.json");
+  const { data, loading, error } = useSupabaseData("externeVeranstaltungen.json");
 
   if (loading) {
     return (
@@ -59,7 +59,7 @@ export default function ExterneVeranstaltungenDynamic() {
         <div style={errorBoxStyle}>
           ❌ Fehler beim Laden der Daten: {error}
           <br />
-          <small>Stelle sicher, dass "externeVeranstaltungen.json" in Firebase Storage hochgeladen wurde.</small>
+          <small>Stelle sicher, dass "externeVeranstaltungen.json" im Supabase-Speicher hochgeladen wurde.</small>
         </div>
       </div>
     );
@@ -71,7 +71,7 @@ export default function ExterneVeranstaltungenDynamic() {
 
   return (
     <div style={resultsContainerStyle}>
-      <h2>🌍 Externe Veranstaltungen (von Firebase)</h2>
+      <h2>🌍 Externe Veranstaltungen (von Supabase)</h2>
       
       {Object.entries(data).map(([key, veranstaltung]) => (
         <div key={key} style={eventCardStyle}>

@@ -1,4 +1,4 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { EXCEL_LINKS } from "../config/excelLinks";
 
@@ -51,11 +51,11 @@ const listCardStyle = (isMobile) => ({
 
 const openLinkButtonStyle = (isMobile) => ({
   display: "inline-block",
-  background: "#b91c1c", // Primaerfarbe des Oeffnen-Buttons; alternativ "#111827" oder "#2563eb"
+  background: "#b91c1c", // Primaerfarbe der Oeffnen-Schaltflaeche; alternativ "#111827" oder "#2563eb"
   color: "white",
   textDecoration: "none",
   padding: "12px 18px",
-  borderRadius: "12px", // Buttonform: "6px" = sachlicher, "12px" = freundlich, "999px" = pillenartig
+  borderRadius: "12px", // Schaltflaechenform: "6px" = sachlicher, "12px" = freundlich, "999px" = pillenartig
   fontWeight: "bold",
   fontSize: isMobile ? "14px" : "16px",
   fontFamily: "Century Gothic, Segoe UI, Roboto, sans-serif",

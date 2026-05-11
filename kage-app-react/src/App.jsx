@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import LoginPage from "./components/LoginPage";
 import PrivacyConsentPage from "./components/PrivacyConsentPage";
@@ -19,7 +19,7 @@ import {
 } from "./utils/appNavigation";
 import { theme } from "./styles/theme";
 
-const APP_VERSION = "v0.2.1";
+const APP_VERSION = "v0.2.2";
 
 export default function App() {
   const {

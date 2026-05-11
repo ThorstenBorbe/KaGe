@@ -31,7 +31,7 @@ const appointmentItemStyle = (isMobile) => ({
 const categoryBadgeStyle = (isMobile, isExternal) => ({
   background: isExternal ? "#fee2e2" : "#e5e7eb",
   color: isExternal ? "#b91c1c" : "#374151",
-  borderRadius: "999px", // Badgeform: pillenartig; alternativ "10px" fuer weniger rund
+  borderRadius: "999px", // Markenform: pillenartig; alternativ "10px" fuer weniger rund
   padding: isMobile ? "3px 9px" : "4px 10px",
   fontSize: "12px",
   fontWeight: 700,

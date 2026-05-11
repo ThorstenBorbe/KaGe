@@ -93,7 +93,7 @@ const cardHeaderStyle = (typ) => {
     alignItems: "center",
     gap: 8,
     marginBottom: 18,
-    padding: "8px 14px", // Kopf-Badge fuer die schnelle visuelle Trennung beider Karten
+    padding: "8px 14px", // Kopfmarkierung fuer die schnelle visuelle Trennung beider Karten
     borderRadius: 999,
     background: phaseBadge.background,
     color: phaseBadge.color,

@@ -20,7 +20,7 @@ const bodyTextStyle = {
 const noticeStyle = {
   marginTop: "20px",
   padding: "16px", // Alternativ "20px" fuer mehr Luft in der Hinweisbox
-  borderRadius: "12px", // Hinweisform: "0px" = sachlich, "12px" = freundlich, "999px" = badge-artig
+  borderRadius: "12px", // Hinweisform: "0px" = sachlich, "12px" = freundlich, "999px" = markenartig
   background: "#f9fafb",
   border: "1px dashed #d1d5db", // Alternativen: "solid" fuer klarer, "none" fuer ruhiger
   textAlign: "center",

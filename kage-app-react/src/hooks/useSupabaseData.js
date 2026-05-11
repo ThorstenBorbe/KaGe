@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { ref, getBytes } from "firebase/storage";
-import { storage } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseConfig";
+
+const STORAGE_BUCKET = "daten";
 
 /**
- * Hook zum Laden von JSON-Dateien aus Firebase Storage
+ * Hook zum Laden von JSON-Dateien aus dem Supabase-Speicher
  * @param {string} filename - Name der Datei (z.B. "externeVeranstaltungen.json")
  * @returns {object} { data, loading, error }
  */
-export function useFirebaseData(filename) {
+export function useSupabaseData(filename) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,17 +18,16 @@ export function useFirebaseData(filename) {
       try {
         setLoading(true);
         setError(null);
+
+        const { data: fileBlob, error: downloadError } = await supabase
+          .storage
+          .from(STORAGE_BUCKET)
+          .download(filename);
+
+        if (downloadError) throw downloadError;
+
+        const text = await fileBlob.text();
         
-        // Referenz zur Datei in Firebase Storage
-        const fileRef = ref(storage, `daten/${filename}`);
-        
-        // Datei als Bytes laden
-        const bytes = await getBytes(fileRef);
-        
-        // Bytes zu String konvertieren
-        const text = new TextDecoder().decode(bytes);
-        
-        // JSON parsen
         const json = JSON.parse(text);
         
         setData(json);

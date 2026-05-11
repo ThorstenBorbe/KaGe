@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
 
 const BRAND_RED = "#b91c1c";
@@ -26,15 +25,50 @@ export default function AdminPage() {
   const [editorVorname, setEditorVorname] = useState("");
   const [editorNachname, setEditorNachname] = useState("");
   const [editorEmail, setEditorEmail] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadUsers();
   }, []);
 
+  function getDisplayName(user) {
+    const fullName = [user?.vorname, user?.nachname]
+      .map((value) => String(value ?? "").trim())
+      .filter(Boolean)
+      .join(" ");
+
+    if (fullName) return fullName;
+
+    const profileName = String(user?.name ?? "").trim();
+    if (profileName) return profileName;
+
+    const email = String(user?.email ?? "").trim();
+    if (email) return email.split("@")[0];
+
+    return "Unbekannt";
+  }
+
+  function getDisplaySubline(user) {
+    const email = String(user?.email ?? "").trim();
+    return email || "Keine E-Mail hinterlegt";
+  }
+
   async function loadUsers() {
     setLoading(true);
-    const snap = await getDocs(collection(db, "users"));
-    const list = snap.docs.map((d) => ({ uid: d.id, ...d.data() }));
+    setError("");
+    const { data, error: loadError } = await supabase
+      .from("users")
+      .select("*")
+      .order("email", { ascending: true });
+
+    if (loadError) {
+      setError(`Nutzer konnten nicht geladen werden: ${loadError.message}`);
+      setUsers([]);
+      setLoading(false);
+      return;
+    }
+
+    const list = (data ?? []).map((row) => ({ uid: row.id, ...row }));
     list.sort((a, b) => (a.email ?? "").localeCompare(b.email ?? ""));
     setUsers(list);
     setLoading(false);
@@ -42,7 +76,17 @@ export default function AdminPage() {
 
   async function changeRole(uid, newRole) {
     setSaving(uid);
-    await updateDoc(doc(db, "users", uid), { role: newRole });
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ role: newRole })
+      .eq("id", uid);
+
+    if (updateError) {
+      setError("Rolle konnte nicht gespeichert werden.");
+      setSaving(null);
+      return;
+    }
+
     setUsers((prev) =>
       prev.map((u) => (u.uid === uid ? { ...u, role: newRole } : u))
     );
@@ -72,12 +116,21 @@ export default function AdminPage() {
     const fullName = [safeVorname, safeNachname].filter(Boolean).join(" ");
 
     setSaving(editingUser.uid);
-    await updateDoc(doc(db, "users", editingUser.uid), {
-      vorname: safeVorname,
-      nachname: safeNachname,
-      email: safeEmail,
-      name: fullName,
-    });
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({
+        vorname: safeVorname,
+        nachname: safeNachname,
+        email: safeEmail,
+        name: fullName,
+      })
+      .eq("id", editingUser.uid);
+
+    if (updateError) {
+      setError("Profil konnte nicht gespeichert werden.");
+      setSaving(null);
+      return;
+    }
 
     setUsers((prev) =>
       prev.map((u) =>
@@ -92,8 +145,12 @@ export default function AdminPage() {
   }
 
   async function deleteUser(uid, email) {
-    if (!window.confirm(`Firestore-Eintrag von "${email ?? "Anonym"}" wirklich löschen?`)) return;
-    await deleteDoc(doc(db, "users", uid));
+    if (!window.confirm(`Supabase-Eintrag von "${email ?? "Anonym"}" wirklich löschen?`)) return;
+    const { error: deleteError } = await supabase.from("users").delete().eq("id", uid);
+    if (deleteError) {
+      setError("Nutzer konnte nicht gelöscht werden.");
+      return;
+    }
     setUsers((prev) => prev.filter((u) => u.uid !== uid));
   }
 
@@ -125,6 +182,10 @@ export default function AdminPage() {
         <p style={{ color: "#6b7280", marginBottom: 20, fontSize: 14 }}>
           Hier kannst du die Rollen aller registrierten Nutzer verwalten.
         </p>
+
+        {error && (
+          <p style={{ color: "#b91c1c", marginBottom: 14, fontSize: 13 }}>{error}</p>
+        )}
 
         {/* Ausstehende Freischaltungen */}
         {pending.length > 0 && (
@@ -235,9 +296,12 @@ export default function AdminPage() {
                 }}
               >
                 <div style={{ display: "grid", gap: 8 }}>
-                  <div style={{ fontSize: 12, color: "#6b7280" }}>Vorname Nachname</div>
+                  <div style={{ fontSize: 12, color: "#6b7280" }}>Name</div>
                   <div style={{ fontSize: 14, color: "#111827", fontWeight: 600 }}>
-                    {(user.vorname || "-") + " " + (user.nachname || "-")}
+                    {getDisplayName(user)}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#9ca3af" }}>
+                    {getDisplaySubline(user)}
                   </div>
 
                   <div style={{ fontSize: 12, color: "#6b7280" }}>Rolle ändern</div>
@@ -284,7 +348,7 @@ export default function AdminPage() {
                     </button>
                     <button
                       onClick={() => deleteUser(user.uid, user.email)}
-                      title="Aus Firestore löschen"
+                      title="Aus Supabase löschen"
                       style={{
                         width: 42,
                         borderRadius: 8,
@@ -320,10 +384,13 @@ export default function AdminPage() {
                 >
                   <td style={td}>
                     <div style={{ color: "#6b7280", fontSize: 12, marginBottom: 4 }}>
-                      Vorname Nachname
+                      Name
                     </div>
                     <div style={{ color: "#111827", fontSize: 14, fontWeight: 600 }}>
-                      {(user.vorname || "-") + " " + (user.nachname || "-")}
+                      {getDisplayName(user)}
+                    </div>
+                    <div style={{ color: "#9ca3af", fontSize: 12 }}>
+                      {getDisplaySubline(user)}
                     </div>
                   </td>
                   <td style={{ ...td, textAlign: "center" }}>
@@ -376,7 +443,7 @@ export default function AdminPage() {
                   <td style={td}>
                     <button
                       onClick={() => deleteUser(user.uid, user.email)}
-                      title="Aus Firestore löschen"
+                      title="Aus Supabase löschen"
                       style={{
                         background: "none",
                         border: "none",

@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { onValue, ref as rtdbRef } from "firebase/database";
-import { getMetadata, listAll, ref } from "firebase/storage";
-import { doc, onSnapshot } from "firebase/firestore";
-import { db, rtdb, storage } from "../firebase/firebaseConfig";
-import { useAuth } from "../context/AuthContext";
+import { supabase } from "../supabase/supabaseConfig";
+import { useAuth } from "../context/useAuth";
 import { useIsMobile } from "../hooks/useIsMobile";
+
+const STORAGE_BUCKET = "daten";
 
 const card = {
   background: "white",
@@ -22,7 +21,7 @@ const pageGridStyle = {
 
 const usageButtonStyle = (isMobile, isLoading) => ({
   border: "none",
-  borderRadius: 8, // Buttonform: 4 = sachlicher, 8 = Standard, 999 = pillenartig
+  borderRadius: 8, // Schaltflaechenform: 4 = sachlicher, 8 = Standard, 999 = pillenartig
   padding: "8px 12px", // Groesse leicht anpassbar, ohne den Rest der Karte zu veraendern
   minWidth: isMobile ? 0 : 220,
   width: isMobile ? "100%" : "auto",
@@ -47,7 +46,7 @@ const onlineBadgeStyle = {
   alignItems: "center",
   justifyContent: "center",
   minWidth: 96,
-  borderRadius: 12, // Badge-Form: 6 = kompakter, 12 = freundlich, 999 = pillenartig
+  borderRadius: 12, // Markenform: 6 = kompakter, 12 = freundlich, 999 = pillenartig
   padding: "10px 14px",
   background: "#ecfdf5",
   border: "1px solid #a7f3d0",
@@ -56,8 +55,8 @@ const onlineBadgeStyle = {
   fontWeight: 700,
 };
 
-const SPARK_STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024;
-const SPARK_DAILY_DOWNLOAD_LIMIT_BYTES = 1 * 1024 * 1024 * 1024;
+const SUPABASE_STORAGE_LIMIT_BYTES = 5 * 1024 * 1024 * 1024;
+const SUPABASE_DAILY_DOWNLOAD_LIMIT_BYTES = 1 * 1024 * 1024 * 1024;
 
 function formatBytes(bytes) {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 B";
@@ -73,36 +72,49 @@ function formatBytes(bytes) {
 }
 
 async function readStorageUsage() {
-  const rootRef = ref(storage);
-  const stack = [rootRef];
+  const stack = [""];
   let totalBytes = 0;
   let fileCount = 0;
 
   while (stack.length > 0) {
-    const currentRef = stack.pop();
-    const snapshot = await listAll(currentRef);
-    stack.push(...snapshot.prefixes);
+    const prefix = stack.pop() ?? "";
+    const { data, error } = await supabase
+      .storage
+      .from(STORAGE_BUCKET)
+      .list(prefix, { limit: 1000, sortBy: { column: "name", order: "asc" } });
 
-    const sizes = await Promise.all(
-      snapshot.items.map(async (itemRef) => {
-        const meta = await getMetadata(itemRef);
-        return Number(meta.size) || 0;
-      })
-    );
+    if (error) throw error;
 
-    totalBytes += sizes.reduce((sum, size) => sum + size, 0);
-    fileCount += snapshot.items.length;
+    for (const item of data ?? []) {
+      if (!item.id) {
+        const nextPrefix = prefix ? `${prefix}/${item.name}` : item.name;
+        stack.push(nextPrefix);
+        continue;
+      }
+
+      totalBytes += Number(item.metadata?.size ?? 0);
+      fileCount += 1;
+    }
   }
 
   return { totalBytes, fileCount };
 }
 
+function parseSettingValue(value) {
+  if (typeof value !== "string") return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
 export default function CloudPage() {
   const isMobile = useIsMobile(960);
   const authContext = useAuth();
-  const hasRole = typeof authContext?.hasRole === "function"
-    ? authContext.hasRole
-    : () => false;
+  const canSeeOnlineStats = typeof authContext?.hasRole === "function"
+    ? authContext.hasRole("vorstand")
+    : false;
   const [usage, setUsage] = useState({
     loading: true,
     error: "",
@@ -123,7 +135,7 @@ export default function CloudPage() {
     lastUpdated: "",
   });
 
-  const usedPercent = Math.min((usage.totalBytes / SPARK_STORAGE_LIMIT_BYTES) * 100, 100);
+  const usedPercent = Math.min((usage.totalBytes / SUPABASE_STORAGE_LIMIT_BYTES) * 100, 100);
 
   const loadUsage = useCallback(async () => {
     setUsage((prev) => ({ ...prev, loading: true, error: "" }));
@@ -150,64 +162,88 @@ export default function CloudPage() {
   }, [loadUsage]);
 
   useEffect(() => {
-    try {
-      const trafficRef = doc(db, "appSettings", "cloudTrafficToday");
-      const unsub = onSnapshot(
-        trafficRef,
-        (snap) => {
-          const data = snap.data() || {};
-          const downloadBytesToday = Number(data.downloadBytesToday);
-          const updatedAt = typeof data.updatedAt === "string" ? data.updatedAt : "";
+    let mounted = true;
 
-          setTraffic({
-            loading: false,
-            error: "",
-            downloadBytesToday: Number.isFinite(downloadBytesToday) ? downloadBytesToday : null,
-            updatedAt,
-          });
-        },
-        () => {
-          setTraffic({
-            loading: false,
-            error: "Tages-Traffic konnte nicht geladen werden.",
-            downloadBytesToday: null,
-            updatedAt: "",
-          });
-        }
-      );
-      return () => unsub();
-    } catch {
+    const applyTraffic = (row) => {
+      const parsed = parseSettingValue(row?.value);
+      const downloadBytesToday = Number(parsed?.downloadBytesToday);
+      const updatedAt = typeof parsed?.updatedAt === "string"
+        ? parsed.updatedAt
+        : (typeof row?.updated_at === "string" ? row.updated_at : "");
+
       setTraffic({
         loading: false,
-        error: "Tages-Traffic konnte nicht initialisiert werden.",
-        downloadBytesToday: null,
-        updatedAt: "",
+        error: "",
+        downloadBytesToday: Number.isFinite(downloadBytesToday) ? downloadBytesToday : null,
+        updatedAt,
       });
-      return undefined;
-    }
+    };
+
+    const loadTraffic = async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value, updated_at")
+        .eq("key", "cloudTrafficToday")
+        .maybeSingle();
+
+      if (!mounted) return;
+
+      if (error) {
+        setTraffic({
+          loading: false,
+          error: "Tages-Traffic konnte nicht geladen werden.",
+          downloadBytesToday: null,
+          updatedAt: "",
+        });
+        return;
+      }
+
+      applyTraffic(data);
+    };
+
+    loadTraffic();
+
+    const channel = supabase
+      .channel("cloud-traffic-setting")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "app_settings",
+          filter: "key=eq.cloudTrafficToday",
+        },
+        (payload) => applyTraffic(payload.new)
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
-    if (!hasRole("vorstand")) {
+    if (!canSeeOnlineStats) {
       setOnlineStats({ loading: false, error: "", count: 0, lastUpdated: "" });
       return;
     }
 
-    try {
-      const statusRef = rtdbRef(rtdb, "status");
-      const unsubscribe = onValue(
-        statusRef,
-        (snapshot) => {
-          const value = snapshot.val() || {};
-          const count = Object.values(value).filter((entry) => entry?.state === "online").length;
-          setOnlineStats({
-            loading: false,
-            error: "",
-            count,
-            lastUpdated: new Date().toLocaleString("de-DE"),
-          });
-        },
-        () => {
+    const channel = supabase
+      .channel("online-users")
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const count = Object.values(state).reduce((sum, entries) => sum + entries.length, 0);
+
+        setOnlineStats({
+          loading: false,
+          error: "",
+          count,
+          lastUpdated: new Date().toLocaleString("de-DE"),
+        });
+      })
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR") {
           setOnlineStats({
             loading: false,
             error: "Online-Status konnte nicht geladen werden.",
@@ -215,23 +251,16 @@ export default function CloudPage() {
             lastUpdated: "",
           });
         }
-      );
-
-      return () => unsubscribe();
-    } catch {
-      setOnlineStats({
-        loading: false,
-        error: "Online-Status konnte nicht initialisiert werden.",
-        count: 0,
-        lastUpdated: "",
       });
-      return undefined;
-    }
-  }, [hasRole]);
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [canSeeOnlineStats]);
 
   const trafficPercent = traffic.downloadBytesToday == null
     ? 0
-    : Math.min((traffic.downloadBytesToday / SPARK_DAILY_DOWNLOAD_LIMIT_BYTES) * 100, 100);
+    : Math.min((traffic.downloadBytesToday / SUPABASE_DAILY_DOWNLOAD_LIMIT_BYTES) * 100, 100);
 
   return (
     <div style={pageGridStyle}>
@@ -245,7 +274,7 @@ export default function CloudPage() {
             marginBottom: 10,
           }}
         >
-          <h3 style={{ margin: 0, color: "#111827", textAlign: "center" }}>Aktueller Verbrauch (Spark Free)</h3>
+          <h3 style={{ margin: 0, color: "#111827", textAlign: "center" }}>Aktueller Verbrauch (Supabase Free Plan)</h3>
           <button
             onClick={loadUsage}
             disabled={usage.loading}
@@ -256,7 +285,7 @@ export default function CloudPage() {
         </div>
 
         <p style={{ marginTop: 0, color: "#4b5563", marginBottom: 10 }}>
-          Belegter Speicherplatz aus deinem Firebase Storage Bucket.
+          Belegter Speicherplatz im Supabase-Speicher.
         </p>
 
         {usage.loading ? (
@@ -287,7 +316,7 @@ export default function CloudPage() {
 
             <div style={{ display: "flex", gap: isMobile ? 6 : 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14, flexDirection: isMobile ? "column" : "row" }}>
               <span>Belegt: {formatBytes(usage.totalBytes)}</span>
-              <span>Limit: {formatBytes(SPARK_STORAGE_LIMIT_BYTES)}</span>
+              <span>Limit: {formatBytes(SUPABASE_STORAGE_LIMIT_BYTES)}</span>
               <span>Auslastung: {usedPercent.toFixed(2)}%</span>
               <span>Dateien: {usage.fileCount}</span>
             </div>
@@ -307,15 +336,15 @@ export default function CloudPage() {
         )}
 
         <p style={{ marginBottom: 0, marginTop: 12, color: "#6b7280", fontSize: 12 }}>
-          Hinweis: Download-Traffic/Operationen pro Tag stellt Firebase nicht direkt im Client-SDK als Live-Wert bereit.
-          Diese Werte siehst du in der Firebase Console unter Usage/Billing.
+          Hinweis: Download-Traffic/Operationen pro Tag sind im Client nur über eigene Statistiken sichtbar.
+          Diese Werte kannst du als JSON im Eintrag app_settings/cloudTrafficToday pflegen.
         </p>
       </div>
 
       <div style={{ ...card, padding: isMobile ? 14 : 20 }}>
-        <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827" }}>Tages-Traffic (Spark Free)</h3>
+        <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827" }}>Tages-Traffic (Supabase Free Plan)</h3>
         <p style={{ marginTop: 0, color: "#4b5563", marginBottom: 10 }}>
-          Tageslimit Download im Spark-Tarif: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}.
+          Tageslimit Download (Schätzwert): {formatBytes(SUPABASE_DAILY_DOWNLOAD_LIMIT_BYTES)}.
         </p>
 
         {traffic.loading ? (
@@ -346,7 +375,7 @@ export default function CloudPage() {
 
             <div style={{ display: "flex", gap: isMobile ? 6 : 16, flexWrap: "wrap", color: "#1f2937", fontSize: 14, flexDirection: isMobile ? "column" : "row" }}>
               <span>Heute geladen: {traffic.downloadBytesToday == null ? "Keine Daten" : formatBytes(traffic.downloadBytesToday)}</span>
-              <span>Limit: {formatBytes(SPARK_DAILY_DOWNLOAD_LIMIT_BYTES)}</span>
+              <span>Limit: {formatBytes(SUPABASE_DAILY_DOWNLOAD_LIMIT_BYTES)}</span>
               <span>Auslastung: {traffic.downloadBytesToday == null ? "-" : `${trafficPercent.toFixed(2)}%`}</span>
             </div>
           </>
@@ -365,12 +394,12 @@ export default function CloudPage() {
         )}
 
         <p style={{ marginBottom: 0, marginTop: 12, color: "#6b7280", fontSize: 12 }}>
-          Für eine echte Live-Anzeige muss ein Backend-Job den heutigen Download-Traffic nach
-          appSettings/cloudTrafficToday schreiben (Feld: downloadBytesToday).
+          Für eine Live-Anzeige schreibe ein Backend den Tageswert in app_settings/cloudTrafficToday
+          (Beispiel: <code>{'{"downloadBytesToday": 12345, "updatedAt": "2026-05-04T10:00:00.000Z"}'}</code>).
         </p>
       </div>
 
-      {hasRole("vorstand") && (
+      {canSeeOnlineStats && (
         <div style={{ ...card, padding: isMobile ? 14 : 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
           <h3 style={{ marginTop: 0, marginBottom: 8, color: "#111827", textAlign: "center" }}>
             Aktuell online

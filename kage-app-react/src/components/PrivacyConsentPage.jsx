@@ -2,11 +2,18 @@ import { useState } from "react";
 
 export default function PrivacyConsentPage({ onAccept, busy, stand }) {
   const [checked, setChecked] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleSubmit(e) {
     e.preventDefault();
     if (!checked || busy) return;
-    await onAccept();
+    setError("");
+    try {
+      await onAccept();
+    } catch (err) {
+      console.error("[Datenschutz Fehler]", err);
+      setError("Fehler beim Speichern: " + (err?.message ?? "Unbekannter Fehler"));
+    }
   }
 
   return (
@@ -60,7 +67,7 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
           </Section>
 
           <Section title="5. Empfänger und Dienstleister">
-            <p>Für Betrieb und Speicherung nutzen wir Google Firebase (Google Ireland Limited, Dublin, Irland). Es kann zu Drittlandübermittlungen kommen; diese erfolgen auf Basis geeigneter Garantien nach Art. 44 ff. DSGVO.</p>
+            <p>Für Betrieb und Speicherung nutzen wir Supabase (Supabase, Inc., Delaware, USA). Es kann zu Drittlandübermittlungen kommen; diese erfolgen auf Basis geeigneter Garantien nach Art. 44 ff. DSGVO.</p>
           </Section>
 
           <Section title="6. Speicherdauer">
@@ -104,6 +111,9 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
           >
             {busy ? "Speichern..." : "Akzeptieren und fortfahren"}
           </button>
+          {error && (
+            <p style={{ marginTop: "10px", color: "#b91c1c", fontSize: "14px" }}>{error}</p>
+          )}
         </form>
       </div>
     </div>

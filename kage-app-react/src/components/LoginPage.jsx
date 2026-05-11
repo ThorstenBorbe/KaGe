@@ -1,11 +1,20 @@
 import { useState } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import kageLogo from "../assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 
 // Nur im Entwicklungsmodus sichtbar
 const IS_DEV = import.meta.env.DEV;
 
 const VIEW = { LOGIN: "login", REGISTER: "register", FORGOT: "forgot" };
+
+function withUiTimeout(promise, ms, timeoutMessage) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error(timeoutMessage)), ms);
+    }),
+  ]);
+}
 
 export default function LoginPage() {
   const { login, register, resetPassword, devLogin } = useAuth();
@@ -14,11 +23,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPasswords, setShowRegisterPasswords] = useState(false);
   const [message, setMessage] = useState({ text: "", error: false });
   const [busy, setBusy] = useState(false);
 
   function resetFields() {
     setName(""); setEmail(""); setPassword(""); setPassword2("");
+    setShowLoginPassword(false); setShowRegisterPasswords(false);
     setMessage({ text: "", error: false });
   }
 
@@ -32,10 +44,14 @@ export default function LoginPage() {
     }
     setBusy(true);
     try {
-      await login(email.trim(), password);
+      await withUiTimeout(
+        login(email.trim(), password),
+        30000,
+        "Anmeldung dauert zu lange (30s). Browser blockiert vermutlich Supabase-Verbindungen."
+      );
     } catch (err) {
       console.error("[Login-Fehler] Code:", err.code, "| Message:", err.message);
-      setMessage({ text: firebaseError(err.code), error: true });
+      setMessage({ text: authError(err), error: true });
     } finally {
       setBusy(false);
     }
@@ -55,7 +71,7 @@ export default function LoginPage() {
     try {
       await register(name.trim(), email.trim(), password);
     } catch (err) {
-      setMessage({ text: firebaseError(err.code), error: true });
+      setMessage({ text: authError(err), error: true });
     } finally {
       setBusy(false);
     }
@@ -72,7 +88,7 @@ export default function LoginPage() {
       await resetPassword(email.trim());
       setMessage({ text: "E-Mail zum Zurücksetzen wurde gesendet.", error: false });
     } catch (err) {
-      setMessage({ text: firebaseError(err.code), error: true });
+      setMessage({ text: authError(err), error: true });
     } finally {
       setBusy(false);
     }
@@ -116,11 +132,37 @@ export default function LoginPage() {
           </h2>
         </div>
 
-        {/* ── LOGIN ── */}
+        {/* ── ANMELDUNG ── */}
         {view === VIEW.LOGIN && (
           <form onSubmit={handleLogin}>
             <Field id="login-email" label="E-Mail" type="email" value={email} onChange={setEmail} placeholder="deine@email.de" autoComplete="email" />
-            <Field id="login-pw" label="Passwort" type="password" value={password} onChange={setPassword} placeholder="Dein Passwort" autoComplete="current-password" last />
+            <Field
+              id="login-pw"
+              label="Passwort"
+              type={showLoginPassword ? "text" : "password"}
+              value={password}
+              onChange={setPassword}
+              placeholder="Dein Passwort"
+              autoComplete="current-password"
+              last
+              rightControl={(
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword((prev) => !prev)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: "#6b7280",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    padding: "0 2px",
+                  }}
+                  aria-label={showLoginPassword ? "Passwort verbergen" : "Passwort anzeigen"}
+                >
+                  {showLoginPassword ? "🙈 Verbergen" : "👁 Anzeigen"}
+                </button>
+              )}
+            />
             <Feedback msg={message} />
             <Btn disabled={busy}>{busy ? "…" : "Anmelden"}</Btn>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "14px" }}>
@@ -135,8 +177,33 @@ export default function LoginPage() {
           <form onSubmit={handleRegister}>
             <Field id="reg-name" label="Name" value={name} onChange={setName} placeholder="Dein Name" autoComplete="username" />
             <Field id="reg-email" label="E-Mail" type="email" value={email} onChange={setEmail} placeholder="deine@email.de" autoComplete="email" />
-            <Field id="reg-pw" label="Passwort" type="password" value={password} onChange={setPassword} placeholder="Passwort wählen" autoComplete="new-password" />
-            <Field id="reg-pw2" label="Passwort wiederholen" type="password" value={password2} onChange={setPassword2} placeholder="Passwort wiederholen" autoComplete="new-password" last />
+            <Field
+              id="reg-pw"
+              label="Passwort"
+              type={showRegisterPasswords ? "text" : "password"}
+              value={password}
+              onChange={setPassword}
+              placeholder="Passwort wählen"
+              autoComplete="new-password"
+              rightControl={(
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPasswords((prev) => !prev)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: "#6b7280",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    padding: "0 2px",
+                  }}
+                  aria-label={showRegisterPasswords ? "Passwörter verbergen" : "Passwörter anzeigen"}
+                >
+                  {showRegisterPasswords ? "🙈 Verbergen" : "👁 Anzeigen"}
+                </button>
+              )}
+            />
+            <Field id="reg-pw2" label="Passwort wiederholen" type={showRegisterPasswords ? "text" : "password"} value={password2} onChange={setPassword2} placeholder="Passwort wiederholen" autoComplete="new-password" last />
             <Feedback msg={message} />
             <Btn disabled={busy}>{busy ? "…" : "Registrieren"}</Btn>
             <div style={{ textAlign: "center", marginTop: "14px" }}>
@@ -160,7 +227,7 @@ export default function LoginPage() {
           </form>
         )}
 
-        {/* ── ENTWICKLER-LOGIN (nur im Dev-Modus) ── */}
+        {/* ── ENTWICKLER-ANMELDUNG (nur im Entwicklungsmodus) ── */}
         {IS_DEV && (
           <div style={{ marginTop: "20px", paddingTop: "16px", borderTop: "1px dashed #e5e7eb" }}>
             <p style={{ fontSize: "11px", color: "#9ca3af", textAlign: "center", marginBottom: "8px" }}>
@@ -191,20 +258,27 @@ export default function LoginPage() {
 
 // ── Hilfs-Komponenten ──────────────────────────────────────────
 
-function firebaseError(code) {
+function authError(err) {
+  const code = err?.code ?? "";
+  const message = String(err?.message ?? "").toLowerCase();
   const map = {
-    "auth/user-not-found": "Kein Konto mit dieser E-Mail gefunden.",
-    "auth/wrong-password": "Falsches Passwort.",
-    "auth/invalid-credential": "E-Mail oder Passwort falsch.",
-    "auth/email-already-in-use": "Diese E-Mail ist bereits registriert.",
-    "auth/weak-password": "Passwort muss mindestens 6 Zeichen haben.",
-    "auth/invalid-email": "Ungültige E-Mail-Adresse.",
-    "auth/too-many-requests": "Zu viele Versuche. Bitte später erneut versuchen.",
+    invalid_credentials: "E-Mail oder Passwort falsch.",
+    email_exists: "Diese E-Mail ist bereits registriert.",
   };
-  return map[code] ?? "Ein Fehler ist aufgetreten. Bitte erneut versuchen.";
+  if (map[code]) return map[code];
+  if (message.includes("invalid login credentials")) return "E-Mail oder Passwort falsch.";
+  if (message.includes("email not confirmed")) return "Bitte bestätige zuerst deine E-Mail-Adresse.";
+  if (message.includes("already registered") || message.includes("already exists")) return "Diese E-Mail ist bereits registriert.";
+  if (message.includes("password should be")) return "Passwort muss mindestens 6 Zeichen haben.";
+  if (message.includes("invalid email")) return "Ungültige E-Mail-Adresse.";
+  if (message.includes("rate limit")) return "Zu viele Versuche. Bitte später erneut versuchen.";
+  if (message.includes("content security policy") || message.includes("script-src") || message.includes("unsafe-eval")) {
+    return "Browser-Sicherheitsrichtlinie blockiert Supabase (CSP/script-src). Bitte Tracking-/Sicherheits-Erweiterungen für localhost deaktivieren.";
+  }
+  return `Ein Fehler ist aufgetreten: ${err?.message ?? "Unbekannter Fehler"}`;
 }
 
-function Field({ id, label, type = "text", value, onChange, placeholder, autoComplete, last }) {
+function Field({ id, label, type = "text", value, onChange, placeholder, autoComplete, last, rightControl }) {
   return (
     <div style={{ marginBottom: last ? "24px" : "16px" }}>
       <label
@@ -213,23 +287,37 @@ function Field({ id, label, type = "text", value, onChange, placeholder, autoCom
       >
         {label}
       </label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete={autoComplete}
-        style={{
-          width: "100%",
-          padding: "10px 12px",
-          borderRadius: "8px",
-          border: "1px solid #d1d5db",
-          fontSize: "14px",
-          outline: "none",
-          boxSizing: "border-box",
-        }}
-      />
+      <div style={{ position: "relative" }}>
+        <input
+          id={id}
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          style={{
+            width: "100%",
+            padding: rightControl ? "10px 92px 10px 12px" : "10px 12px",
+            borderRadius: "8px",
+            border: "1px solid #d1d5db",
+            fontSize: "14px",
+            outline: "none",
+            boxSizing: "border-box",
+          }}
+        />
+        {rightControl && (
+          <div
+            style={{
+              position: "absolute",
+              right: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+            }}
+          >
+            {rightControl}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

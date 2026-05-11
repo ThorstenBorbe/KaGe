@@ -1,4 +1,4 @@
-import { useFirebaseData } from "../hooks/useFirebaseData";
+import { useSupabaseData } from "../hooks/useSupabaseData";
 
 const PHASE_ORDER = [
   { key: "vorbereitung", label: "Vorbereitung", icon: "🧭" },
@@ -8,15 +8,15 @@ const PHASE_ORDER = [
 ];
 
 /**
- * Beispiel-Komponente: Zeigt, wie man Aufbau/Abbau-Daten von Firebase Storage lädt
+ * Beispiel-Komponente: Zeigt, wie man Aufbau/Abbau-Daten von Supabase Storage lädt
  * 
  * Verwendung in App.jsx:
- * if (active === "interne-firebase") {
+ * if (active === "interne-supabase") {
  *   return <InterneVeranstaltungenDynamic />;
  * }
  */
 export default function InterneVeranstaltungenDynamic() {
-  const { data, loading, error } = useFirebaseData("interneVeranstaltungen.json");
+  const { data, loading, error } = useSupabaseData("interneVeranstaltungen.json");
 
   if (loading) {
     return (
@@ -38,7 +38,7 @@ export default function InterneVeranstaltungenDynamic() {
         }}>
           ❌ Fehler beim Laden der Daten: {error}
           <br />
-          <small>Stelle sicher, dass "interneVeranstaltungen.json" in Firebase Storage hochgeladen wurde.</small>
+          <small>Stelle sicher, dass "interneVeranstaltungen.json" im Supabase-Speicher hochgeladen wurde.</small>
         </div>
       </div>
     );
@@ -50,7 +50,7 @@ export default function InterneVeranstaltungenDynamic() {
 
   return (
     <div style={{ padding: "24px", marginBottom: "60px" }}>
-      <h2>🎉 Interne Veranstaltungen (von Firebase)</h2>
+      <h2>🎉 Interne Veranstaltungen (von Supabase)</h2>
       
       {Object.entries(data).map(([eventKey, veranstaltung]) => (
         <div key={eventKey} style={{

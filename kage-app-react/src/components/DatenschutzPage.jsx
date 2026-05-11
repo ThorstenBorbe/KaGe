@@ -81,7 +81,7 @@ export default function DatenschutzPage() {
         </Section>
 
         <Section title="5. Empfänger und Dienstleister">
-          <p>Zur Bereitstellung der App nutzen wir Google Firebase (Authentication, Firestore, Storage), Anbieter: Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland.</p>
+          <p>Zur Bereitstellung der App nutzen wir Supabase (Authentication, PostgreSQL, Storage), Anbieter: Supabase, Inc., Delaware, USA.</p>
           <p>Soweit eine Übermittlung in Drittländer erfolgt (z. B. USA), geschieht dies auf Basis geeigneter Garantien gemäß Art. 44 ff. DSGVO (z. B. EU-Standardvertragsklauseln).</p>
         </Section>
 

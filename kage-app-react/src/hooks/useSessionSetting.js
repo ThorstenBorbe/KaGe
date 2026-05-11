@@ -1,21 +1,64 @@
 import { useEffect, useState } from "react";
-import { doc, onSnapshot, setDoc } from "firebase/firestore";
-import { db } from "../firebase/firebaseConfig";
+import { supabase } from "../supabase/supabaseConfig";
+
+function parseSettingValue(value) {
+  if (typeof value !== "string") return "";
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
 
 export function useSessionSetting(canEditSession, currentUser) {
   const [sessionValue, setSessionValue] = useState("Session 2026/2027");
   const [sessionSaving, setSessionSaving] = useState(false);
 
   useEffect(() => {
-    if (currentUser?.uid === "dev") return;
-    const sessionRef = doc(db, "appSettings", "session");
-    const unsub = onSnapshot(sessionRef, (snap) => {
-      const value = snap.data()?.activeSession;
-      if (typeof value === "string" && value.trim()) {
-        setSessionValue(value);
+    if (currentUser?.uid === "dev") return undefined;
+
+    let mounted = true;
+
+    const loadSession = async () => {
+      const { data, error } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "session")
+        .maybeSingle();
+
+      if (error || !mounted) return;
+
+      const parsed = parseSettingValue(data?.value);
+      if (typeof parsed === "string" && parsed.trim()) {
+        setSessionValue(parsed);
       }
-    });
-    return () => unsub();
+    };
+
+    loadSession();
+
+    const channel = supabase
+      .channel("app-settings-session")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "app_settings",
+          filter: "key=eq.session",
+        },
+        (payload) => {
+          const parsed = parseSettingValue(payload.new?.value);
+          if (typeof parsed === "string" && parsed.trim()) {
+            setSessionValue(parsed);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      supabase.removeChannel(channel);
+    };
   }, [currentUser]);
 
   async function handleSessionChange(nextSession) {
@@ -24,15 +67,16 @@ export function useSessionSetting(canEditSession, currentUser) {
 
     setSessionSaving(true);
     try {
-      await setDoc(
-        doc(db, "appSettings", "session"),
+      const { error } = await supabase.from("app_settings").upsert(
         {
-          activeSession: nextSession,
-          updatedBy: currentUser?.uid ?? null,
-          updatedAt: new Date().toISOString(),
+          key: "session",
+          value: JSON.stringify(nextSession),
+          updated_by: currentUser?.uid ?? null,
+          updated_at: new Date().toISOString(),
         },
-        { merge: true }
+        { onConflict: "key" }
       );
+      if (error) throw error;
     } finally {
       setSessionSaving(false);
     }

@@ -56,8 +56,8 @@ const attachmentHintStyle = {
 };
 
 const uploadButtonStyle = {
-  display: "inline-flex", // Button-Inhalt zentrieren
-  alignItems: "center", // Vertikale Zentrierung innerhalb des Buttons
+  display: "inline-flex", // Schaltflaecheninhalt zentrieren
+  alignItems: "center", // Vertikale Zentrierung innerhalb der Schaltflaeche
   justifyContent: "center", // Inhalt horizontal zentrieren
   background: "#f9fafb", // Hellgrauer Hintergrund fuer sekundäre Aktion
   color: "#111827",
@@ -72,7 +72,7 @@ const uploadButtonStyle = {
 };
 
 const hiddenFileInputStyle = {
-  display: "none", // Verstecktes Native-Input, der Label-Button steuert die Auswahl
+  display: "none", // Verstecktes Eingabefeld, die Beschriftungs-Schaltflaeche steuert die Auswahl
 };
 
 const selectedFileStyle = {
