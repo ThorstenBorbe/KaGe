@@ -1,0 +1,156 @@
+[
+  {
+    "id": 13,
+    "Bereich": "Zugfahrzeug",
+    "V-Verantwortlich": "Thomas Sachs",
+    "M-Mitwirkend": "Jochen Weckesser",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bereitstellung Zugfahrzeug",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 14,
+    "Bereich": "Fahrer",
+    "V-Verantwortlich": "Thomas Sachs",
+    "M-Mitwirkend": "Jochen Weckesser",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Abholung und Transport des Faschingswagens",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 15,
+    "Bereich": "Wurfmaterial",
+    "V-Verantwortlich": "Florian Graf",
+    "M-Mitwirkend": "Julian Wolf",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bedenken dass wenn Prinzenpaar vorhanden ist, und hier mehr gekauft werden muss",
+    "Ansprechpartner": "Thorsten Borbe\nStefan Golle",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 16,
+    "Bereich": "Getränke",
+    "V-Verantwortlich": "Martin Reinhart",
+    "M-Mitwirkend": "Jochen Weckesser",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bestückung des Wagens und Klärung mit der TG Vorstandschaft was mitgenommen werden darf",
+    "Ansprechpartner": "Walter Amend",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 17,
+    "Bereich": "Weisswurstfrühstück",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Wolfgang Stumpf,\nKarin Stumpf",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Liste übergeben",
+    "Ansprechpartner": "Wolfgang Stumpf",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 18,
+    "Bereich": "Fahrdienst",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "-",
+    "I-Information": "alle",
+    "Aufgabenbeschreibung": "Sitzung oder App , Platzverteilung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 19,
+    "Bereich": "Organisation Wurfmaterialverteilung auf dem Wagen",
+    "V-Verantwortlich": "Julian Wolf",
+    "M-Mitwirkend": "Florian Graf",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Das gerecht verteilt wird. Wegen Wurfdisziplin",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 20,
+    "Bereich": "Garde Wagen",
+    "V-Verantwortlich": "Stefan Golla",
+    "M-Mitwirkend": "Thorsten Borbe",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Handziehwagen",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 21,
+    "Bereich": "Organisation",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "In der Sitzung und per App,\nWer geht mit, Terminplan, Treffpunkte",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 22,
+    "Bereich": "Bar",
+    "V-Verantwortlich": "Thomas Reinhart",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Aussenwirkung Bar passt nicht zur KaGe Carta.\nÜberlegung was man besser machen. Alkoholverbot eigentlich auf dem Faschingszug. Ggf. Vorgemischte Getränke.\nOder Umbau des Wagens",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 23,
+    "Bereich": "Kneipe",
+    "V-Verantwortlich": "Christian Manger",
+    "M-Mitwirkend": "-",
+    "I-Information": "alle",
+    "Aufgabenbeschreibung": "Haltestelle ",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 24,
+    "Bereich": "Wagenbegleitung",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Wird in der Sitzung organisiert",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 25,
+    "Bereich": "After Party",
+    "V-Verantwortlich": "Jochen Weckesser",
+    "M-Mitwirkend": "Andreas Feuerbach",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Alte Turnhalle für Familien, ggf. Anmeldung in die App integrieren, Essensorganisation, …",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 26,
+    "Bereich": "Anmeldung Faschingszug",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Im Dezember:\nAnmeldung von KaGe Elferrat Würzburg runterladen und einreichen \n\nReihenfolge der Gruppen. \n1. Wagen\ndanach die Garden und Gruppen",
+    "Ansprechpartner": "Michael Zinnhob",
+    "Kontaktdaten": "www.faschingszug-wuerzburg.de",
+    "Status": true
+  }
+]

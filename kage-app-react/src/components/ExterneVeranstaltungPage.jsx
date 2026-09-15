@@ -93,6 +93,15 @@ export default function ExterneVeranstaltungPage({ veranstaltung }) {
         <InfoSection icon="🎭" title="Mitbringsel der KaGe" isMobile={isMobile}>
           <ListSection items={v.auftritte} emptyText="Noch keine Auftritte eingetragen." isMobile={isMobile} />
         </InfoSection>
+
+        {v.aufgaben?.length > 0 && (
+          <>
+            <Divider />
+            <InfoSection icon="✅" title="Aufgaben" isMobile={isMobile}>
+              <ListSection items={v.aufgaben} emptyText="Noch keine Aufgaben eingetragen." isMobile={isMobile} />
+            </InfoSection>
+          </>
+        )}
       </div>
     </div>
   );
@@ -125,7 +134,14 @@ function ListSection({ items, emptyText, isMobile }) {
   return (
     <ul style={{ margin: 0, paddingLeft: 20, fontSize: isMobile ? 14 : 18, color: "#111827" }}>
       {items.map((item, i) => (
-        <li key={i} style={{ marginBottom: 4 }}>{item}</li>
+        <li key={i} style={{ marginBottom: 4 }}>
+          {typeof item === "string" ? item : item.text}
+          {item?.verantwortlich?.length > 0 && (
+            <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 14, color: "#6b7280" }}>
+              Verantwortlich: {item.verantwortlich.join(", ")}
+            </div>
+          )}
+        </li>
       ))}
     </ul>
   );

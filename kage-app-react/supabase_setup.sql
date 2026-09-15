@@ -25,3 +25,35 @@ CREATE TABLE IF NOT EXISTS app_settings (
 -- 3. Default Session Setting
 INSERT INTO app_settings (key, value) VALUES ('session', '"Session 2026/2027"')
 ON CONFLICT (key) DO NOTHING;
+
+-- 3. Ehrensenatoren
+CREATE TABLE IF NOT EXISTS "Ehrensenatoren" (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  vorname TEXT,
+  nachname TEXT,
+  adresse TEXT,
+  plz TEXT,
+  ort TEXT,
+  email TEXT,
+  telefon TEXT,
+  bemerkung TEXT,
+  geburtsdatum DATE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE "Ehrensenatoren" ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Vorstand darf Ehrensenatoren lesen" ON "Ehrensenatoren";
+CREATE POLICY "Vorstand darf Ehrensenatoren lesen"
+ON "Ehrensenatoren"
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM users
+    WHERE users.id = auth.uid()
+      AND users.role IN ('vorstand', 'admin')
+  )
+);

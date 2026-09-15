@@ -74,6 +74,22 @@ function getButtonStyle(depth, isActive) {
   };
 }
 
+function filterVisibleItems(items, menuRoles, hasRole) {
+  return items
+    .map((item) => {
+      const required = menuRoles[item.key];
+      if (required && !hasRole(required)) return null;
+
+      if (!item.children) return item;
+
+      const visibleChildren = filterVisibleItems(item.children, menuRoles, hasRole);
+      if (visibleChildren.length === 0 && !required) return null;
+
+      return { ...item, children: visibleChildren };
+    })
+    .filter(Boolean);
+}
+
 function NavigationNode({ node, depth, activeKey, openMenus, onNavigate, onToggleMenu }) {
   const config = getConfig(depth);
   const isOpen = !!openMenus[node.key];
@@ -119,10 +135,7 @@ export default function SidebarNavigation({
   hasRole,
   menuRoles,
 }) {
-  const visibleItems = items.filter((item) => {
-    const required = menuRoles[item.key];
-    return !required || hasRole(required);
-  });
+  const visibleItems = filterVisibleItems(items, menuRoles, hasRole);
 
   return (
     <div style={{ marginTop: "20px" }}>

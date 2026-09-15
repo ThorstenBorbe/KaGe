@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Organisation",
+    "V-Verantwortlich": "Stefan Golla",
+    "M-Mitwirkend": "Thorsten Borbe",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Kontakt zu den Seniorenheim und Planung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 2,
+    "Bereich": "Playlist",
+    "V-Verantwortlich": "Christoph Ziller",
+    "M-Mitwirkend": "Jürgen Hupp",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Altersgerecht",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 3,
+    "Bereich": "Ansprache",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Nette Worte für die Senioren",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 4,
+    "Bereich": "Musikbox",
+    "V-Verantwortlich": "Christoph Ziller",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": null,
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 5,
+    "Bereich": "Orden",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Besorgung und Überreichung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 6,
+    "Bereich": "Musik",
+    "V-Verantwortlich": "Stefan Golla",
+    "M-Mitwirkend": "Thorsten Borbe",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Aurelia (Werner)",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  }
+]

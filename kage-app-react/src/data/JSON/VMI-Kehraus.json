@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Gastro",
+    "V-Verantwortlich": "Wolfgang Stumpf",
+    "M-Mitwirkend": "Anita Porzner,\r\nKarin Stumpf,\r\nElisabet Hemsing",
+    "I-Information": "Maik Ulrich Schildge, \nThorsten Borbe",
+    "Aufgabenbeschreibung": null,
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 2,
+    "Bereich": "Location",
+    "V-Verantwortlich": "Walter Amend",
+    "M-Mitwirkend": "-",
+    "I-Information": "Maik Ulrich Schildge,\nThorsten Borbe",
+    "Aufgabenbeschreibung": "Wenn wir nicht bei Lorenzo bestellen, dann müssen wir aus dem Jugendraum wahrscheinlich raus.\nEs muss dann in die Halle verlegt werden. Wie können wir die Halle umbauen, dass es doch gemütlich ist.\nWie schaut es mit der Rose aus ?\nWie wäre es mit dem Kulturkeller ?\nWie wäre es mit der Alten Turnhalle ?",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 3,
+    "Bereich": "Liedblatt",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Lied zur Beerdigung unseres treuen Freundes",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 4,
+    "Bereich": "Musikinstrumente",
+    "V-Verantwortlich": "Leo Wallrapp",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Was wird gebraucht",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 5,
+    "Bereich": "Asbach Bar",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jochen Weckesser",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Eiswürfel, Cola, Kasse",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 6,
+    "Bereich": "Puppe",
+    "V-Verantwortlich": "Martin Reinhart",
+    "M-Mitwirkend": "Hannes Seiler",
+    "I-Information": "Maik Ulrich Schildge,\nThorsten Borbe",
+    "Aufgabenbeschreibung": "Bau der Puppe, Wanne, Feuer und Kette zum ziehen",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 7,
+    "Bereich": "Musik",
+    "V-Verantwortlich": "Christian Manger",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Technik Bereitstellen und Installation sowie Musikauswahl (Karaoke)",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 8,
+    "Bereich": "Fischessen Aschermittwoch",
+    "V-Verantwortlich": "Wolfgang Stumpf",
+    "M-Mitwirkend": "Anita Porzner,\nKarin Stumpf,\nElisabet Hemsing",
+    "I-Information": "Thorsten Borbe",
+    "Aufgabenbeschreibung": "Organsiation des Helferessens für nach dem Abbau",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  }
+]

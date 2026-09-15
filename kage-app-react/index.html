@@ -4,7 +4,15 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>kage-app-react</title>
+    <!-- CSP: unsafe-eval wird benötigt da das Supabase Realtime SDK intern eval() verwendet -->
+    <meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-eval' 'unsafe-inline';
+               connect-src 'self' https://*.supabase.co wss://*.supabase.co;
+               img-src 'self' data: blob: https://*.supabase.co https://www.tgzell.de;
+               style-src 'self' 'unsafe-inline';
+               font-src 'self' data:;" />
+    <title>KaGe App</title>
   </head>
   <body>
     <div id="root"></div>

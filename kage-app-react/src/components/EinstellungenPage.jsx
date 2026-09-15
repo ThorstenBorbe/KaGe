@@ -60,14 +60,27 @@ export default function EinstellungenPage() {
     setBusy(true);
     try {
       await reauth();
+
+      // 1. Auth-E-Mail ändern (Bestätigungs-Mail wird verschickt)
       const { error: authError } = await supabase.auth.updateUser({ email: newEmail.trim() });
       if (authError) throw authError;
 
+      // 2. Profil-Tabelle (users) aktualisieren
       const { error: profileError } = await supabase
         .from("users")
         .update({ email: newEmail.trim() })
         .eq("id", user.uid);
       if (profileError) throw profileError;
+
+      // 3. Mitgliederliste aktualisieren – Zeile mit aktueller E-Mail suchen und neue setzen
+      const { error: mitgliederError } = await supabase
+        .from("Mitglieder")
+        .update({ Email: newEmail.trim() })
+        .eq("Email", user.email);
+      // Kein harter Fehler wenn kein Mitglieder-Eintrag gefunden wurde (z.B. Admin-Account)
+      if (mitgliederError) {
+        console.warn("Mitglieder-E-Mail konnte nicht aktualisiert werden:", mitgliederError.message);
+      }
 
       setMsg({ text: "E-Mail-Änderung gestartet. Bitte Postfach bestätigen.", error: false });
       setCurrentPw(""); setNewEmail("");

@@ -1,0 +1,178 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Organisation",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "Maik Ulrich Schildge,\n Daniel Väthröder",
+    "Aufgabenbeschreibung": null,
+    "Ansprechpartner": "Bürgermeister, Bürgerbüro",
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 2,
+    "Bereich": "Programm",
+    "V-Verantwortlich": "Maik Ulrich Schildge",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Abstimmung des Programms mit dem Bürgermeister, Bühnenelfer",
+    "Ansprechpartner": "Bürgermeister",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 3,
+    "Bereich": "Kuchen & Kaffee",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Organisation Kuchen, Kaffeemaschine, ",
+    "Ansprechpartner": "KaGe Mitglieder",
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 4,
+    "Bereich": "Kasse Eingang",
+    "V-Verantwortlich": "Walter Amend",
+    "M-Mitwirkend": "Daniel Väthröder",
+    "I-Information": "Thorsten Borbe",
+    "Aufgabenbeschreibung": "Abrechnung mit der Gemeinde bzgl. der Eintrittsgelder",
+    "Ansprechpartner": "Bürgermeister",
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 5,
+    "Bereich": "Finanzen-Gemeinde",
+    "V-Verantwortlich": "Walter Amend",
+    "M-Mitwirkend": "Daniel Väthröder",
+    "I-Information": "Thorsten Borbe",
+    "Aufgabenbeschreibung": "Abrechnung mit der Gemeinde (Essenseinladung, Büttenredner,…)",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 6,
+    "Bereich": "Finanzen-TG",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner,\nDaniel Väthröder",
+    "I-Information": "Thorsten Borbe",
+    "Aufgabenbeschreibung": "Einnahmen aus dem Ausschank, Kaffee, Kuchen,…",
+    "Ansprechpartner": "Dieter Wendel",
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 7,
+    "Bereich": "Musik",
+    "V-Verantwortlich": "Maik Ulrich Schildge",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Los Elferados Anfrage",
+    "Ansprechpartner": "Werner Reinhart\nJürgen Hupp",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 8,
+    "Bereich": "Bingo, Bongo, Bango",
+    "V-Verantwortlich": "Florian Graf",
+    "M-Mitwirkend": "Klaus Ehrenberger",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Aufbau/Abbau/Umbau während der Sitzung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 9,
+    "Bereich": "Putzfrau",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Planung der Zeiten wann die Halle gereinigt werden muss",
+    "Ansprechpartner": "Bürgerbüro ??",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 10,
+    "Bereich": "Gardarobe",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Einteilung der Helfer",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 11,
+    "Bereich": "Feuerwehr/Brandwache",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Leo Wallrapp",
+    "I-Information": "Maik Ulrich Schildge",
+    "Aufgabenbeschreibung": "Mail im Dezember an die Feuerwehr (früher wäre besser)",
+    "Ansprechpartner": "Freiwillige Feuerwehr Zell am Main",
+    "Kontaktdaten": "kommandant@feuerwehr-zell-main.de",
+    "Status": false
+  },
+  {
+    "id": 12,
+    "Bereich": "Technik",
+    "V-Verantwortlich": "Christoph Ziller",
+    "M-Mitwirkend": "Christian Manger,\nLeo Wallrapp",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Mikrofone Laden, Batteriewechsel, Mischpult, Licht",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 13,
+    "Bereich": "Mundschenk",
+    "V-Verantwortlich": "Jochen Weckesser",
+    "M-Mitwirkend": "Bastian Würll",
+    "I-Information": "Maik Ulrich Schildge",
+    "Aufgabenbeschreibung": "Organisation des Mundschenks",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 14,
+    "Bereich": "Gutscheine",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Stefan druckt aus, Thorsten verteilt",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 15,
+    "Bereich": "Orden",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Für die Ordensübergabe an Gäste durch den Bürgermeister",
+    "Ansprechpartner": "Bürgermeister",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 16,
+    "Bereich": "Gastro",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bedienung, Küche, Ausschank, Kasse, Sauerkraut, Einkauf, …",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  }
+]

@@ -19,6 +19,7 @@ import {
 } from "./utils/appNavigation";
 import { theme } from "./styles/theme";
 
+
 const APP_VERSION = "v0.2.2";
 
 export default function App() {
@@ -134,7 +135,7 @@ export default function App() {
         isMobile={isMobile}
         onOpenMobileMenu={() => setMobileMenuOpen(true)}
       >
-        {renderAppContent(active)}
+        {renderAppContent(active, sessionValue)}
       </AppMainContent>
     </div>
   );

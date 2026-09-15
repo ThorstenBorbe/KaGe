@@ -217,6 +217,12 @@ export function AuthProvider({ children }) {
         const { data, error } = result.data;
         if (error) {
           console.error("[Auth Init]", error.message);
+          if (/invalid refresh token|refresh token not found/i.test(error.message ?? "")) {
+            // Eine alte lokale Session darf die App nicht dauerhaft beim Auth-Start blockieren.
+            await supabase.auth.signOut({ scope: "local" });
+          }
+          applyLoggedOutState();
+          return;
         }
         await hydrateUser(data?.session?.user ?? null);
       } catch (error) {

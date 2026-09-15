@@ -10,7 +10,9 @@ export const appTree = [
         key: "interne",
         label: "Intern",
         children: [
-          { key: "11-11", label: "11.11. Jetzt geht los" },
+          { key: "sommerfest", label: "Sommerfest" },
+          { key: "11-11", label: "11.11. Jetzt geht's los" },
+          { key: "weihnachtsfeier", label: "Weihnachtsfeier" },
           { key: "prunksitzung-1", label: "1. Prunksitzung" },
           { key: "prunksitzung-2", label: "2. Prunksitzung" },
           { key: "bunter-nachmittag", label: "Bunter Nachmittag" },
@@ -28,6 +30,7 @@ export const appTree = [
           { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
           { key: "faschingszug", label: "Faschingszug" },
           { key: "seniorenheime", label: "Seniorenheime" },
+          { key: "kindergarten", label: "Kindergarten" },
         ],
       },
     ],
@@ -53,11 +56,17 @@ export const appTree = [
           { key: "elferraete", label: "Elferräte" },
         ],
       },
-      { key: "ethikKommitee", label: "KaGe-Carta" },
       { key: "listen", label: "Listen & Dokumente" },
     ],
   },
-  { key: "finanzen", label: "Finanzen" },
+  {
+    key: "finanzen",
+    label: "Finanzen",
+    children: [
+      { key: "schwarze-kasse", label: "Schwarze Kasse" },
+      { key: "einnahmen-ausgaben", label: "Einnahmen/Ausgaben" },
+    ],
+  },
   {
     key: "kagezellcarta",
     label: "KaGe-Carta",

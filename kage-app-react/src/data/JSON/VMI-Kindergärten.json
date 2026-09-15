@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Organisation",
+    "V-Verantwortlich": "Daniel Väthröder",
+    "M-Mitwirkend": "Christoph Ziller",
+    "I-Information": "Maik Ulrich Schildge,\r\nThorsten Borbe",
+    "Aufgabenbeschreibung": "Abstimmung der Termine und der Gruppen die mitgehen",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 2,
+    "Bereich": "Musik",
+    "V-Verantwortlich": "Christoph Ziller",
+    "M-Mitwirkend": "Daniel Väthröder",
+    "I-Information": "Maik Ulrich Schildge,\r\nThorsten Borbe",
+    "Aufgabenbeschreibung": "Box und Playlist",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  }
+]

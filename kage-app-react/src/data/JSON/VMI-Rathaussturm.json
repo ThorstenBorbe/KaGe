@@ -1,0 +1,112 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Organisation",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "Maik Ulrich Schildge,\nDaniel Väthröder",
+    "Aufgabenbeschreibung": "Absprache mit Bürgermeister & Gemeinderat\nThema in Sitzung, Einbindung Garde, Hallenbuchung/Location",
+    "Ansprechpartner": "Bürgermeister, KaGe-Aktive,\nWalter Amend & Ute Reuter",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 2,
+    "Bereich": "Musik",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "Maik Ulrich Schildge,\nDaniel Väthröder",
+    "Aufgabenbeschreibung": "Organisation Pro Musica im Oktober",
+    "Ansprechpartner": "Christan Schulwitz",
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 3,
+    "Bereich": "Verpflegung (Rathaus)",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Was wird angeboten, Was brauchen wir vor Ort, Wer ist im Verkauf, Organisation Kasse, Festlegung der Preise",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 4,
+    "Bereich": "Verpflegung (Alte Turnhalle)",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Was wird angeboten, Was brauchen wir vor Ort, Wer ist im Verkauf, Organisation Kasse, Festlegung der Preise",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 5,
+    "Bereich": "Fahne, Leiter, Schlüssel, Stock und Seil",
+    "V-Verantwortlich": "Florian Graf",
+    "M-Mitwirkend": "Thomas Porzner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Schlüssel muss in der Gemeinde organisiert werden",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 6,
+    "Bereich": "Technik",
+    "V-Verantwortlich": "Christian Manger",
+    "M-Mitwirkend": "Christoph Ziller",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Mikro, Box, …",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 7,
+    "Bereich": "Auf- & Abbau Alte Turnhalle",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "Julian Wolf",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bei Abendveranstaltung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 8,
+    "Bereich": "Programm und Ablauf",
+    "V-Verantwortlich": "Maik Ulrich Schildge",
+    "M-Mitwirkend": "Daniel Väthröder",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Organisation wann was wo wie",
+    "Ansprechpartner": "ggf. mit Bürgermeister abstimmen",
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 9,
+    "Bereich": "Feuerwehr Absperrung",
+    "V-Verantwortlich": "Thorsten Borbe",
+    "M-Mitwirkend": "Stefan Golla",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Organisation Straßensperrung",
+    "Ansprechpartner": "Freiwillige Feuerwehr Zell am Main",
+    "Kontaktdaten": "kommandant@feuerwehr-zell-main.de",
+    "Status": true
+  },
+  {
+    "id": 10,
+    "Bereich": "Gastro",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Bei Abendveranstaltung:\nEssenszusammenstellung, Organisation Personal, Registrierkassen",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  }
+]

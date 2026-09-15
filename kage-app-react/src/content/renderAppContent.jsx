@@ -50,6 +50,8 @@ const GROUP_DATA_BY_KEY = {
 
 const STATIC_PAGE_BY_KEY = {
   finanzen: FinanzPage,
+  "schwarze-kasse": FinanzPage,
+  "einnahmen-ausgaben": FinanzPage,
   vorstand: VorstandsPage,
   meldung: MeldungPage,
   kummerkasten: BoeckFeedbackPage,
@@ -64,13 +66,14 @@ const STATIC_PAGE_BY_KEY = {
   nutzerverwaltung: AdminPage,
   cloud: CloudPage,
   listen: ListenPage,
-  kalender: KalenderPage,
+  // KalenderPage braucht sessionValue als Prop – wird unten separat behandelt
+  // kalender: KalenderPage,
   "meine-aufgaben": MeineAufgabenPage,
   einstellungen: EinstellungenPage,
   nutzung: NutzungPage,
 };
 
-const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime"]);
+const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime", "kindergarten"]);
 const INTERNAL_EVENT_PHASES = [
   { key: "vorbereitung", label: "Vorbereitung" },
   { key: "aufbau", label: "Aufbau" },
@@ -79,7 +82,9 @@ const INTERNAL_EVENT_PHASES = [
 ];
 
 const INTERNAL_EVENT_LABELS = {
+  sommerfest: "Sommerfest",
   "11-11": "11.11. Jetzt geht los",
+  weihnachtsfeier: "Weihnachtsfeier",
   "prunksitzung-1": "1. Prunksitzung",
   "prunksitzung-2": "2. Prunksitzung",
   "bunter-nachmittag": "Bunter Nachmittag",
@@ -111,7 +116,7 @@ const internalEventGridStyle = {
   alignItems: "start",
 };
 
-export function renderAppContent(active) {
+export function renderAppContent(active, sessionValue) {
   const groupData = GROUP_DATA_BY_KEY[active];
   if (groupData) {
     return <GroupPage key={active} groupKey={active} group={groupData} />;
@@ -161,6 +166,10 @@ export function renderAppContent(active) {
 
   if (EXTERNE_STANDARD_KEYS.has(active)) {
     return <ExterneVeranstaltungPage key={active} veranstaltung={externeVeranstaltungen[active]} />;
+  }
+
+  if (active === "kalender") {
+    return <KalenderPage sessionValue={sessionValue} />;
   }
 
   const StaticPage = STATIC_PAGE_BY_KEY[active];

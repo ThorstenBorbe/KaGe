@@ -186,7 +186,7 @@ export default function AppSidebar({
                 textUnderlineOffset: "3px",
               }}
             >
-              {key === "impressum" ? "Impressum" : "Datenschutz"}
+              {key === "Impressum" ? "Impressum" : "Datenschutz"}
             </button>
           ))}
         </div>

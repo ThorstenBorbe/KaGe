@@ -1,0 +1,101 @@
+[
+  {
+    "id": 1,
+    "Bereich": "Programm",
+    "V-Verantwortlich": "Daniel Väthröder",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Auch Gastauftritte",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 2,
+    "Bereich": "Wurfmaterial",
+    "V-Verantwortlich": "Daniel Väthröder",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": null,
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 3,
+    "Bereich": "Kasse",
+    "V-Verantwortlich": "Walter Amend",
+    "M-Mitwirkend": "Daniel Väthröder",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Eintrittsgelder einholen",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 4,
+    "Bereich": "Stempel",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": null,
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 5,
+    "Bereich": "Werbung",
+    "V-Verantwortlich": "Stefan Golla",
+    "M-Mitwirkend": "Thorsten Borbe",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Plakatte gestalten und Druck",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 6,
+    "Bereich": "Gardarobe",
+    "V-Verantwortlich": "Thomas Porzner",
+    "M-Mitwirkend": "-",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Organisation des Personals",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": true
+  },
+  {
+    "id": 7,
+    "Bereich": "Essenskasse",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Registrierkassen Organsiation, Wechselgeld, ??",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 8,
+    "Bereich": "Technik",
+    "V-Verantwortlich": "Christoph Ziller",
+    "M-Mitwirkend": "Christian Manger",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Musik und Mikosteuerung während der Veranstaltung",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  },
+  {
+    "id": 9,
+    "Bereich": "Gastro",
+    "V-Verantwortlich": "Andreas Feuerbach",
+    "M-Mitwirkend": "Jan Büttner",
+    "I-Information": "-",
+    "Aufgabenbeschreibung": "Essenszusammenstellung, Organisation Personal (Ausschank, Fritteuse, Grill, Stangen, …)",
+    "Ansprechpartner": null,
+    "Kontaktdaten": null,
+    "Status": false
+  }
+]

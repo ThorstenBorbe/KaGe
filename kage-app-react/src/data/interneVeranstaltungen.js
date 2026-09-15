@@ -3,6 +3,77 @@
 // Beispiel fuer eine Aufgabe mit Verantwortlichen:
 // { text: "Getraenke bestellen", verantwortlich: ["Max Mueller", "Anna Schmidt"], status: "offen" }
 
+import vmiRathaussturmData from "./JSON/VMI-Rathaussturm.json";
+import vmiBunterNachmittagData from "./JSON/VMI-Bunter Nachmittag.json";
+import vmiPrunksitzungData from "./JSON/VMI-Prunksitzung.json";
+import vmiKinderfaschingData from "./JSON/VMI-Kinderfasching.json";
+import vmiKehrausData from "./JSON/VMI-Kehraus.json";
+
+const vmiRathaussturmOrganisation = vmiRathaussturmData.find((item) => item.Bereich === "Organisation");
+const splitVmiPeople = (value) => String(value || "")
+  .split(/[,\n]/)
+  .map((person) => person.trim())
+  .filter(Boolean);
+const vmiRathaussturmVerantwortliche = [
+  ...splitVmiPeople(vmiRathaussturmOrganisation?.["V-Verantwortlich"]),
+  ...splitVmiPeople(vmiRathaussturmOrganisation?.["M-Mitwirkend"]),
+  ...splitVmiPeople(vmiRathaussturmOrganisation?.["I-Information"]),
+];
+const vmiRathaussturmAufgaben = vmiRathaussturmData
+  .filter((item) => item.Bereich !== "Organisation")
+  .map((item) => ({
+    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
+    status: item.Status ? "offen" : "in Arbeit",
+  }));
+const vmiBunterNachmittagOrganisation = vmiBunterNachmittagData.find((item) => item.Bereich === "Organisation");
+const vmiBunterNachmittagVerantwortliche = [
+  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["V-Verantwortlich"]),
+  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["M-Mitwirkend"]),
+  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["I-Information"]),
+];
+const vmiBunterNachmittagAufgaben = vmiBunterNachmittagData
+  .filter((item) => item.Bereich !== "Organisation")
+  .map((item) => ({
+    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
+    status: item.Status ? "offen" : "in Arbeit",
+  }));
+const vmiPrunksitzungOrganisation = vmiPrunksitzungData.find((item) => item.Bereich === "Organisation");
+const vmiPrunksitzungVerantwortliche = [
+  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["V-Verantwortlich"]),
+  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["M-Mitwirkend"]),
+  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["I-Information"]),
+];
+const vmiPrunksitzungAufgaben = vmiPrunksitzungData
+  .filter((item) => item.Bereich !== "Organisation")
+  .map((item) => ({
+    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
+    status: item.Status ? "offen" : "in Arbeit",
+  }));
+const getVmiVerantwortliche = (data) => {
+  const organisation = data.find((item) => item.Bereich === "Organisation");
+  const source = organisation ? [organisation] : data;
+
+  return [...new Set(source.flatMap((item) => [
+    ...splitVmiPeople(item["V-Verantwortlich"]),
+    ...splitVmiPeople(item["M-Mitwirkend"]),
+    ...splitVmiPeople(item["I-Information"]),
+  ]))];
+};
+const createVmiAufgaben = (data) => data
+  .filter((item) => item.Bereich !== "Organisation")
+  .map((item) => ({
+    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
+    status: item.Status ? "offen" : "in Arbeit",
+  }));
+const vmiKinderfaschingVerantwortliche = getVmiVerantwortliche(vmiKinderfaschingData);
+const vmiKinderfaschingAufgaben = createVmiAufgaben(vmiKinderfaschingData);
+const vmiKehrausVerantwortliche = getVmiVerantwortliche(vmiKehrausData);
+const vmiKehrausAufgaben = createVmiAufgaben(vmiKehrausData);
+
 function createPhase(withSchedule = true) {
   return {
     ...(withSchedule ? { datum: "", uhrzeit: "", ort: "" } : {}),
@@ -41,6 +112,8 @@ function createInternalEvent(config) {
       uhrzeit: config.eventTime,
       treffzeit: config.eventMeetingTime,
       ort: config.location,
+      verantwortliche: config.eventOwners || [],
+      aufgaben: config.eventTasks || [],
       bemerkungen: config.eventNote,
     },
     abbau: {
@@ -59,6 +132,22 @@ function createInternalEvent(config) {
 }
 
 const interneVeranstaltungen = {
+  sommerfest: createInternalEvent({
+    label: "Sommerfest",
+    location: "Narrhalla Zell",
+    setupMeetingPoint: "Narrhalla Innenhof",
+    setupDate: "",
+    setupTime: "",
+    eventDate: "",
+    eventMeetingTime: "",
+    eventTime: "",
+    teardownDate: "",
+    teardownTime: "",
+    preparationOwners: ["", ""],
+    setupOwners: ["", ""],
+    teardownOwners: ["", ""],
+    eventNote: "Infos folgen.",
+  }),
   "11-11": createInternalEvent({
     label: "11.11. Jetzt geht los",
     location: "Narrhalla Zell",
@@ -74,6 +163,24 @@ const interneVeranstaltungen = {
     setupOwners: ["Marco Schneider", "Nina Keller"],
     teardownOwners: ["Jonas Hartmann", "Lena Vogel"],
     eventNote: "Sektempfang ab 18:30 Uhr, Programmstart puenktlich um 19:11 Uhr.",
+    eventOwners: vmiRathaussturmVerantwortliche,
+    eventTasks: vmiRathaussturmAufgaben,
+  }),
+  weihnachtsfeier: createInternalEvent({
+    label: "Weihnachtsfeier",
+    location: "Narrhalla Zell",
+    setupMeetingPoint: "Narrhalla Innenhof",
+    setupDate: "",
+    setupTime: "",
+    eventDate: "",
+    eventMeetingTime: "",
+    eventTime: "",
+    teardownDate: "",
+    teardownTime: "",
+    preparationOwners: ["", ""],
+    setupOwners: ["", ""],
+    teardownOwners: ["", ""],
+    eventNote: "Infos folgen.",
   }),
   "prunksitzung-1": createInternalEvent({
     label: "1. Prunksitzung",
@@ -90,6 +197,8 @@ const interneVeranstaltungen = {
     setupOwners: ["Simon Braun", "David Wolf"],
     teardownOwners: ["David Wolf", "Tanja Kruse"],
     eventNote: "Einlass ab 18:30 Uhr, Orden und Programmhefte am Empfang bereitlegen.",
+    eventOwners: vmiPrunksitzungVerantwortliche,
+    eventTasks: vmiPrunksitzungAufgaben,
   }),
   "prunksitzung-2": createInternalEvent({
     label: "2. Prunksitzung",
@@ -106,6 +215,8 @@ const interneVeranstaltungen = {
     setupOwners: ["Patrick Weiss", "Nadine Frank"],
     teardownOwners: ["Nadine Frank", "Oliver Kuhn"],
     eventNote: "Gaesteempfang am Haupteingang, Technikprobe bis spaetestens 18:15 Uhr abschliessen.",
+    eventOwners: vmiPrunksitzungVerantwortliche,
+    eventTasks: vmiPrunksitzungAufgaben,
   }),
   "bunter-nachmittag": createInternalEvent({
     label: "Bunter Nachmittag",
@@ -122,6 +233,8 @@ const interneVeranstaltungen = {
     setupOwners: ["Tobias Graf", "Mara Busch"],
     teardownOwners: ["Mara Busch", "Heike Sommer"],
     eventNote: "Kaffee und Kuchen ab 13:15 Uhr vorbereiten, Seniorengaeste bevorzugt platzieren.",
+    eventOwners: vmiBunterNachmittagVerantwortliche,
+    eventTasks: vmiBunterNachmittagAufgaben,
   }),
   "beatbox-party": createInternalEvent({
     label: "Beat-Bocks-Party",
@@ -154,6 +267,8 @@ const interneVeranstaltungen = {
     setupOwners: ["Sandra Neumann", "Jan Richter"],
     teardownOwners: ["Jan Richter", "Pia Lorenz"],
     eventNote: "Kinderschminken, Spielecke und Getraenkestation vor Oeffnung pruefen.",
+    eventOwners: vmiKinderfaschingVerantwortliche,
+    eventTasks: vmiKinderfaschingAufgaben,
   }),
   kehraus: createInternalEvent({
     label: "Kehraus",
@@ -170,6 +285,8 @@ const interneVeranstaltungen = {
     setupOwners: ["Rene Scholz", "Saskia Maurer"],
     teardownOwners: ["Saskia Maurer", "Daniela Fink"],
     eventNote: "Abschlussrunde mit Helfern nach Veranstaltungsende kurz einplanen.",
+    eventOwners: vmiKehrausVerantwortliche,
+    eventTasks: vmiKehrausAufgaben,
   }),
 };
 

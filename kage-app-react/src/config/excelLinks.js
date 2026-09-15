@@ -32,3 +32,17 @@ export const EXCEL_LINKS = {
   sponsoren:       "",
   ehrensenatoren:  "",
 };
+
+// ── Supabase Dashboard-Links (Table Editor) ────────────────────────────────────
+// Format: https://supabase.com/dashboard/project/{project-ref}/editor/{table-oid}
+// Die Table-OIDs findest du im Supabase Table Editor in der URL,
+// sobald du die jeweilige Tabelle aufrufst (Zahl am Ende der URL).
+// Solange keine OID bekannt ist, wird der allgemeine Table-Editor geöffnet.
+const SUPABASE_PROJECT = "zbdaoewookiyzojoostw";
+const SUPABASE_EDITOR_BASE = `https://supabase.com/dashboard/project/${SUPABASE_PROJECT}/editor`;
+
+export const SUPABASE_LINKS = {
+  mitglieder:      `${SUPABASE_EDITOR_BASE}`, // Tabellen-OID ergänzen: .../editor/12345
+  sponsoren:       `${SUPABASE_EDITOR_BASE}`, // Tabellen-OID ergänzen: .../editor/12346
+  ehrensenatoren:  `${SUPABASE_EDITOR_BASE}`, // Tabellen-OID ergänzen: .../editor/12347
+};
