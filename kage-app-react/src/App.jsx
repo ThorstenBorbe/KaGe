@@ -20,7 +20,7 @@ import {
 import { theme } from "./styles/theme";
 
 
-const APP_VERSION = "v0.2.2";
+const APP_VERSION = "v0.2.3";
 
 export default function App() {
   const {
