@@ -241,12 +241,11 @@ function parseDateValue(dateString) {
 }
 
 const INTERNAL_EVENT_PHASES = [
-  { key: "vorbereitung", label: "Vorbereitung" },
-  { key: "aufbau", label: "Aufbau" },
-  { key: "abbau", label: "Abbau" },
+  { key: "aufgaben", label: "Aufgaben" },
 ];
 
 const INTERNAL_EVENT_LABELS = {
+  "hans-peter": "Hans-Peter",
   "11-11": "11.11. Jetzt geht los",
   "prunksitzung-1": "1. Prunksitzung",
   "prunksitzung-2": "2. Prunksitzung",

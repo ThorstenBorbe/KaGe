@@ -1,4 +1,5 @@
 import GroupPage from "../components/GroupPage";
+import SommerfestPage, { InternalVmiEventPage } from "../components/SommerfestPage";
 import ExterneVeranstaltungPage from "../components/ExterneVeranstaltungPage";
 import FaschingszugPage from "../components/FaschingszugPage";
 import AufbauAbbauPage from "../components/AufbauAbbauPage";
@@ -75,14 +76,14 @@ const STATIC_PAGE_BY_KEY = {
 
 const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime", "kindergarten"]);
 const INTERNAL_EVENT_PHASES = [
-  { key: "vorbereitung", label: "Vorbereitung" },
-  { key: "aufbau", label: "Aufbau" },
   { key: "veranstaltung", label: "Veranstaltung" },
-  { key: "abbau", label: "Abbau" },
+  { key: "organisation", label: "Organisation" },
+  { key: "aufgaben", label: "Aufgaben" },
 ];
 
 const INTERNAL_EVENT_LABELS = {
   sommerfest: "Sommerfest",
+  "hans-peter": "Hans-Peter",
   "11-11": "11.11. Jetzt geht los",
   weihnachtsfeier: "Weihnachtsfeier",
   "prunksitzung-1": "1. Prunksitzung",
@@ -91,6 +92,17 @@ const INTERNAL_EVENT_LABELS = {
   "beatbox-party": "Beat-Bocks-Party",
   kinderfasching: "Kinderfasching",
   kehraus: "Kehraus",
+};
+
+const INTERNAL_VMI_TABLE_BY_KEY = {
+  "11-11": "VMI-Rathaussturm",
+  "beatbox-party": "VMI-Beat Bocks Party",
+  kehraus: "VMI-Kehraus",
+  "prunksitzung-1": "VMI-Prunksitzung",
+  "prunksitzung-2": "VMI-Prunksitzung",
+  weihnachtsfeier: "VMI-Weihnachtsfeier",
+  "bunter-nachmittag": "VMI-Bunter Nachmittag",
+  kinderfasching: "VMI-Kinderfasching",
 };
 
 const internalEventPageStyle = {
@@ -122,6 +134,22 @@ export function renderAppContent(active, sessionValue) {
     return <GroupPage key={active} groupKey={active} group={groupData} />;
   }
 
+  if (active === "sommerfest") {
+    return <SommerfestPage key={active} />;
+  }
+
+  const internalVmiTable = INTERNAL_VMI_TABLE_BY_KEY[active];
+  if (internalVmiTable) {
+    return (
+      <InternalVmiEventPage
+        key={active}
+        title={INTERNAL_EVENT_LABELS[active] || active}
+        tableName={internalVmiTable}
+        eventDetails={interneVeranstaltungen[active]?.veranstaltung}
+      />
+    );
+  }
+
   const internalEventData = interneVeranstaltungen[active];
   if (internalEventData) {
     const availablePhases = INTERNAL_EVENT_PHASES.filter(({ key }) => internalEventData[key]);
@@ -131,7 +159,7 @@ export function renderAppContent(active, sessionValue) {
         <div style={internalEventHeaderStyle}>
           <h2 style={{ margin: 0, color: "#9f1239" }}>{INTERNAL_EVENT_LABELS[active] || active}</h2>
           <p style={{ margin: "8px 0 0 0", color: "#6b7280", lineHeight: 1.5 }}>
-            Die Bereiche werden in der Reihenfolge Vorbereitung, Aufbau, Veranstaltung und Abbau ueber die volle Breite dargestellt, damit Datum, Uhrzeit, Ort und Aufgaben schneller erfassbar sind.
+            Veranstaltung, Organisation und Aufgaben sind hier übersichtlich zusammengefasst.
           </p>
         </div>
 
@@ -149,8 +177,8 @@ export function renderAppContent(active, sessionValue) {
     );
   }
 
-  if (active.endsWith("-aufbau") || active.endsWith("-abbau")) {
-    const typ = active.endsWith("-aufbau") ? "Aufbau" : "Abbau";
+  if (active.endsWith("-aufbau")) {
+    const typ = "Aufbau";
     const eventKey = active.slice(0, active.lastIndexOf("-"));
     const eventData = interneVeranstaltungen[eventKey];
     const details = eventData?.[typ.toLowerCase()];

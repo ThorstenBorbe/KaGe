@@ -1,10 +1,9 @@
 import { useSupabaseData } from "../hooks/useSupabaseData";
 
 const PHASE_ORDER = [
-  { key: "vorbereitung", label: "Vorbereitung", icon: "🧭" },
-  { key: "aufbau", label: "Aufbau", icon: "🔧" },
   { key: "veranstaltung", label: "Veranstaltung", icon: "🎉" },
-  { key: "abbau", label: "Abbau", icon: "📦" },
+  { key: "organisation", label: "Organisation", icon: "🧭" },
+  { key: "aufgaben", label: "Aufgaben", icon: "✅" },
 ];
 
 /**
@@ -68,8 +67,10 @@ export default function InterneVeranstaltungenDynamic() {
                 {phase.icon} {phase.label}
               </summary>
               <div style={{ paddingLeft: 16, fontSize: 13 }}>
-                {renderPhaseMeta(veranstaltung[phase.key])}
-                {veranstaltung[phase.key].verantwortliche?.length > 0 && (
+                {phase.key === "veranstaltung"
+                  ? renderEventMeta(veranstaltung[phase.key])
+                  : phase.key !== "aufgaben" && renderPhaseMeta(veranstaltung[phase.key])}
+                {phase.key !== "organisation" && phase.key !== "aufgaben" && veranstaltung[phase.key].verantwortliche?.length > 0 && (
                   <p><strong>Verantwortliche:</strong> {veranstaltung[phase.key].verantwortliche.join(", ")}</p>
                 )}
                 {veranstaltung[phase.key].aufgaben?.length > 0 && (
@@ -79,18 +80,21 @@ export default function InterneVeranstaltungenDynamic() {
                       {veranstaltung[phase.key].aufgaben.map((task, index) => (
                         <li key={index} style={{ fontSize: 12 }}>
                           {getTaskLabel(task)}
-                          {getTaskResponsible(task) && (
+                          {phase.key !== "organisation" && phase.key !== "aufgaben" && getTaskResponsible(task) && (
                             <span style={{ color: "#6b7280" }}>
                               {" "}
                               - Verantwortlich: {getTaskResponsible(task)}
                             </span>
+                          )}
+                          {phase.key === "aufgaben" && task?.status && (
+                            <span style={{ color: "#6b7280" }}> — Status: {task.status}</span>
                           )}
                         </li>
                       ))}
                     </ul>
                   </div>
                 )}
-                {veranstaltung[phase.key].bemerkungen && (
+                {phase.key !== "veranstaltung" && phase.key !== "organisation" && phase.key !== "aufgaben" && veranstaltung[phase.key].bemerkungen && (
                   <p><strong>Bemerkungen:</strong> {veranstaltung[phase.key].bemerkungen}</p>
                 )}
               </div>
@@ -110,6 +114,17 @@ function renderPhaseMeta(phase) {
       {phase.datum && <p><strong>Datum:</strong> {phase.datum}</p>}
       {phase.uhrzeit && <p><strong>Uhrzeit:</strong> {phase.uhrzeit}</p>}
       {location && <p><strong>Ort:</strong> {location}</p>}
+    </>
+  );
+}
+
+function renderEventMeta(event) {
+  return (
+    <>
+      <p><strong>Datum:</strong> {event.datum || "—"}</p>
+      <p><strong>Treffzeit:</strong> {event.treffzeit || "—"}</p>
+      <p><strong>Ort:</strong> {event.ort || "—"}</p>
+      <p><strong>Beginn:</strong> {event.uhrzeit || "—"}</p>
     </>
   );
 }

@@ -403,20 +403,33 @@ Anonymes Feedback-Formular ("Böck-Feedback" = Kummerkasten).
 
 **Datei:** `components/AufbauAbbauPage.jsx`
 
-Zeigt Aufbau- oder Abbaupläne für interne Veranstaltungen.
+Zeigt interne Veranstaltungen mit den Bereichen Veranstaltung, Organisation und Aufgaben.
 
 **Props:**
 
 | Prop | Typ | Beschreibung |
 |------|-----|-------------|
-| `data` | `object` | Aufbau- oder Abbaudiobjekt aus `interneVeranstaltungen.js` |
-| `typ` | `"Aufbau" \| "Abbau"` | Bestimmt Titel und Icon |
+| `data` | `object` | Veranstaltungsbereich aus `interneVeranstaltungen.js` |
+| `typ` | `"Veranstaltung" \| "Organisation" \| "Aufgaben"` | Bestimmt Titel und Darstellung |
 
 **Abschnitte:**
-- Zeitraum & Treffpunkt
-- Verantwortliche (Liste)
-- Aufgaben (Liste)
-- Bemerkungen
+- Veranstaltung: Datum, Treffzeit, Ort und Beginn
+- Organisation: Aufgaben als einfache Bulletpointliste
+- Aufgaben: alle Aufgaben mit Status
+
+Die internen VMI-Menüpunkte laden ihre Matrixdaten direkt aus Supabase. Veranstaltung, Organisation und Aufgaben werden dabei in gemeinsamen Boxen dargestellt; Aufgaben zeigen Verantwortliche, Mitwirkende, Informierende und den änderbaren Status aus `Status Abarbeitung`. Unterstützt werden `NULL`, `offen`, `in Arbeit` und `abgeschlossen`; Änderungen werden direkt gespeichert. Das Skript `supabase_interne_vmi_policies.sql` richtet Leserechte für angemeldete Nutzer und Schreibrechte ausschließlich für die Statusspalte aller angebundenen Tabellen ein. Es ist einmalig im Supabase SQL Editor des KaGe-Projekts auszuführen.
+
+| Menüpunkt | Supabase-Tabelle |
+|-----------|------------------|
+| Sommerfest | `VMI-Sommerfest` |
+| 11.11. Jetzt geht's los | `VMI-Rathaussturm` |
+| Beat-Bocks-Party | `VMI-Beat Bocks Party` |
+| Kehraus | `VMI-Kehraus` |
+| 1. Prunksitzung | `VMI-Prunksitzung` |
+| 2. Prunksitzung | `VMI-Prunksitzung` |
+| Weihnachtsfeier | `VMI-Weihnachtsfeier` |
+| Bunter Nachmittag | `VMI-Bunter Nachmittag` |
+| Kinderfasching | `VMI-Kinderfasching` |
 
 ---
 

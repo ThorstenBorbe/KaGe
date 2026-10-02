@@ -1,78 +1,6 @@
-// Daten für interne Veranstaltungen – Vorbereitung, Aufbau, Veranstaltung & Abbau.
-// Das Supabase-JSON kann Aufgaben entweder als Zeichenkette oder als Objekt speichern.
+// Daten für interne Veranstaltungen – Veranstaltung, Organisation, Aufbau & Aufgaben.
 // Beispiel fuer eine Aufgabe mit Verantwortlichen:
 // { text: "Getraenke bestellen", verantwortlich: ["Max Mueller", "Anna Schmidt"], status: "offen" }
-
-import vmiRathaussturmData from "./JSON/VMI-Rathaussturm.json";
-import vmiBunterNachmittagData from "./JSON/VMI-Bunter Nachmittag.json";
-import vmiPrunksitzungData from "./JSON/VMI-Prunksitzung.json";
-import vmiKinderfaschingData from "./JSON/VMI-Kinderfasching.json";
-import vmiKehrausData from "./JSON/VMI-Kehraus.json";
-
-const vmiRathaussturmOrganisation = vmiRathaussturmData.find((item) => item.Bereich === "Organisation");
-const splitVmiPeople = (value) => String(value || "")
-  .split(/[,\n]/)
-  .map((person) => person.trim())
-  .filter(Boolean);
-const vmiRathaussturmVerantwortliche = [
-  ...splitVmiPeople(vmiRathaussturmOrganisation?.["V-Verantwortlich"]),
-  ...splitVmiPeople(vmiRathaussturmOrganisation?.["M-Mitwirkend"]),
-  ...splitVmiPeople(vmiRathaussturmOrganisation?.["I-Information"]),
-];
-const vmiRathaussturmAufgaben = vmiRathaussturmData
-  .filter((item) => item.Bereich !== "Organisation")
-  .map((item) => ({
-    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
-    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
-    status: item.Status ? "offen" : "in Arbeit",
-  }));
-const vmiBunterNachmittagOrganisation = vmiBunterNachmittagData.find((item) => item.Bereich === "Organisation");
-const vmiBunterNachmittagVerantwortliche = [
-  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["V-Verantwortlich"]),
-  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["M-Mitwirkend"]),
-  ...splitVmiPeople(vmiBunterNachmittagOrganisation?.["I-Information"]),
-];
-const vmiBunterNachmittagAufgaben = vmiBunterNachmittagData
-  .filter((item) => item.Bereich !== "Organisation")
-  .map((item) => ({
-    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
-    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
-    status: item.Status ? "offen" : "in Arbeit",
-  }));
-const vmiPrunksitzungOrganisation = vmiPrunksitzungData.find((item) => item.Bereich === "Organisation");
-const vmiPrunksitzungVerantwortliche = [
-  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["V-Verantwortlich"]),
-  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["M-Mitwirkend"]),
-  ...splitVmiPeople(vmiPrunksitzungOrganisation?.["I-Information"]),
-];
-const vmiPrunksitzungAufgaben = vmiPrunksitzungData
-  .filter((item) => item.Bereich !== "Organisation")
-  .map((item) => ({
-    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
-    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
-    status: item.Status ? "offen" : "in Arbeit",
-  }));
-const getVmiVerantwortliche = (data) => {
-  const organisation = data.find((item) => item.Bereich === "Organisation");
-  const source = organisation ? [organisation] : data;
-
-  return [...new Set(source.flatMap((item) => [
-    ...splitVmiPeople(item["V-Verantwortlich"]),
-    ...splitVmiPeople(item["M-Mitwirkend"]),
-    ...splitVmiPeople(item["I-Information"]),
-  ]))];
-};
-const createVmiAufgaben = (data) => data
-  .filter((item) => item.Bereich !== "Organisation")
-  .map((item) => ({
-    text: `${item.Bereich}: ${item.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
-    verantwortlich: [item["V-Verantwortlich"]].filter(Boolean),
-    status: item.Status ? "offen" : "in Arbeit",
-  }));
-const vmiKinderfaschingVerantwortliche = getVmiVerantwortliche(vmiKinderfaschingData);
-const vmiKinderfaschingAufgaben = createVmiAufgaben(vmiKinderfaschingData);
-const vmiKehrausVerantwortliche = getVmiVerantwortliche(vmiKehrausData);
-const vmiKehrausAufgaben = createVmiAufgaben(vmiKehrausData);
 
 function createPhase(withSchedule = true) {
   return {
@@ -84,15 +12,24 @@ function createPhase(withSchedule = true) {
 }
 
 function createInternalEvent(config) {
+  const organisationTasks = [
+    { text: `${config.label}: Materialliste abstimmen`, verantwortlich: [config.preparationOwners[0]], status: "offen" },
+    { text: `${config.label}: Dienstplan und Helfer final einteilen`, verantwortlich: config.preparationOwners, status: "in Arbeit" },
+  ];
+  const setupTasks = [
+    { text: "Buehne und Technik vorbereiten", verantwortlich: [config.setupOwners[0]], status: "in Arbeit" },
+    { text: "Bestuhlung, Deko und Beschilderung aufbauen", verantwortlich: config.setupOwners, status: "offen" },
+  ];
+
   return {
-    vorbereitung: {
-      ...createPhase(false),
-      verantwortliche: config.preparationOwners,
-      aufgaben: [
-        { text: `${config.label}: Materialliste abstimmen`, verantwortlich: [config.preparationOwners[0]], status: "offen" },
-        { text: `${config.label}: Dienstplan und Helfer final einteilen`, verantwortlich: config.preparationOwners, status: "in Arbeit" },
-      ],
-      bemerkungen: `Letzte Abstimmung fuer ${config.label} spaetestens drei Tage vorher einplanen.`,
+    veranstaltung: {
+      datum: config.eventDate,
+      treffzeit: config.eventMeetingTime,
+      ort: config.location,
+      uhrzeit: config.eventTime,
+    },
+    organisation: {
+      aufgaben: organisationTasks,
     },
     aufbau: {
       ...createPhase(true),
@@ -100,33 +37,14 @@ function createInternalEvent(config) {
       uhrzeit: config.setupTime,
       ort: config.location,
       verantwortliche: config.setupOwners,
-      aufgaben: [
-        { text: "Buehne und Technik vorbereiten", verantwortlich: [config.setupOwners[0]], status: "in Arbeit" },
-        { text: "Bestuhlung, Deko und Beschilderung aufbauen", verantwortlich: config.setupOwners, status: "offen" },
-      ],
+      aufgaben: setupTasks,
       bemerkungen: `Bitte ${config.setupMeetingPoint} als Treffpunkt intern kommunizieren.`,
     },
-    veranstaltung: {
-      ...createPhase(true),
+    aufgaben: {
       datum: config.eventDate,
       uhrzeit: config.eventTime,
-      treffzeit: config.eventMeetingTime,
       ort: config.location,
-      verantwortliche: config.eventOwners || [],
-      aufgaben: config.eventTasks || [],
-      bemerkungen: config.eventNote,
-    },
-    abbau: {
-      ...createPhase(true),
-      datum: config.teardownDate,
-      uhrzeit: config.teardownTime,
-      ort: config.location,
-      verantwortliche: config.teardownOwners,
-      aufgaben: [
-        { text: "Technik abbauen und sicher verpacken", verantwortlich: [config.teardownOwners[0]], status: "offen" },
-        { text: "Saal reinigen und Material rueckfuehren", verantwortlich: config.teardownOwners, status: "offen" },
-      ],
-      bemerkungen: `Rueckgabe und Abschlusscheck direkt nach ${config.label} dokumentieren.`,
+      aufgaben: [...organisationTasks, ...setupTasks, ...(config.eventTasks || [])],
     },
   };
 }
@@ -134,6 +52,22 @@ function createInternalEvent(config) {
 const interneVeranstaltungen = {
   sommerfest: createInternalEvent({
     label: "Sommerfest",
+    location: "Narrhalla Zell",
+    setupMeetingPoint: "Narrhalla Innenhof",
+    setupDate: "",
+    setupTime: "",
+    eventDate: "",
+    eventMeetingTime: "",
+    eventTime: "",
+    teardownDate: "",
+    teardownTime: "",
+    preparationOwners: ["", ""],
+    setupOwners: ["", ""],
+    teardownOwners: ["", ""],
+    eventNote: "Infos folgen.",
+  }),
+  "hans-peter": createInternalEvent({
+    label: "Hans-Peter",
     location: "Narrhalla Zell",
     setupMeetingPoint: "Narrhalla Innenhof",
     setupDate: "",
@@ -163,8 +97,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Marco Schneider", "Nina Keller"],
     teardownOwners: ["Jonas Hartmann", "Lena Vogel"],
     eventNote: "Sektempfang ab 18:30 Uhr, Programmstart puenktlich um 19:11 Uhr.",
-    eventOwners: vmiRathaussturmVerantwortliche,
-    eventTasks: vmiRathaussturmAufgaben,
   }),
   weihnachtsfeier: createInternalEvent({
     label: "Weihnachtsfeier",
@@ -197,8 +129,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Simon Braun", "David Wolf"],
     teardownOwners: ["David Wolf", "Tanja Kruse"],
     eventNote: "Einlass ab 18:30 Uhr, Orden und Programmhefte am Empfang bereitlegen.",
-    eventOwners: vmiPrunksitzungVerantwortliche,
-    eventTasks: vmiPrunksitzungAufgaben,
   }),
   "prunksitzung-2": createInternalEvent({
     label: "2. Prunksitzung",
@@ -215,8 +145,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Patrick Weiss", "Nadine Frank"],
     teardownOwners: ["Nadine Frank", "Oliver Kuhn"],
     eventNote: "Gaesteempfang am Haupteingang, Technikprobe bis spaetestens 18:15 Uhr abschliessen.",
-    eventOwners: vmiPrunksitzungVerantwortliche,
-    eventTasks: vmiPrunksitzungAufgaben,
   }),
   "bunter-nachmittag": createInternalEvent({
     label: "Bunter Nachmittag",
@@ -233,8 +161,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Tobias Graf", "Mara Busch"],
     teardownOwners: ["Mara Busch", "Heike Sommer"],
     eventNote: "Kaffee und Kuchen ab 13:15 Uhr vorbereiten, Seniorengaeste bevorzugt platzieren.",
-    eventOwners: vmiBunterNachmittagVerantwortliche,
-    eventTasks: vmiBunterNachmittagAufgaben,
   }),
   "beatbox-party": createInternalEvent({
     label: "Beat-Bocks-Party",
@@ -267,8 +193,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Sandra Neumann", "Jan Richter"],
     teardownOwners: ["Jan Richter", "Pia Lorenz"],
     eventNote: "Kinderschminken, Spielecke und Getraenkestation vor Oeffnung pruefen.",
-    eventOwners: vmiKinderfaschingVerantwortliche,
-    eventTasks: vmiKinderfaschingAufgaben,
   }),
   kehraus: createInternalEvent({
     label: "Kehraus",
@@ -285,8 +209,6 @@ const interneVeranstaltungen = {
     setupOwners: ["Rene Scholz", "Saskia Maurer"],
     teardownOwners: ["Saskia Maurer", "Daniela Fink"],
     eventNote: "Abschlussrunde mit Helfern nach Veranstaltungsende kurz einplanen.",
-    eventOwners: vmiKehrausVerantwortliche,
-    eventTasks: vmiKehrausAufgaben,
   }),
 };
 

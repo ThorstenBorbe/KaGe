@@ -45,6 +45,11 @@ const dividerStyle = {
 const STATUS_OPTIONS = ["offen", "in Arbeit", "abgeschlossen"];
 
 const STATUS_STYLE_BY_VALUE = {
+  "": {
+    background: "#f3f4f6",
+    color: "#4b5563",
+    borderColor: "#d1d5db",
+  },
   offen: {
     background: "#fee2e2",
     color: "#b91c1c",
@@ -63,7 +68,7 @@ const STATUS_STYLE_BY_VALUE = {
 };
 
 const PHASE_BADGE_BY_TYPE = {
-  Vorbereitung: {
+  Organisation: {
     icon: "🧭",
     background: "#ede9fe",
     color: "#5b21b6",
@@ -78,8 +83,8 @@ const PHASE_BADGE_BY_TYPE = {
     background: "#dcfce7",
     color: "#166534",
   },
-  Abbau: {
-    icon: "📦",
+  Aufgaben: {
+    icon: "✅",
     background: "#e0f2fe",
     color: "#0c4a6e",
   },
@@ -102,13 +107,17 @@ const cardHeaderStyle = (typ) => {
   };
 };
 
-export default function AufbauAbbauPage({ data, typ, embedded = false }) {
+export default function AufbauAbbauPage({ data, typ, embedded = false, onTaskStatusChange }) {
   const isMobile = useIsMobile(960);
   const details = data || {};
   const location = details.ort || "";
   const meetingTime = details.treffzeit || "";
   const isEventSection = typ === "Veranstaltung";
-  const hasScheduleInfo = Boolean(details.datum || details.uhrzeit || location);
+  const isOrganizationSection = typ === "Organisation";
+  const isTasksSection = typ === "Aufgaben";
+  const hasScheduleInfo = isEventSection
+    ? true
+    : Boolean(details.datum || details.uhrzeit || location);
   const phaseBadge = PHASE_BADGE_BY_TYPE[typ] ?? PHASE_BADGE_BY_TYPE.Aufbau;
   const hasResponsibleInfo = Array.isArray(details.verantwortliche) && details.verantwortliche.length > 0;
   const hasTaskInfo = Array.isArray(details.aufgaben) && details.aufgaben.length > 0;
@@ -121,7 +130,27 @@ export default function AufbauAbbauPage({ data, typ, embedded = false }) {
         <span>{typ}</span>
       </div>
 
-      {hasScheduleInfo && (
+      {isTasksSection ? (
+        <InfoSection icon="✅" title="Aufgaben" isMobile={isMobile}>
+          <ListSection
+            items={details.aufgaben}
+            emptyText="Noch keine Aufgaben eingetragen."
+            isMobile={isMobile}
+            onStatusChange={onTaskStatusChange}
+          />
+        </InfoSection>
+      ) : isOrganizationSection ? (
+        <>
+          {hasResponsibleInfo && (
+            <InfoSection icon="👤" title="Verantwortlich" isMobile={isMobile}>
+              <ListSection items={details.verantwortliche} emptyText="Keine verantwortliche Person eingetragen." isMobile={isMobile} />
+            </InfoSection>
+          )}
+          <InfoSection icon="📋" title="Aufgaben" isMobile={isMobile}>
+            <BulletList items={details.aufgaben} emptyText="Noch keine Aufgaben eingetragen." isMobile={isMobile} />
+          </InfoSection>
+        </>
+      ) : hasScheduleInfo && (
         <>
           <InfoSection
             icon="🕒"
@@ -145,9 +174,9 @@ export default function AufbauAbbauPage({ data, typ, embedded = false }) {
         </>
       )}
 
-      {hasScheduleInfo && (hasResponsibleInfo || hasTaskInfo || hasRemarks) && <Divider />}
+      {!isEventSection && !isOrganizationSection && !isTasksSection && hasScheduleInfo && (hasResponsibleInfo || hasTaskInfo || hasRemarks) && <Divider />}
 
-      {hasResponsibleInfo && (
+      {!isEventSection && !isOrganizationSection && !isTasksSection && hasResponsibleInfo && (
         <>
           <InfoSection icon="👤" title="Verantwortliche" isMobile={isMobile}>
             <ListSection items={details.verantwortliche} emptyText="Noch keine Verantwortlichen eingetragen." isMobile={isMobile} />
@@ -157,7 +186,7 @@ export default function AufbauAbbauPage({ data, typ, embedded = false }) {
         </>
       )}
 
-      {hasTaskInfo && (
+      {!isEventSection && !isOrganizationSection && !isTasksSection && hasTaskInfo && (
         <>
           <InfoSection icon="✅" title="Aufgaben" isMobile={isMobile}>
             <ListSection items={details.aufgaben} emptyText="Noch keine Aufgaben eingetragen." isMobile={isMobile} />
@@ -167,7 +196,7 @@ export default function AufbauAbbauPage({ data, typ, embedded = false }) {
         </>
       )}
 
-      {hasRemarks && (
+      {!isEventSection && !isOrganizationSection && !isTasksSection && hasRemarks && (
         <InfoSection icon="📝" title="Bemerkungen" isMobile={isMobile}>
           <InfoRow label="Bemerkungen" value={details.bemerkungen} isMobile={isMobile} />
         </InfoSection>
@@ -202,23 +231,24 @@ function InfoRow({ label, value, isMobile }) {
   );
 }
 
-function ListSection({ items, emptyText, isMobile }) {
-  if (!items || items.length === 0) {
-    return <p style={{ fontSize: isMobile ? 14 : 18, color: "#d1d5db", margin: 0 }}>{emptyText}</p>;
-  }
-
+function ListSection({ items, emptyText, isMobile, onStatusChange }) {
   const [statusByIndex, setStatusByIndex] = useState(() => buildStatusMap(items));
+  const [savingByIndex, setSavingByIndex] = useState({});
 
   useEffect(() => {
     setStatusByIndex(buildStatusMap(items));
   }, [items]);
+
+  if (!items || items.length === 0) {
+    return <p style={{ fontSize: isMobile ? 14 : 18, color: "#d1d5db", margin: 0 }}>{emptyText}</p>;
+  }
 
   return (
     <ul style={{ margin: 0, paddingLeft: 20, fontSize: isMobile ? 14 : 18, color: "#111827" }}>
       {items.map((item, index) => {
         const responsible = getTaskResponsible(item);
         const hasStatusDropdown = isTaskItem(item);
-        const currentStatus = statusByIndex[index] ?? "offen";
+        const currentStatus = statusByIndex[index] ?? (item.statusOptions ? item.status ?? "" : "offen");
         const statusStyle = STATUS_STYLE_BY_VALUE[currentStatus] ?? STATUS_STYLE_BY_VALUE.offen;
 
         return (
@@ -229,14 +259,28 @@ function ListSection({ items, emptyText, isMobile }) {
                 Verantwortlich: {responsible}
               </div>
             )}
+            {getTaskRoleEntries(item).map(({ label, value }) => (
+              <div key={label} style={{ marginTop: 2, fontSize: isMobile ? 12 : 14, color: "#6b7280" }}>
+                {label}: {value}
+              </div>
+            ))}
             {hasStatusDropdown && (
               <label style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: isMobile ? 12 : 14, color: "#374151" }}>
                 <span>Status:</span>
                 <select
                   value={currentStatus}
-                  onChange={(event) => {
+                  disabled={Boolean(savingByIndex[index])}
+                  onChange={async (event) => {
                     const nextStatus = event.target.value;
+                    setSavingByIndex((prev) => ({ ...prev, [index]: true }));
                     setStatusByIndex((prev) => ({ ...prev, [index]: nextStatus }));
+                    try {
+                      await onStatusChange?.(item, nextStatus);
+                    } catch {
+                      setStatusByIndex((prev) => ({ ...prev, [index]: currentStatus }));
+                    } finally {
+                      setSavingByIndex((prev) => ({ ...prev, [index]: false }));
+                    }
                   }}
                   style={{
                     padding: isMobile ? "6px 8px" : "7px 10px",
@@ -248,9 +292,9 @@ function ListSection({ items, emptyText, isMobile }) {
                     fontWeight: 600,
                   }}
                 >
-                  {STATUS_OPTIONS.map((statusOption) => (
-                    <option key={statusOption} value={statusOption}>
-                      {statusOption}
+                  {(item.statusOptions ?? STATUS_OPTIONS).map((statusOption) => (
+                    <option key={statusOption || "null"} value={statusOption}>
+                      {statusOption || "Nicht gesetzt (NULL)"}
                     </option>
                   ))}
                 </select>
@@ -259,6 +303,27 @@ function ListSection({ items, emptyText, isMobile }) {
           </li>
         );
       })}
+    </ul>
+  );
+}
+
+function BulletList({ items, emptyText, isMobile }) {
+  if (!items || items.length === 0) {
+    return <p style={{ fontSize: isMobile ? 14 : 18, color: "#d1d5db", margin: 0 }}>{emptyText}</p>;
+  }
+
+  return (
+    <ul style={{ margin: 0, paddingLeft: 20, fontSize: isMobile ? 14 : 18, color: "#111827" }}>
+      {items.map((item, index) => (
+        <li key={index} style={{ marginBottom: 8 }}>
+          <div>{getTaskLabel(item)}</div>
+          {getTaskResponsible(item) && (
+            <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 14, color: "#6b7280" }}>
+              Verantwortlich: {getTaskResponsible(item)}
+            </div>
+          )}
+        </li>
+      ))}
     </ul>
   );
 }
@@ -285,6 +350,20 @@ function getTaskResponsible(item) {
   return responsible || "";
 }
 
+function getTaskRoleEntries(item) {
+  if (!item || typeof item !== "object") return [];
+
+  return [
+    { label: "Mitwirkend", value: item.mitwirkend },
+    { label: "Informiert", value: item.informierend },
+  ]
+    .map(({ label, value }) => ({
+      label,
+      value: Array.isArray(value) ? value.filter(Boolean).join(", ") : value,
+    }))
+    .filter(({ value }) => Boolean(value));
+}
+
 function isTaskItem(item) {
   return Boolean(
     item &&
@@ -296,7 +375,7 @@ function isTaskItem(item) {
 function buildStatusMap(items) {
   return items.reduce((accumulator, item, index) => {
     if (isTaskItem(item)) {
-      accumulator[index] = item.status || "offen";
+      accumulator[index] = item.statusOptions ? item.status ?? "" : item.status || "offen";
     }
     return accumulator;
   }, {});
