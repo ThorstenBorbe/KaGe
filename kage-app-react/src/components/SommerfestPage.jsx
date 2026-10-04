@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import AufbauAbbauPage from "./AufbauAbbauPage";
 import { useIsMobile } from "../hooks/useIsMobile";
 import { useAuth } from "../context/useAuth";
 import { supabase } from "../supabase/supabaseConfig";
-import interneVeranstaltungen from "../data/interneVeranstaltungen";
+import { useEventTermin } from "../hooks/useEventTermin";
 
 const STATUS_COLUMN = "Status Abarbeitung";
 const STATUS_OPTIONS = ["", "offen", "in Arbeit", "abgeschlossen"];
@@ -31,20 +31,22 @@ const gridStyle = {
   alignItems: "start",
 };
 
-export default function SommerfestPage() {
+export default function SommerfestPage({ sessionValue }) {
   return (
     <InternalVmiEventPage
       title="Sommerfest"
       tableName="VMI-Sommerfest"
-      eventDetails={interneVeranstaltungen.sommerfest.veranstaltung}
+      eventKey="sommerfest"
+      sessionValue={sessionValue}
     />
   );
 }
 
-export function InternalVmiEventPage({ title, tableName, eventDetails }) {
+export function InternalVmiEventPage({ title, tableName, eventKey, sessionValue }) {
   const isMobile = useIsMobile(960);
   const { currentUser, isPraesidium } = useAuth();
   const [ownName, setOwnName] = useState(null);
+  const eventData = useEventTermin(eventKey, sessionValue);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -113,7 +115,8 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       document.removeEventListener("visibilitychange", refresh);
       window.removeEventListener("focus", refresh);
     };
-  }, [currentUser?.uid, currentUser?.email, tableName, title]);
+  }, [currentUser?.uid, currentUser?.email, tableName, title, eventKey, sessionValue]);
+
 
   const organisationRow = rows.find((row) => row.Bereich === "Organisation");
   const taskRows = rows.filter((row) => row.Bereich !== "Organisation");
@@ -159,8 +162,8 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       .from(tableName)
       .update({ [STATUS_COLUMN]: statusValue })
       .eq("id", task.id)
-      .select(`id, "${STATUS_COLUMN}"`)
-      .single();
+      .select("*")
+      .maybeSingle();
 
     if (error) {
       console.error(`Fehler beim Aktualisieren des Status in ${tableName}:`, error);
@@ -168,13 +171,13 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       throw error;
     }
     if (!data) {
-      const missingRowError = new Error("Der Matrix-Eintrag wurde nicht gefunden.");
-      setSaveError(`Der Status für „${task.text}“ konnte nicht gespeichert werden: ${missingRowError.message}`);
+      const missingRowError = new Error("Keine Zeile aktualisiert (fehlende Berechtigung in Supabase oder Eintrag nicht gefunden).");
+      setSaveError(`Der Status für „${task.text}“ konnte nicht gespeichert werden: ${missingRowError.message} Bitte supabase_interne_vmi_verantwortlich.sql ausführen.`);
       throw missingRowError;
     }
 
     // Den von Supabase bestätigten Wert übernehmen
-    const savedStatus = data[STATUS_COLUMN] ?? null;
+    const savedStatus = getColumnValue(data, STATUS_COLUMN) ?? null;
     setRows((currentRows) => currentRows.map((row) => (
       row.id === task.id ? { ...row, [STATUS_COLUMN]: savedStatus } : row
     )));
@@ -204,7 +207,7 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       {saveError && <p role="alert" style={{ color: "#b91c1c" }}>{saveError}</p>}
 
       <div style={gridStyle}>
-        <AufbauAbbauPage data={eventDetails} typ="Veranstaltung" embedded />
+        <AufbauAbbauPage data={eventData} typ="Veranstaltung" embedded />
         <AufbauAbbauPage
           data={{ verantwortliche: organisationOwners, aufgaben: organisationTasks, statusItem: organisationStatusItem }}
           typ="Organisation"

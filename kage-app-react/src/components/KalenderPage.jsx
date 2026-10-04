@@ -2,9 +2,10 @@ import { useState, useEffect } from "react";
 import { supabase } from "../supabase/supabaseConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
 
-// "Session 2026/2027" → "Termine_2026_2027"
+// "Session 2026/2027" → Tabelle "Session_26_27"
 function sessionToTable(session) {
-  return session.replace("Session ", "Termine_").replace("/", "_");
+  const m = session.match(/(\d{2})(\d{2})\s*\/\s*(\d{2})(\d{2})/);
+  return m ? `Session_${m[2]}_${m[4]}` : session;
 }
 
 const pageContainerStyle = (isMobile) => ({
@@ -32,15 +33,6 @@ const appointmentItemStyle = (isMobile) => ({
   borderRadius: "12px", // Einzelkartenform: "6px" = kompakter, "12px" = ausgewogen, "20px" = weicher
   padding: isMobile ? "12px" : "14px 16px",
   background: "#f9fafb", // Leicht getoenter Hintergrund zur Trennung der Termine
-});
-
-const categoryBadgeStyle = (isMobile, isExternal) => ({
-  background: isExternal ? "#fee2e2" : "#e5e7eb",
-  color: isExternal ? "#b91c1c" : "#374151",
-  borderRadius: "999px", // Markenform: pillenartig; alternativ "10px" fuer weniger rund
-  padding: isMobile ? "3px 9px" : "4px 10px",
-  fontSize: "12px",
-  fontWeight: 700,
 });
 
 function KalenderPage({ sessionValue = "Session 2026/2027" }) {
@@ -108,34 +100,30 @@ function KalenderPage({ sessionValue = "Session 2026/2027" }) {
 
         <div style={appointmentListStyle}>
           {termine.map((termin) => {
-            // Intern-Spalte kann boolean (true/false) oder Text ("Intern"/"Extern") sein
-            const isExternal = termin.Intern === false || termin.Intern === "Extern";
-            const kategorie = isExternal ? "Extern" : "Intern";
             const ortAnzeige = [termin.Adresse, termin.PLZ, termin.Ort].filter(Boolean).join(", ");
+            const geschenk = String(termin.Gastgeschenk ?? "").trim();
+            const hatGastgeschenk = geschenk !== "" && !/^[-–—]+$/.test(geschenk);
 
             return (
               <div key={termin.id} style={appointmentItemStyle(isMobile)}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                  <div>
-                    <div style={{ fontWeight: 700, color: "#111827", fontSize: isMobile ? "15px" : "16px" }}>
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontWeight: 700, color: "#111827", fontSize: isMobile ? "15px" : "16px", textAlign: "left" }}>
                       {termin.Veranstaltung}
                     </div>
-                    <div style={{ marginTop: "4px", color: "#6b7280", fontSize: isMobile ? "12px" : "13px" }}>
+                    <div style={{ marginTop: "4px", color: "#6b7280", fontSize: isMobile ? "12px" : "13px", fontWeight: 700 }}>
                       {termin.Wochentag ? `${termin.Wochentag}, ` : ""}{formatDate(termin.Datum)}
-                      {termin.Uhrzeit ? ` um ${termin.Uhrzeit}` : ""}
+                      {termin.Uhrzeit ? `, ${String(termin.Uhrzeit).replace(/(\d{1,2}:\d{2}):\d{2}(\.\d+)?/g, "$1")} Uhr` : ""}
                     </div>
                   </div>
-                  <span style={categoryBadgeStyle(isMobile, isExternal)}>
-                    {kategorie}
-                  </span>
                 </div>
                 {ortAnzeige && (
-                  <div style={{ marginTop: "8px", color: "#374151", fontSize: isMobile ? "12px" : "13px" }}>
+                  <div style={{ marginTop: "8px", color: "#374151", fontSize: isMobile ? "12px" : "13px", textAlign: "left" }}>
                     📍 {ortAnzeige}
                   </div>
                 )}
-                {termin.Gastgeschenk && (
-                  <div style={{ marginTop: "4px", color: "#6b7280", fontSize: isMobile ? "11px" : "12px" }}>
+                {hatGastgeschenk && (
+                  <div style={{ marginTop: "4px", color: "#6b7280", fontSize: isMobile ? "11px" : "12px", textAlign: "left" }}>
                     🎁 Gastgeschenk: {termin.Gastgeschenk}
                   </div>
                 )}

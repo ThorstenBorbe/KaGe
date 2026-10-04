@@ -1,4 +1,4 @@
-import GroupPage from "../components/GroupPage";
+﻿import GroupPage from "../components/GroupPage";
 import SommerfestPage, { InternalVmiEventPage } from "../components/SommerfestPage";
 import ExterneVeranstaltungPage from "../components/ExterneVeranstaltungPage";
 import FaschingszugPage from "../components/FaschingszugPage";
@@ -137,7 +137,7 @@ export function renderAppContent(active, sessionValue) {
   }
 
   if (active === "sommerfest") {
-    return <SommerfestPage key={active} />;
+    return <SommerfestPage key={active} sessionValue={sessionValue} />;
   }
 
   const internalVmiTable = INTERNAL_VMI_TABLE_BY_KEY[active];
@@ -147,7 +147,8 @@ export function renderAppContent(active, sessionValue) {
         key={active}
         title={INTERNAL_EVENT_LABELS[active] || active}
         tableName={internalVmiTable}
-        eventDetails={interneVeranstaltungen[active]?.veranstaltung}
+        eventKey={active}
+        sessionValue={sessionValue}
       />
     );
   }
@@ -191,11 +192,11 @@ export function renderAppContent(active, sessionValue) {
   }
 
   if (active === "faschingszug") {
-    return <FaschingszugPage key={active} veranstaltung={externeVeranstaltungen[active]} />;
+    return <FaschingszugPage key={active} veranstaltung={externeVeranstaltungen[active]} eventKey={active} sessionValue={sessionValue} />;
   }
 
   if (EXTERNE_STANDARD_KEYS.has(active)) {
-    return <ExterneVeranstaltungPage key={active} veranstaltung={externeVeranstaltungen[active]} />;
+    return <ExterneVeranstaltungPage key={active} veranstaltung={externeVeranstaltungen[active]} eventKey={active} sessionValue={sessionValue} />;
   }
 
   if (active === "kalender") {

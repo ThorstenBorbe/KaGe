@@ -111,7 +111,6 @@ export default function AufbauAbbauPage({ data, typ, embedded = false, onTaskSta
   const isMobile = useIsMobile(960);
   const details = data || {};
   const location = details.ort || "";
-  const meetingTime = details.treffzeit || "";
   const isEventSection = typ === "Veranstaltung";
   const isOrganizationSection = typ === "Organisation";
   const isTasksSection = typ === "Aufgaben";
@@ -159,13 +158,14 @@ export default function AufbauAbbauPage({ data, typ, embedded = false, onTaskSta
         <>
           <InfoSection
             icon="🕒"
-            title={isEventSection ? "Datum, Treffzeit, Ort & Beginn" : "Datum, Uhrzeit & Ort"}
+            title={isEventSection ? "Wochentag, Datum, Treffpunkt, Ort & Beginn" : "Datum, Uhrzeit & Ort"}
             isMobile={isMobile}
           >
+            {isEventSection && <InfoRow label="Wochentag" value={details.wochentag} isMobile={isMobile} />}
             <InfoRow label="Datum" value={details.datum} isMobile={isMobile} />
             {isEventSection ? (
               <>
-                <InfoRow label="Treffzeit" value={meetingTime} isMobile={isMobile} />
+                <InfoRow label="Treffpunkt" value={details.treffpunkt} isMobile={isMobile} />
                 <InfoRow label="Ort" value={location} isMobile={isMobile} />
                 <InfoRow label="Beginn" value={details.uhrzeit} isMobile={isMobile} />
               </>

@@ -1,4 +1,5 @@
-import { useIsMobile } from "../hooks/useIsMobile";
+﻿import { useIsMobile } from "../hooks/useIsMobile";
+import { useEventTermin, EVENT_NAME_BY_KEY } from "../hooks/useEventTermin";
 
 const pageContainerStyle = (isMobile) => ({
   padding: isMobile ? "12px" : "24px",
@@ -40,17 +41,29 @@ const dividerStyle = {
   margin: "16px 0",
 };
 
-export default function FaschingszugPage({ veranstaltung }) {
+export default function FaschingszugPage({ veranstaltung, eventKey, sessionValue }) {
   const isMobile = useIsMobile(960);
   const v = veranstaltung;
+  const terminData = useEventTermin(eventKey, sessionValue);
+  const termin = EVENT_NAME_BY_KEY[eventKey] ? terminData : null;
 
   return (
     <div style={pageContainerStyle(isMobile)}>
       <div style={contentCardStyle(isMobile)}>
-        <InfoSection icon="📍" title="Treffpunkt & Uhrzeit" isMobile={isMobile}>
-          <InfoRow label="Treffpunkt" value={v.treffpunkt} isMobile={isMobile} />
-          <InfoRow label="Uhrzeit" value={v.treffpunktUhrzeit} isMobile={isMobile} />
-        </InfoSection>
+        {termin ? (
+          <InfoSection icon="📍" title="Wochentag, Datum, Treffpunkt, Ort & Beginn" isMobile={isMobile}>
+            <InfoRow label="Wochentag" value={termin.wochentag} isMobile={isMobile} />
+            <InfoRow label="Datum" value={termin.datum} isMobile={isMobile} />
+            <InfoRow label="Treffpunkt" value={termin.treffpunkt} isMobile={isMobile} />
+            <InfoRow label="Ort" value={termin.ort} isMobile={isMobile} />
+            <InfoRow label="Beginn" value={termin.uhrzeit} isMobile={isMobile} />
+          </InfoSection>
+        ) : (
+          <InfoSection icon="📍" title="Treffpunkt & Uhrzeit" isMobile={isMobile}>
+            <InfoRow label="Treffpunkt" value={v.treffpunkt} isMobile={isMobile} />
+            <InfoRow label="Uhrzeit" value={v.treffpunktUhrzeit} isMobile={isMobile} />
+          </InfoSection>
+        )}
 
         <Divider />
 
