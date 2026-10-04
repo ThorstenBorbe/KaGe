@@ -12,6 +12,8 @@ function buildRequestUrl(url) {
 }
 
 const proxiedFetch = (input, init) => {
+	// Immer frische Daten holen: Browser-Cache (ETag/304) darf keine alten Antworten liefern
+	init = { ...init, cache: "no-store" };
 	const rawUrl = typeof input === "string"
 		? input
 		: input instanceof URL

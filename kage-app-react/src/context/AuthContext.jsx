@@ -555,6 +555,7 @@ export function AuthProvider({ children }) {
         Wohnort: daten.wohnort,
         Telefonnummer: daten.telefonnummer,
         Ansprechpartner: daten.ansprechpartner || null,
+        "Telefonnummer Ansprechpartner": daten.telefonAnsprechpartner || null,
       })
       .ilike("Email", currentUser.email)
       .select("Email");
@@ -570,7 +571,7 @@ export function AuthProvider({ children }) {
     if (!currentUser?.email || currentUser.uid === "dev") return null;
     const { data, error } = await supabase
       .from("Mitglieder")
-      .select("Vorname, Nachname, Strasse, Postleitzahl, Wohnort, Ansprechpartner, Geburtsdatum")
+      .select("Vorname, Nachname, Strasse, Postleitzahl, Wohnort, Ansprechpartner, \"Telefonnummer Ansprechpartner\", Geburtsdatum, Telefonnummer, Email")
       .ilike("Email", currentUser.email)
       .limit(1);
     if (error) throw error;
@@ -671,6 +672,7 @@ export function AuthProvider({ children }) {
       value={{
         currentUser,
         userRole,
+        isPraesidium,
         login,
         register,
         resetPassword,

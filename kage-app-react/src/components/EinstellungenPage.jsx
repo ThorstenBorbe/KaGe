@@ -16,6 +16,7 @@ export default function EinstellungenPage() {
   const [plz, setPlz] = useState("");
   const [wohnort, setWohnort] = useState("");
   const [ansprechpartner, setAnsprechpartner] = useState("");
+  const [telefonAnsprechpartner, setTelefonAnsprechpartner] = useState("");
   const [currentPw, setCurrentPw] = useState("");
   const [newEmail, setNewEmail] = useState("");
   const [telefon, setTelefon] = useState(currentUser?.telefon ?? "");
@@ -36,7 +37,7 @@ export default function EinstellungenPage() {
   function open(s) {
     reset();
     setSection(s);
-    if (s === "name" || s === "anschrift" || s === "ansprechpartner") {
+    if (s === "name" || s === "anschrift" || s === "ansprechpartner" || s === "telefon" || s === "email") {
       loadMitgliedDetails()
         .then((row) => {
           setGeburtsdatum(row?.Geburtsdatum ?? "");
@@ -46,6 +47,9 @@ export default function EinstellungenPage() {
           setPlz(row?.Postleitzahl ?? "");
           setWohnort(row?.Wohnort ?? "");
           setAnsprechpartner(row?.Ansprechpartner ?? "");
+          setTelefonAnsprechpartner(row?.["Telefonnummer Ansprechpartner"] ?? "");
+          if (row?.Telefonnummer) setTelefon(row.Telefonnummer);
+          if (s === "email" && row?.Email) setNewEmail(row.Email);
         })
         .catch((error) => setMsg({ text: `Daten konnten nicht geladen werden: ${error?.message ?? "Unbekannter Fehler"}`, error: true }));
     }
@@ -69,7 +73,10 @@ export default function EinstellungenPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      await updateMitglied({ Ansprechpartner: ansprechpartner.trim() || null });
+      await updateMitglied({
+        Ansprechpartner: ansprechpartner.trim() || null,
+        "Telefonnummer Ansprechpartner": telefonAnsprechpartner.trim() || null,
+      });
       setMsg({ text: "Ansprechpartner erfolgreich gespeichert.", error: false });
     } catch (error) {
       setMsg({ text: `Ansprechpartner konnte nicht gespeichert werden: ${error?.message ?? "Unbekannter Fehler"}`, error: true });
@@ -248,7 +255,8 @@ export default function EinstellungenPage() {
             isMobile={isMobile}
           >
             <form onSubmit={handleAnsprechpartner}>
-              <Field id="s-ansprechpartner" label="Ansprechpartner" value={ansprechpartner} onChange={setAnsprechpartner} placeholder="Name und Telefonnummer" last isMobile={isMobile} />
+              <Field id="s-ansprechpartner" label="Ansprechpartner" value={ansprechpartner} onChange={setAnsprechpartner} placeholder="Name" isMobile={isMobile} />
+              <Field id="s-ansprechpartner-tel" label="Telefonnummer Ansprechpartner" value={telefonAnsprechpartner} onChange={setTelefonAnsprechpartner} placeholder="Telefonnummer" last isMobile={isMobile} />
               <Feedback msg={msg} isMobile={isMobile} />
               <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>

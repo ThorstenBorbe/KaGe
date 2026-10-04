@@ -12,6 +12,7 @@ export default function ProfileCompletionDialog() {
     wohnort: "",
     telefonnummer: "",
     ansprechpartner: "",
+    telefonAnsprechpartner: "",
   });
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -74,7 +75,8 @@ export default function ProfileCompletionDialog() {
         {field("pc-plz", "Postleitzahl *", "postleitzahl", { autoComplete: "postal-code" })}
         {field("pc-ort", "Wohnort *", "wohnort", { autoComplete: "address-level2" })}
         {field("pc-tel", "Telefonnummer *", "telefonnummer", { type: "tel", autoComplete: "tel" }, "Wichtig für die Kontaktierung.")}
-        {field("pc-ansp", "Ansprechpartner bei Notfällen (optional)", "ansprechpartner", { placeholder: "Name und Telefonnummer" })}
+        {field("pc-ansp", "Ansprechpartner bei Notfällen (optional)", "ansprechpartner", { placeholder: "Name" })}
+        {field("pc-ansp-tel", "Telefonnummer Ansprechpartner (optional)", "telefonAnsprechpartner", { type: "tel" })}
 
         {error && <p style={{ color: "#b91c1c", fontSize: "12px", margin: "0 0 12px" }}>{error}</p>}
         <button

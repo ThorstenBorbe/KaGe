@@ -1,7 +1,19 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { useAuth } from "../context/useAuth";
-import interneVeranstaltungen from "../data/interneVeranstaltungen";
+import { supabase } from "../supabase/supabaseConfig";
 import { useIsMobile } from "../hooks/useIsMobile";
+
+const STATUS_COLUMN = "Status Abarbeitung";
+const VMI_TABLES = [
+  { table: "VMI-Sommerfest", label: "Sommerfest" },
+  { table: "VMI-Rathaussturm", label: "11.11. Rathaussturm" },
+  { table: "VMI-Beat Bocks Party", label: "Beat-Bocks-Party" },
+  { table: "VMI-Kehraus", label: "Kehraus" },
+  { table: "VMI-Prunksitzung", label: "Prunksitzung" },
+  { table: "VMI-Weihnachtsfeier", label: "Weihnachtsfeier" },
+  { table: "VMI-Bunter Nachmittag", label: "Bunter Nachmittag" },
+  { table: "VMI-Kinderfasching", label: "Kinderfasching" },
+];
 
 const pageContainerStyle = (isMobile) => ({
   padding: isMobile ? "12px" : "24px",
@@ -64,18 +76,81 @@ const STATUS_STYLE_BY_VALUE = {
 const STATUS_OPTIONS = ["offen", "in Arbeit", "abgeschlossen"];
 
 export default function MeineAufgabenPage() {
-  const { currentUser, hasRole } = useAuth();
+  const { currentUser, loadMitgliedDetails } = useAuth();
   const isMobile = useIsMobile(960);
-  const userNames = buildUserNameCandidates(currentUser);
-  const assignedTasks = collectAssignedTasks(userNames);
-  const tasksToDisplay = sortTasksByDate(hasRole("admin")
-    ? [...ADMIN_DUMMY_TASKS, ...assignedTasks]
-    : assignedTasks);
-  const [statusByTaskId, setStatusByTaskId] = useState(() => buildStatusMap(tasksToDisplay));
+  const [tasksToDisplay, setTasksToDisplay] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [statusByTaskId, setStatusByTaskId] = useState({});
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function load() {
+      setLoading(true);
+      setError("");
+      try {
+        if (!currentUser || currentUser.uid === "dev") {
+          if (mounted) setTasksToDisplay([]);
+          return;
+        }
+        const details = await loadMitgliedDetails();
+        const ownName = normalizeName(`${details?.Vorname ?? ""}${details?.Nachname ?? ""}`);
+        if (!ownName) {
+          if (mounted) setTasksToDisplay([]);
+          return;
+        }
+
+        const results = await Promise.all(
+          VMI_TABLES.map(async ({ table, label }) => {
+            const { data, error: tableError } = await supabase.from(table).select("*").order("id");
+            if (tableError) throw tableError;
+            return (data ?? [])
+              .filter((row) => row.Bereich !== "Organisation")
+              .filter((row) => splitPeople(row["V-Verantwortlich"]).some((person) => normalizeName(person) === ownName))
+              .map((row) => ({
+                id: `${table}-${row.id}`,
+                table,
+                rowId: row.id,
+                text: `${row.Bereich}: ${row.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+                status: row[STATUS_COLUMN] || "offen",
+                datum: "",
+                info: label,
+              }));
+          })
+        );
+        if (mounted) setTasksToDisplay(results.flat());
+      } catch (loadError) {
+        if (mounted) setError(`Aufgaben konnten nicht geladen werden: ${loadError?.message ?? "Unbekannter Fehler"}`);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { mounted = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.uid, currentUser?.email]);
 
   useEffect(() => {
     setStatusByTaskId(buildStatusMap(tasksToDisplay));
   }, [tasksToDisplay]);
+
+  async function changeStatus(task, nextStatus) {
+    const previous = statusByTaskId[task.id];
+    setStatusByTaskId((prev) => ({ ...prev, [task.id]: nextStatus }));
+    const { data, error: updateError } = await supabase
+      .from(task.table)
+      .update({ [STATUS_COLUMN]: nextStatus })
+      .eq("id", task.rowId)
+      .select("id");
+    if (updateError || !data?.length) {
+      setStatusByTaskId((prev) => ({ ...prev, [task.id]: previous }));
+      setError(`Status konnte nicht gespeichert werden: ${updateError?.message ?? "Keine Berechtigung"}`);
+    } else {
+      setError("");
+    }
+  }
 
   return (
     <div style={pageContainerStyle(isMobile)}>
@@ -86,7 +161,10 @@ export default function MeineAufgabenPage() {
         </p>
       </div>
 
-      {tasksToDisplay.length === 0 ? (
+      {error && <p role="alert" style={{ color: "#b91c1c" }}>{error}</p>}
+      {loading ? (
+        <div style={taskCardStyle}>Aufgaben werden geladen …</div>
+      ) : tasksToDisplay.length === 0 ? (
         <div style={taskCardStyle}>
           <h3 style={{ marginTop: 0, color: "#111827" }}>Aktuell keine zugewiesenen Aufgaben</h3>
           <p style={{ marginBottom: 0, color: "#6b7280", lineHeight: 1.6 }}>
@@ -116,10 +194,7 @@ export default function MeineAufgabenPage() {
                     <span>Status:</span>
                     <select
                       value={currentStatus}
-                      onChange={(event) => {
-                        const nextStatus = event.target.value;
-                        setStatusByTaskId((prev) => ({ ...prev, [task.id]: nextStatus }));
-                      }}
+                      onChange={(event) => changeStatus(task, event.target.value)}
                       style={{
                         padding: isMobile ? "6px 8px" : "7px 10px",
                         borderRadius: 8,
@@ -161,63 +236,13 @@ function TaskMetaRow({ label, value, isMobile }) {
   );
 }
 
-function buildUserNameCandidates(currentUser) {
-  if (!currentUser) return [];
-
-  const names = [
-    currentUser.name,
-    [currentUser.vorname, currentUser.nachname].filter(Boolean).join(" "),
-  ]
-    .map((value) => value?.trim())
-    .filter(Boolean)
-    .map((value) => value.toLowerCase());
-
-  return Array.from(new Set(names));
+function normalizeName(value) {
+  return String(value ?? "").replace(/\s+/g, "").toLocaleLowerCase("de-DE");
 }
 
-function collectAssignedTasks(userNames) {
-  if (userNames.length === 0) return [];
-
-  return Object.entries(interneVeranstaltungen).flatMap(([eventKey, eventData]) => {
-    const eventLabel = INTERNAL_EVENT_LABELS[eventKey] || eventKey;
-
-    return INTERNAL_EVENT_PHASES.flatMap((phase) => {
-      const phaseData = eventData[phase.key];
-      if (!phaseData?.aufgaben?.length) return [];
-
-      return phaseData.aufgaben
-        .filter((task) => isAssignedToUser(task, userNames))
-        .map((task, index) => ({
-          id: `${eventKey}-${phase.key}-${index}`,
-          text: getTaskLabel(task),
-          status: task.status || "offen",
-          datum: phaseData.datum || "",
-          info: buildTaskInfo(eventLabel, phase.label, phaseData),
-        }));
-    });
-  });
-}
-
-function isAssignedToUser(task, userNames) {
-  if (!task || typeof task !== "object") return false;
-
-  const responsible = task.verantwortlich ?? task.verantwortliche;
-  const responsibleNames = Array.isArray(responsible) ? responsible : [responsible];
-
-  return responsibleNames
-    .filter(Boolean)
-    .map((name) => String(name).trim().toLowerCase())
-    .some((name) => userNames.includes(name));
-}
-
-function getTaskLabel(task) {
-  return task?.text || task?.aufgabe || task?.titel || "Ohne Bezeichnung";
-}
-
-function buildTaskInfo(eventLabel, phaseLabel, phaseData) {
-  const location = phaseData?.ort ? `Ort: ${phaseData.ort}` : "Ort wird noch abgestimmt";
-  const time = phaseData?.uhrzeit || phaseData?.treffzeit || "Zeit folgt";
-  return `${eventLabel} (${phaseLabel}) koordinieren. ${location}. Zeit: ${time}.`;
+function splitPeople(value) {
+  if (!value || value === "-") return [];
+  return String(value).split(/[,\n]/).map((person) => person.trim()).filter(Boolean);
 }
 
 function buildStatusMap(tasks) {
@@ -226,55 +251,3 @@ function buildStatusMap(tasks) {
     return statusMap;
   }, {});
 }
-
-function sortTasksByDate(tasks) {
-  return [...tasks].sort((taskA, taskB) => parseDateValue(taskA.datum) - parseDateValue(taskB.datum));
-}
-
-function parseDateValue(dateString) {
-  if (!dateString) return Number.MAX_SAFE_INTEGER;
-
-  const [day, month, year] = String(dateString).split(".").map((value) => Number.parseInt(value, 10));
-  if (!day || !month || !year) return Number.MAX_SAFE_INTEGER;
-
-  return new Date(year, month - 1, day).getTime();
-}
-
-const INTERNAL_EVENT_PHASES = [
-  { key: "aufgaben", label: "Aufgaben" },
-];
-
-const INTERNAL_EVENT_LABELS = {
-  "hans-peter": "Hans-Peter",
-  "11-11": "11.11. Jetzt geht los",
-  "prunksitzung-1": "1. Prunksitzung",
-  "prunksitzung-2": "2. Prunksitzung",
-  "bunter-nachmittag": "Bunter Nachmittag",
-  "beatbox-party": "Beat-Bocks-Party",
-  kinderfasching: "Kinderfasching",
-  kehraus: "Kehraus",
-};
-
-const ADMIN_DUMMY_TASKS = [
-  {
-    id: "admin-dummy-1",
-    text: "Hallenbuchung bei der Gemeinde fuer die Session 2026/2027",
-    status: "offen",
-    datum: "14.04.2026",
-    info: "Buergerbuero und Buergermeister per Email kontaktieren (Email: dddd@dddd.de).",
-  },
-  {
-    id: "admin-dummy-2",
-    text: "Wurfmaterial fuer Faschingszug organisieren",
-    status: "in Arbeit",
-    datum: "18.04.2026",
-    info: "Bestand im Lager pruefen, fehlende Artikel bei Lieferant anfragen und Budget mit dem Vorstand abstimmen.",
-  },
-  {
-    id: "admin-dummy-3",
-    text: "Security organisieren fuer BBP",
-    status: "abgeschlossen",
-    datum: "20.04.2026",
-    info: "Angebote von zwei Sicherheitsdiensten eingeholt und Einsatzzeit fuer Einlass und Saalschutz abgestimmt.",
-  },
-];

@@ -43,7 +43,8 @@ export default function SommerfestPage() {
 
 export function InternalVmiEventPage({ title, tableName, eventDetails }) {
   const isMobile = useIsMobile(960);
-  const { currentUser } = useAuth();
+  const { currentUser, isPraesidium } = useAuth();
+  const [ownName, setOwnName] = useState(null);
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -52,8 +53,8 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
   useEffect(() => {
     let mounted = true;
 
-    async function loadVmiRows() {
-      setLoading(true);
+    async function loadVmiRows(silent = false) {
+      if (!silent) setLoading(true);
       setLoadError("");
 
       try {
@@ -76,7 +77,22 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
         }
 
         const mappedRows = data.map(mapVmiRow);
-        if (mounted) setRows(mappedRows);
+        let name = "";
+        try {
+          const { data: member } = await supabase
+            .from("Mitglieder")
+            .select("Vorname, Nachname")
+            .ilike("Email", currentUser?.email ?? "")
+            .limit(1);
+          name = `${member?.[0]?.Vorname ?? ""}${member?.[0]?.Nachname ?? ""}`;
+        } catch (nameError) {
+          console.warn("Name des Mitglieds konnte nicht geladen werden:", nameError);
+        }
+        if (!name) name = `${currentUser?.vorname ?? ""}${currentUser?.nachname ?? ""}`;
+        if (mounted) {
+          setOwnName(normalizeName(name));
+          setRows(mappedRows);
+        }
       } catch (error) {
         console.error(`Fehler beim Laden der Tabelle ${tableName}:`, error);
         if (mounted) setLoadError(`Die VMI-Matrix für ${title} konnte nicht geladen werden: ${error.message}`);
@@ -86,10 +102,18 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
     }
 
     loadVmiRows();
+    // Beim Zurückkehren in die App den aktuellen Status neu aus Supabase lesen
+    const refresh = () => {
+      if (document.visibilityState === "visible") loadVmiRows(true);
+    };
+    document.addEventListener("visibilitychange", refresh);
+    window.addEventListener("focus", refresh);
     return () => {
       mounted = false;
+      document.removeEventListener("visibilitychange", refresh);
+      window.removeEventListener("focus", refresh);
     };
-  }, [currentUser?.uid, tableName, title]);
+  }, [currentUser?.uid, currentUser?.email, tableName, title]);
 
   const organisationRow = rows.find((row) => row.Bereich === "Organisation");
   const taskRows = rows.filter((row) => row.Bereich !== "Organisation");
@@ -102,15 +126,31 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
     ...taskRows.map((row) => row.Bereich).filter(Boolean),
   ];
   const organisationOwners = splitPeople(organisationRow?.["V-Verantwortlich"]);
-  const tasks = taskRows.map((row) => ({
-    id: row.id,
-    text: `${row.Bereich}: ${row.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
-    verantwortlich: splitPeople(row["V-Verantwortlich"]),
-    mitwirkend: splitPeople(row["M-Mitwirkend"]),
-    informierend: splitPeople(row["I-Information"]),
-    status: row[STATUS_COLUMN] ?? "",
-    statusOptions: STATUS_OPTIONS,
-  }));
+  const isOrganisationOwner = Boolean(ownName) && organisationOwners.some((person) => normalizeName(person) === ownName);
+  const organisationStatusItem = organisationRow
+    ? {
+        id: organisationRow.id,
+        text: "Status der Organisation",
+        status: organisationRow[STATUS_COLUMN] ?? "",
+        statusOptions: STATUS_OPTIONS,
+        canEditStatus: isPraesidium || isOrganisationOwner,
+      }
+    : null;
+  const tasks = taskRows.map((row) => {
+    const verantwortlich = splitPeople(row["V-Verantwortlich"]);
+    const isOwn = Boolean(ownName) && verantwortlich.some((person) => normalizeName(person) === ownName);
+    return {
+      id: row.id,
+      text: `${row.Bereich}: ${row.Aufgabenbeschreibung || "Keine Aufgabenbeschreibung"}`,
+      verantwortlich,
+      mitwirkend: splitPeople(row["M-Mitwirkend"]),
+      informierend: splitPeople(row["I-Information"]),
+      status: row[STATUS_COLUMN] ?? "",
+      statusOptions: STATUS_OPTIONS,
+      canEditStatus: isPraesidium || isOwn,
+      isOwn,
+    };
+  }).filter((task) => isPraesidium || task.isOwn);
 
   async function updateTaskStatus(task, status) {
     setSaveError("");
@@ -119,12 +159,12 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       .from(tableName)
       .update({ [STATUS_COLUMN]: statusValue })
       .eq("id", task.id)
-      .select("id")
+      .select(`id, "${STATUS_COLUMN}"`)
       .single();
 
     if (error) {
       console.error(`Fehler beim Aktualisieren des Status in ${tableName}:`, error);
-      setSaveError(`Der Status für „${task.text}“ konnte nicht gespeichert werden: ${error.message}`);
+      setSaveError(`Der Status für „${task.text}“ konnte nicht gespeichert werden: ${error.message}. Prüfe, ob die SQL-Policies (supabase_interne_vmi_verantwortlich.sql) in Supabase ausgeführt wurden.`);
       throw error;
     }
     if (!data) {
@@ -133,8 +173,10 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       throw missingRowError;
     }
 
+    // Den von Supabase bestätigten Wert übernehmen
+    const savedStatus = data[STATUS_COLUMN] ?? null;
     setRows((currentRows) => currentRows.map((row) => (
-      row.id === task.id ? { ...row, [STATUS_COLUMN]: statusValue } : row
+      row.id === task.id ? { ...row, [STATUS_COLUMN]: savedStatus } : row
     )));
   }
 
@@ -164,9 +206,10 @@ export function InternalVmiEventPage({ title, tableName, eventDetails }) {
       <div style={gridStyle}>
         <AufbauAbbauPage data={eventDetails} typ="Veranstaltung" embedded />
         <AufbauAbbauPage
-          data={{ verantwortliche: organisationOwners, aufgaben: organisationTasks }}
+          data={{ verantwortliche: organisationOwners, aufgaben: organisationTasks, statusItem: organisationStatusItem }}
           typ="Organisation"
           embedded
+          onTaskStatusChange={updateTaskStatus}
         />
         <AufbauAbbauPage
           data={{ aufgaben: tasks }}
@@ -208,6 +251,10 @@ function getColumnValue(row, columnName) {
     (key) => key.trim().toLocaleLowerCase("de-DE") === columnName.toLocaleLowerCase("de-DE")
   );
   return matchingKey ? row[matchingKey] : undefined;
+}
+
+function normalizeName(value) {
+  return String(value ?? "").replace(/\s+/g, "").toLocaleLowerCase("de-DE");
 }
 
 function splitPeople(value) {

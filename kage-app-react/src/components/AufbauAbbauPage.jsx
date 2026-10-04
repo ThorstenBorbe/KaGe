@@ -149,6 +149,11 @@ export default function AufbauAbbauPage({ data, typ, embedded = false, onTaskSta
           <InfoSection icon="📋" title="Aufgaben" isMobile={isMobile}>
             <BulletList items={details.aufgaben} emptyText="Noch keine Aufgaben eingetragen." isMobile={isMobile} />
           </InfoSection>
+          {details.statusItem && (
+            <InfoSection icon="🚦" title="Status" isMobile={isMobile}>
+              <ListSection items={[details.statusItem]} emptyText="" isMobile={isMobile} onStatusChange={onTaskStatusChange} />
+            </InfoSection>
+          )}
         </>
       ) : hasScheduleInfo && (
         <>
@@ -269,7 +274,7 @@ function ListSection({ items, emptyText, isMobile, onStatusChange }) {
                 <span>Status:</span>
                 <select
                   value={currentStatus}
-                  disabled={Boolean(savingByIndex[index])}
+                  disabled={Boolean(savingByIndex[index]) || item.canEditStatus === false}
                   onChange={async (event) => {
                     const nextStatus = event.target.value;
                     setSavingByIndex((prev) => ({ ...prev, [index]: true }));
