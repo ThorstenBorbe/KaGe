@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from "react";
 import { useAuth } from "./context/useAuth";
 import kageLogo from "./assets/Logo/KaGe Zell Logo mit Schriftzug.png";
 import LoginPage from "./components/LoginPage";
+import PasswordRecoveryPage from "./components/PasswordRecoveryPage";
+import PendingApprovalPage from "./components/PendingApprovalPage";
+import ProfileCompletionDialog from "./components/ProfileCompletionDialog";
 import PrivacyConsentPage from "./components/PrivacyConsentPage";
 import AppSidebar from "./components/layout/AppSidebar";
 import AppMainContent from "./components/layout/AppMainContent";
@@ -20,11 +23,14 @@ import {
 import { theme } from "./styles/theme";
 
 
-const APP_VERSION = "v0.2.3";
+const APP_VERSION = "v0.2.4";
 
 export default function App() {
   const {
     currentUser,
+    userRole,
+    needsProfile,
+    passwordRecovery,
     logout,
     hasRole,
     privacyAccepted,
@@ -64,7 +70,9 @@ export default function App() {
     }
   }, [isMobile]);
 
+  if (passwordRecovery) return <PasswordRecoveryPage />;
   if (!currentUser) return <LoginPage />;
+  if (userRole === "pending") return <PendingApprovalPage />;
   if (!privacyAccepted) {
     return (
       <PrivacyConsentPage
@@ -95,6 +103,7 @@ export default function App() {
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: theme.font.base }}>
       <WelcomeToast name={currentUser?.vorname || currentUser?.name} visible={showWelcome} onClose={dismissWelcome} />
+      {needsProfile && <ProfileCompletionDialog />}
 
       {isMobile && mobileMenuOpen && (
         <div

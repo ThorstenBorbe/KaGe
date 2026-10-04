@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect } from "react";
 import { supabase, SUPABASE_ANON_KEY, getSupabaseAuthBaseUrl } from "../supabase/supabaseConfig";
+import { MITGLIEDER_GRUPPEN } from "../config/mitgliederGruppen";
 
 export const AuthContext = createContext(null);
 
@@ -99,6 +100,54 @@ async function loginViaRestFallback(email, password) {
   console.log("[Login REST] setSession abgeschlossen.");
 }
 
+// Die Registrierungsdaten liegen bis zur ersten Anmeldung in den Auth-Metadaten,
+// weil vor der E-Mail-Bestätigung noch keine Session für den DB-Zugriff existiert.
+async function syncMitgliedFromMetadata(authUser) {
+  const daten = authUser.user_metadata?.mitglied_daten;
+  if (!daten) return;
+
+  const { data: existing, error: readError } = await supabase
+    .from("Mitglieder")
+    .select("Email")
+    .ilike("Email", daten.Email)
+    .limit(1);
+  if (readError) throw readError;
+
+  if (!existing?.length) {
+    const { error: insertError } = await supabase.from("Mitglieder").insert({ ...daten, Freigabe: false });
+    if (insertError) throw insertError;
+  }
+
+  await supabase.auth.updateUser({ data: { mitglied_daten: null } });
+}
+
+const PROFIL_PFLICHTFELDER = ["Geburtsdatum", "Strasse", "Postleitzahl", "Wohnort", "Telefonnummer"];
+
+async function loadMitgliedStatus(email) {
+  const empty = { telefon: "", freigabe: false, praesidium: false, profilUnvollstaendig: false };
+  if (!email) return empty;
+  const { data, error } = await supabase
+    .from("Mitglieder")
+    .select("*")
+    .ilike("Email", email)
+    .limit(1);
+  if (error) {
+    console.error("[Mitglieder-Status]", error.message);
+    return empty;
+  }
+  if (!data?.length) {
+    console.warn("[Mitglieder-Status] Kein Mitglieder-Eintrag oder keine Leseberechtigung für", email);
+  }
+  return {
+    telefon: data?.[0]?.Telefonnummer ?? "",
+    freigabe: data?.[0]?.Freigabe === true,
+    praesidium: data?.[0]?.Praesidium === true,
+    profilUnvollstaendig: Boolean(data?.length) && PROFIL_PFLICHTFELDER.some(
+      (key) => !String(data[0][key] ?? "").trim()
+    ),
+  };
+}
+
 async function ensureUserProfile(authUser) {
   const { data: existing, error: readError } = await supabase
     .from("users")
@@ -118,8 +167,8 @@ async function ensureUserProfile(authUser) {
     id: authUser.id,
     name: authUser.user_metadata?.display_name ?? authUser.email ?? "",
     email: authUser.email ?? "",
-    vorname: "",
-    nachname: "",
+    vorname: authUser.user_metadata?.vorname ?? "",
+    nachname: authUser.user_metadata?.nachname ?? "",
     role: "mitglied",
     privacy_consent: {
       accepted: false,
@@ -140,8 +189,14 @@ async function ensureUserProfile(authUser) {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState("gast");
+  const [isPraesidium, setIsPraesidium] = useState(false);
+  const [needsProfile, setNeedsProfile] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [privacyBusy, setPrivacyBusy] = useState(false);
+  const [passwordRecovery, setPasswordRecovery] = useState(() => (
+    new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery"
+    || new URLSearchParams(window.location.search).get("type") === "recovery"
+  ));
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -158,19 +213,25 @@ export function AuthProvider({ children }) {
     function applyLoggedOutState() {
       setCurrentUser(null);
       setUserRole("gast");
+      setIsPraesidium(false);
+      setNeedsProfile(false);
       setPrivacyAccepted(false);
     }
 
-    function applyAuthFallbackState(authUser) {
-      // Fallback: Auth-User ist vorhanden, aber Profilzugriff ist lokal nicht moeglich.
+    async function applyAuthFallbackState(authUser) {
+      // Fallback: Profilzugriff (users) nicht moeglich. Die Freigabe in Mitglieder zaehlt trotzdem.
+      const { telefon, freigabe, praesidium } = await loadMitgliedStatus(authUser.email);
+      if (!mounted) return;
       setCurrentUser({
         uid: authUser.id,
         name: authUser.user_metadata?.display_name ?? authUser.email ?? "",
         email: authUser.email ?? "",
         vorname: "",
         nachname: "",
+        telefon,
       });
-      setUserRole("mitglied");
+      setIsPraesidium(praesidium);
+      setUserRole(freigabe || praesidium ? "mitglied" : "pending");
       setPrivacyAccepted(false);
     }
 
@@ -185,18 +246,37 @@ export function AuthProvider({ children }) {
       try {
         const profile = await ensureUserProfile(authUser);
 
+        try {
+          await syncMitgliedFromMetadata(authUser);
+        } catch (syncError) {
+          console.error("[Mitglieder-Sync]", syncError?.message ?? syncError);
+        }
+
+        const { telefon, freigabe, praesidium, profilUnvollstaendig } = await loadMitgliedStatus(profile.email ?? authUser.email);
+        setIsPraesidium(praesidium);
+        setNeedsProfile(profilUnvollstaendig);
+        const profileRole = normalizeRole(profile.role ?? "mitglied");
+        // Nur freigegebene Mitglieder (Mitglieder.Freigabe = TRUE) sehen Daten; Admins sind ausgenommen.
+        const approved = freigabe || praesidium;
+        const effectiveRole = profileRole === "admin"
+          ? "admin"
+          : approved
+            ? (profileRole === "pending" ? "mitglied" : profileRole)
+            : "pending";
+
         setCurrentUser({
           uid: authUser.id,
           name: getProfileName(authUser, profile),
           email: profile.email ?? authUser.email ?? "",
           vorname: profile.vorname ?? "",
           nachname: profile.nachname ?? "",
+          telefon,
         });
-        setUserRole(normalizeRole(profile.role ?? "mitglied"));
+        setUserRole(effectiveRole);
         setPrivacyAccepted(getPrivacyAccepted(profile));
       } catch (error) {
         console.error("[Auth Profilfehler]", error?.message ?? error);
-        applyAuthFallbackState(authUser);
+        await applyAuthFallbackState(authUser);
       }
     }
 
@@ -237,7 +317,9 @@ export function AuthProvider({ children }) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } =     supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") setPasswordRecovery(true);
+      if (event === "SIGNED_OUT") setPasswordRecovery(false);
       try {
         await hydrateUser(session?.user ?? null);
       } catch (error) {
@@ -285,12 +367,33 @@ export function AuthProvider({ children }) {
     await loginViaRestFallback(email, password);
   };
 
-  const register = async (name, email, password) => {
+  const register = async (form, password) => {
+    const email = form.email;
+    const vorname = form.vorname;
+    const nachname = form.nachname;
+    const name = [vorname, nachname].filter(Boolean).join(" ");
+    const mitgliedDaten = {
+      Vorname: vorname,
+      Nachname: nachname,
+      Email: email,
+      Freigabe: false,
+    };
+    MITGLIEDER_GRUPPEN.forEach((g) => {
+      mitgliedDaten[g.column] = Boolean(form.gruppen?.[g.column]);
+    });
     const result = await withTimeout(
-      supabase.auth.signUp({
-        email,
-        password,
-        options: { data: { display_name: name } },
+      fetch(`${getSupabaseAuthBaseUrl()}/signup`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          data: { display_name: name, vorname, nachname, mitglied_daten: mitgliedDaten },
+          gotrue_meta_security: {},
+        }),
       }),
       10000
     );
@@ -299,29 +402,54 @@ export function AuthProvider({ children }) {
       throw new Error("Registrierung-Zeitüberschreitung (10s). Prüfe Browser-Schutz/Adblocker/CSP.");
     }
 
-    const { data, error } = result.data;
-    if (error) throw error;
-    if (!data.user) return;
+    const response = result.data;
+    let payload;
+    try {
+      payload = await response.json();
+    } catch {
+      throw new Error(`Supabase hat bei der Registrierung eine ungültige Antwort geliefert (HTTP ${response.status}).`);
+    }
+    if (!response.ok) {
+      throw new Error(
+        payload?.msg
+        ?? payload?.message
+        ?? payload?.error_description
+        ?? payload?.error
+        ?? `Registrierung fehlgeschlagen (HTTP ${response.status}).`
+      );
+    }
+    // Bei aktiver E-Mail-Bestätigung liefert GoTrue den Benutzer ohne "user"-Wrapper.
+    if (!payload?.user && !payload?.id) {
+      throw new Error("Supabase hat die Registrierung bestätigt, aber keinen Benutzer zurückgegeben.");
+    }
 
-    const { error: profileError } = await supabase.from("users").upsert({
-      id: data.user.id,
-      name,
-      email,
-      role: "mitglied",
-      privacy_consent: {
-        accepted: false,
-        version: PRIVACY_POLICY_VERSION,
-        stand: PRIVACY_POLICY_STAND,
-        acceptedAt: null,
-      },
-    });
-    if (profileError) throw profileError;
+    if (payload.access_token && payload.refresh_token) {
+      const sessionResult = await withTimeout(
+        supabase.auth.setSession({
+          access_token: payload.access_token,
+          refresh_token: payload.refresh_token,
+        }),
+        8000
+      );
+      if (sessionResult.timedOut) {
+        throw new Error("Registrierung erfolgreich, aber die Anmeldung konnte nicht übernommen werden. Bitte melde dich an.");
+      }
+      if (sessionResult.data.error) throw sessionResult.data.error;
+    }
+
+    return { confirmationRequired: !payload.access_token };
   };
 
   const resetPassword = async (email) => {
+    const redirectTo = encodeURIComponent(window.location.origin);
     const result = await withTimeout(
-      supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin,
+      fetch(`${getSupabaseAuthBaseUrl()}/recover?redirect_to=${redirectTo}`, {
+        method: "POST",
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, gotrue_meta_security: {} }),
       }),
       10000
     );
@@ -330,20 +458,63 @@ export function AuthProvider({ children }) {
       throw new Error("Passwort-Reset-Zeitüberschreitung (10s). Prüfe Browser-Schutz/Adblocker/CSP.");
     }
 
-    const { error } = result.data;
-    if (error) throw error;
+    const response = result.data;
+    if (!response.ok) {
+      let payload;
+      try {
+        payload = await response.json();
+      } catch {
+        throw new Error(`Passwort-Reset fehlgeschlagen (HTTP ${response.status}).`);
+      }
+      throw new Error(
+        payload?.msg
+        ?? payload?.message
+        ?? payload?.error_description
+        ?? payload?.error
+        ?? `Passwort-Reset fehlgeschlagen (HTTP ${response.status}).`
+      );
+    }
+  };
+
+  const updateRecoveredPassword = async (password) => {
+    const result = await withTimeout(supabase.auth.updateUser({ password }), 10000);
+    if (result.timedOut) {
+      throw new Error("Passwortänderung-Zeitüberschreitung (10s). Bitte versuche es erneut.");
+    }
+    if (result.data.error) throw result.data.error;
+  };
+
+  const finishPasswordRecovery = () => {
+    setPasswordRecovery(false);
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
   };
 
   const logout = async () => {
     // Entwickler-Anmeldung nutzt keinen Supabase-Authentifizierungsnutzer und muss lokal zurueckgesetzt werden.
-    if (currentUser?.uid === "dev") {
+    const resetLocal = () => {
       setCurrentUser(null);
       setUserRole("gast");
+      setIsPraesidium(false);
+      setNeedsProfile(false);
       setPrivacyAccepted(false);
+    };
+    if (currentUser?.uid === "dev") {
+      resetLocal();
       return;
     }
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Lokal abmelden, auch wenn der Server nicht antwortet (Timeout/Browser-Schutz).
+    const result = await withTimeout(supabase.auth.signOut({ scope: "local" }), 4000);
+    if (result.timedOut || result.data?.error) {
+      console.warn("[Logout] signOut nicht bestaetigt – lokaler Zustand wird zurueckgesetzt.");
+      try {
+        Object.keys(localStorage)
+          .filter((key) => key.startsWith("sb-") && key.endsWith("-auth-token"))
+          .forEach((key) => localStorage.removeItem(key));
+      } catch {
+        // localStorage nicht verfuegbar
+      }
+    }
+    resetLocal();
   };
 
   const updateName = async (vorname, nachname) => {
@@ -358,6 +529,68 @@ export function AuthProvider({ children }) {
     await supabase.auth.updateUser({ data: { display_name: fullName } });
     setCurrentUser((prev) => ({ ...prev, vorname, nachname, name: fullName }));
   };
+
+  const updatePhone = async (telefon) => {
+    if (!currentUser?.uid || currentUser.uid === "dev") return;
+    const { data, error } = await supabase
+      .from("Mitglieder")
+      .update({ Telefonnummer: telefon })
+      .ilike("Email", currentUser.email)
+      .select("Email");
+    if (error) throw error;
+    if (!data?.length) {
+      throw new Error("Kein Mitglieder-Eintrag zu deiner E-Mail-Adresse gefunden oder keine Schreibberechtigung.");
+    }
+    setCurrentUser((prev) => ({ ...prev, telefon }));
+  };
+
+  const saveMitgliedProfil = async (daten) => {
+    if (!currentUser?.uid || currentUser.uid === "dev") return;
+    const { data, error } = await supabase
+      .from("Mitglieder")
+      .update({
+        Geburtsdatum: daten.geburtsdatum,
+        Strasse: daten.strasse,
+        Postleitzahl: daten.postleitzahl,
+        Wohnort: daten.wohnort,
+        Telefonnummer: daten.telefonnummer,
+        Ansprechpartner: daten.ansprechpartner || null,
+      })
+      .ilike("Email", currentUser.email)
+      .select("Email");
+    if (error) throw error;
+    if (!data?.length) {
+      throw new Error("Kein Mitglieder-Eintrag zu deiner E-Mail-Adresse gefunden oder keine Schreibberechtigung.");
+    }
+    setCurrentUser((prev) => ({ ...prev, telefon: daten.telefonnummer }));
+    setNeedsProfile(false);
+  };
+
+  const loadMitgliedDetails = async () => {
+    if (!currentUser?.email || currentUser.uid === "dev") return null;
+    const { data, error } = await supabase
+      .from("Mitglieder")
+      .select("Vorname, Nachname, Strasse, Postleitzahl, Wohnort, Ansprechpartner, Geburtsdatum")
+      .ilike("Email", currentUser.email)
+      .limit(1);
+    if (error) throw error;
+    return data?.[0] ?? null;
+  };
+
+  const updateMitglied = async (patch) => {
+    if (!currentUser?.uid || currentUser.uid === "dev") return;
+    const { data, error } = await supabase
+      .from("Mitglieder")
+      .update(patch)
+      .ilike("Email", currentUser.email)
+      .select("Email");
+    if (error) throw error;
+    if (!data?.length) {
+      throw new Error("Kein Mitglieder-Eintrag zu deiner E-Mail-Adresse gefunden oder keine Schreibberechtigung.");
+    }
+  };
+
+  const skipProfileCompletion = () => setNeedsProfile(false);
 
   const devLogin = () => {
     setCurrentUser({ uid: "dev", name: "Dev", email: "dev@example.com" });
@@ -395,6 +628,10 @@ export function AuthProvider({ children }) {
   };
 
   const hasRole = (requiredRole) => {
+    // Pseudo-Rolle: Freigaben dürfen Admins und Mitglieder mit Praesidium = TRUE erteilen.
+    if (requiredRole === "praesidium") {
+      return normalizeRole(userRole) === "admin" || isPraesidium;
+    }
     const userIndex = ROLE_HIERARCHY.indexOf(normalizeRole(userRole));
     const requiredIndex = ROLE_HIERARCHY.indexOf(normalizeRole(requiredRole));
     return userIndex >= requiredIndex;
@@ -441,6 +678,15 @@ export function AuthProvider({ children }) {
         devLogin,
         hasRole,
         updateName,
+        updatePhone,
+        needsProfile,
+        saveMitgliedProfil,
+        loadMitgliedDetails,
+        updateMitglied,
+        skipProfileCompletion,
+        passwordRecovery,
+        updateRecoveredPassword,
+        finishPasswordRecovery,
         privacyAccepted,
         privacyBusy,
         acceptPrivacyConsent,
@@ -451,5 +697,3 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
-
-

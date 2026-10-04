@@ -57,6 +57,7 @@ export const appTree = [
         ],
       },
       { key: "listen", label: "Listen & Dokumente" },
+      { key: "freigaben", label: "Freigaben" },
     ],
   },
   {
@@ -100,6 +101,7 @@ export const MENU_ROLES = {
   mitglieder: "mitglied",
   "meine-aufgaben": "mitglied",
   nutzerverwaltung: "admin",
+  freigaben: "praesidium",
   cloud: "vorstand",
   listen: "vorstand",
 };

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../context/useAuth";
 import kageLogo from "../assets/Logo/KaGe Zell Logo mit Schriftzug.png";
+import RegisterDialog from "./RegisterDialog";
 
 // Nur im Entwicklungsmodus sichtbar
 const IS_DEV = import.meta.env.DEV;
 
-const VIEW = { LOGIN: "login", REGISTER: "register", FORGOT: "forgot" };
+const VIEW = { LOGIN: "login", FORGOT: "forgot" };
 
 function withUiTimeout(promise, ms, timeoutMessage) {
   return Promise.race([
@@ -17,20 +18,18 @@ function withUiTimeout(promise, ms, timeoutMessage) {
 }
 
 export default function LoginPage() {
-  const { login, register, resetPassword, devLogin } = useAuth();
+  const { login, resetPassword, devLogin } = useAuth();
   const [view, setView] = useState(VIEW.LOGIN);
-  const [name, setName] = useState("");
+  const [showRegister, setShowRegister] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [password2, setPassword2] = useState("");
   const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showRegisterPasswords, setShowRegisterPasswords] = useState(false);
   const [message, setMessage] = useState({ text: "", error: false });
   const [busy, setBusy] = useState(false);
 
   function resetFields() {
-    setName(""); setEmail(""); setPassword(""); setPassword2("");
-    setShowLoginPassword(false); setShowRegisterPasswords(false);
+    setEmail(""); setPassword("");
+    setShowLoginPassword(false);
     setMessage({ text: "", error: false });
   }
 
@@ -57,26 +56,6 @@ export default function LoginPage() {
     }
   }
 
-  async function handleRegister(e) {
-    e.preventDefault();
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      setMessage({ text: "Bitte alle Felder ausfüllen.", error: true });
-      return;
-    }
-    if (password !== password2) {
-      setMessage({ text: "Passwörter stimmen nicht überein.", error: true });
-      return;
-    }
-    setBusy(true);
-    try {
-      await register(name.trim(), email.trim(), password);
-    } catch (err) {
-      setMessage({ text: authError(err), error: true });
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function handleForgot(e) {
     e.preventDefault();
     if (!email.trim()) {
@@ -96,7 +75,6 @@ export default function LoginPage() {
 
   const titles = {
     [VIEW.LOGIN]: "KaGe Zell – Anmeldung",
-    [VIEW.REGISTER]: "KaGe Zell – Registrieren",
     [VIEW.FORGOT]: "Passwort vergessen",
   };
 
@@ -167,50 +145,12 @@ export default function LoginPage() {
             <Btn disabled={busy}>{busy ? "…" : "Anmelden"}</Btn>
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "14px" }}>
               <LinkBtn onClick={() => switchTo(VIEW.FORGOT)}>Passwort vergessen?</LinkBtn>
-              <LinkBtn onClick={() => switchTo(VIEW.REGISTER)}>Registrieren</LinkBtn>
+              <LinkBtn onClick={() => setShowRegister(true)}>Registrieren</LinkBtn>
             </div>
           </form>
         )}
 
-        {/* ── REGISTRIEREN ── */}
-        {view === VIEW.REGISTER && (
-          <form onSubmit={handleRegister}>
-            <Field id="reg-name" label="Name" value={name} onChange={setName} placeholder="Dein Name" autoComplete="username" />
-            <Field id="reg-email" label="E-Mail" type="email" value={email} onChange={setEmail} placeholder="deine@email.de" autoComplete="email" />
-            <Field
-              id="reg-pw"
-              label="Passwort"
-              type={showRegisterPasswords ? "text" : "password"}
-              value={password}
-              onChange={setPassword}
-              placeholder="Passwort wählen"
-              autoComplete="new-password"
-              rightControl={(
-                <button
-                  type="button"
-                  onClick={() => setShowRegisterPasswords((prev) => !prev)}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    color: "#6b7280",
-                    cursor: "pointer",
-                    fontSize: "12px",
-                    padding: "0 2px",
-                  }}
-                  aria-label={showRegisterPasswords ? "Passwörter verbergen" : "Passwörter anzeigen"}
-                >
-                  {showRegisterPasswords ? "🙈 Verbergen" : "👁 Anzeigen"}
-                </button>
-              )}
-            />
-            <Field id="reg-pw2" label="Passwort wiederholen" type={showRegisterPasswords ? "text" : "password"} value={password2} onChange={setPassword2} placeholder="Passwort wiederholen" autoComplete="new-password" last />
-            <Feedback msg={message} />
-            <Btn disabled={busy}>{busy ? "…" : "Registrieren"}</Btn>
-            <div style={{ textAlign: "center", marginTop: "14px" }}>
-              <LinkBtn onClick={() => switchTo(VIEW.LOGIN)}>← Zurück zur Anmeldung</LinkBtn>
-            </div>
-          </form>
-        )}
+        {showRegister && <RegisterDialog onClose={() => setShowRegister(false)} />}
 
         {/* ── PASSWORT VERGESSEN ── */}
         {view === VIEW.FORGOT && (

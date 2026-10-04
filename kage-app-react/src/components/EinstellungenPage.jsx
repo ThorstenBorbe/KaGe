@@ -5,15 +5,20 @@ import { useIsMobile } from "../hooks/useIsMobile";
 
 export default function EinstellungenPage() {
   const isMobile = useIsMobile(960);
-  const { currentUser, updateName } = useAuth();
+  const { currentUser, updatePhone, loadMitgliedDetails, updateMitglied } = useAuth();
   const user = currentUser;
 
-  const [section, setSection] = useState(null); // "name" | "email" | "telefon" | "passwort"
+  const [section, setSection] = useState(null); // "name" | "anschrift" | "email" | "telefon" | "ansprechpartner" | "passwort"
 
   // Felder
+  const [geburtsdatum, setGeburtsdatum] = useState("");
+  const [strasse, setStrasse] = useState("");
+  const [plz, setPlz] = useState("");
+  const [wohnort, setWohnort] = useState("");
+  const [ansprechpartner, setAnsprechpartner] = useState("");
   const [currentPw, setCurrentPw] = useState("");
   const [newEmail, setNewEmail] = useState("");
-  const [telefon, setTelefon] = useState("");
+  const [telefon, setTelefon] = useState(currentUser?.telefon ?? "");
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
   const [vorname, setVorname] = useState(currentUser?.vorname ?? "");
@@ -23,12 +28,53 @@ export default function EinstellungenPage() {
   const [busy, setBusy] = useState(false);
 
   function reset() {
-    setCurrentPw(""); setNewEmail(""); setTelefon("");
+    setCurrentPw(""); setNewEmail("");
     setNewPw(""); setNewPw2("");
     setMsg({ text: "", error: false });
   }
 
-  function open(s) { reset(); setSection(s); }
+  function open(s) {
+    reset();
+    setSection(s);
+    if (s === "name" || s === "anschrift" || s === "ansprechpartner") {
+      loadMitgliedDetails()
+        .then((row) => {
+          setGeburtsdatum(row?.Geburtsdatum ?? "");
+          if (row?.Vorname) setVorname(row.Vorname);
+          if (row?.Nachname) setNachname(row.Nachname);
+          setStrasse(row?.Strasse ?? "");
+          setPlz(row?.Postleitzahl ?? "");
+          setWohnort(row?.Wohnort ?? "");
+          setAnsprechpartner(row?.Ansprechpartner ?? "");
+        })
+        .catch((error) => setMsg({ text: `Daten konnten nicht geladen werden: ${error?.message ?? "Unbekannter Fehler"}`, error: true }));
+    }
+  }
+
+  async function handleAnschrift(e) {
+    e.preventDefault();
+    if (!strasse.trim() || !plz.trim() || !wohnort.trim()) {
+      setMsg({ text: "Bitte Straße, Postleitzahl und Wohnort eingeben.", error: true }); return;
+    }
+    setBusy(true);
+    try {
+      await updateMitglied({ Strasse: strasse.trim(), Postleitzahl: plz.trim(), Wohnort: wohnort.trim() });
+      setMsg({ text: "Anschrift erfolgreich gespeichert.", error: false });
+    } catch (error) {
+      setMsg({ text: `Anschrift konnte nicht gespeichert werden: ${error?.message ?? "Unbekannter Fehler"}`, error: true });
+    } finally { setBusy(false); }
+  }
+
+  async function handleAnsprechpartner(e) {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      await updateMitglied({ Ansprechpartner: ansprechpartner.trim() || null });
+      setMsg({ text: "Ansprechpartner erfolgreich gespeichert.", error: false });
+    } catch (error) {
+      setMsg({ text: `Ansprechpartner konnte nicht gespeichert werden: ${error?.message ?? "Unbekannter Fehler"}`, error: true });
+    } finally { setBusy(false); }
+  }
 
   async function reauth() {
     const { error } = await supabase.auth.signInWithPassword({
@@ -40,15 +86,12 @@ export default function EinstellungenPage() {
 
   async function handleName(e) {
     e.preventDefault();
-    if (!vorname.trim()) {
-      setMsg({ text: "Bitte mindestens den Vornamen eingeben.", error: true }); return;
-    }
     setBusy(true);
     try {
-      await updateName(vorname.trim(), nachname.trim());
-      setMsg({ text: "Name erfolgreich gespeichert.", error: false });
-    } catch {
-      setMsg({ text: "Fehler beim Speichern des Namens.", error: true });
+      await updateMitglied({ Geburtsdatum: geburtsdatum || null });
+      setMsg({ text: "Geburtsdatum erfolgreich gespeichert.", error: false });
+    } catch (error) {
+      setMsg({ text: `Fehler beim Speichern: ${error?.message ?? "Unbekannter Fehler"}`, error: true });
     } finally { setBusy(false); }
   }
 
@@ -96,15 +139,13 @@ export default function EinstellungenPage() {
     }
     setBusy(true);
     try {
-      const { error } = await supabase
-        .from("users")
-        .update({ telefon: telefon.trim() })
-        .eq("id", user.uid);
-      if (error) throw error;
+      await updatePhone(telefon.trim());
       setMsg({ text: "Telefonnummer erfolgreich gespeichert.", error: false });
-      setTelefon("");
-    } catch {
-      setMsg({ text: "Fehler beim Speichern.", error: true });
+    } catch (error) {
+      setMsg({
+        text: `Telefonnummer konnte nicht gespeichert werden: ${error?.message ?? "Unbekannter Fehler"}`,
+        error: true,
+      });
     } finally { setBusy(false); }
   }
 
@@ -142,14 +183,30 @@ export default function EinstellungenPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
           <SettingsCard
             title="Name ändern"
-            desc="Lege deinen Vor- und Nachnamen fest"
+            desc="Lege deinen Namen und optional dein Geburtsdatum fest"
             open={section === "name"}
             onToggle={() => open(section === "name" ? null : "name")}
             isMobile={isMobile}
           >
             <form onSubmit={handleName}>
-              <Field id="s-vorname" label="Vorname" value={vorname} onChange={setVorname} isMobile={isMobile} />
-              <Field id="s-nachname" label="Nachname" value={nachname} onChange={setNachname} last isMobile={isMobile} />
+              <Field id="s-vorname" label="Vorname" value={vorname || user?.vorname || (user?.name ?? "").split(" ")[0] || ""} readOnly isMobile={isMobile} />
+              <Field id="s-nachname" label="Nachname" value={nachname || user?.nachname || (user?.name ?? "").split(" ").slice(1).join(" ")} readOnly isMobile={isMobile} />
+              <Field id="s-geburtsdatum" label="Geburtsdatum (optional)" type="date" value={geburtsdatum} onChange={setGeburtsdatum} last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
+            </form>
+          </SettingsCard>
+          <SettingsCard
+            title="Anschrift ändern"
+            desc="Straße, Postleitzahl und Wohnort"
+            open={section === "anschrift"}
+            onToggle={() => open(section === "anschrift" ? null : "anschrift")}
+            isMobile={isMobile}
+          >
+            <form onSubmit={handleAnschrift}>
+              <Field id="s-strasse" label="Straße" value={strasse} onChange={setStrasse} isMobile={isMobile} />
+              <Field id="s-plz" label="Postleitzahl" value={plz} onChange={setPlz} isMobile={isMobile} />
+              <Field id="s-wohnort" label="Wohnort" value={wohnort} onChange={setWohnort} last isMobile={isMobile} />
               <Feedback msg={msg} isMobile={isMobile} />
               <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
@@ -178,6 +235,20 @@ export default function EinstellungenPage() {
           >
             <form onSubmit={handleTelefon}>
               <Field id="s-tel" label="Telefonnummer" type="tel" value={telefon} onChange={setTelefon} placeholder="+49 123 456789" last isMobile={isMobile} />
+              <Feedback msg={msg} isMobile={isMobile} />
+              <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
+            </form>
+          </SettingsCard>
+
+          <SettingsCard
+            title="Ansprechpartner ändern"
+            desc="Ansprechpartner bei Notfällen (optional)"
+            open={section === "ansprechpartner"}
+            onToggle={() => open(section === "ansprechpartner" ? null : "ansprechpartner")}
+            isMobile={isMobile}
+          >
+            <form onSubmit={handleAnsprechpartner}>
+              <Field id="s-ansprechpartner" label="Ansprechpartner" value={ansprechpartner} onChange={setAnsprechpartner} placeholder="Name und Telefonnummer" last isMobile={isMobile} />
               <Feedback msg={msg} isMobile={isMobile} />
               <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>
@@ -233,7 +304,7 @@ function SettingsCard({ title, desc, open, onToggle, children, isMobile }) {
   );
 }
 
-function Field({ id, label, type = "text", value, onChange, placeholder, last, isMobile }) {
+function Field({ id, label, type = "text", value, onChange, placeholder, last, isMobile, readOnly }) {
   return (
     <div style={{ marginBottom: last ? "16px" : "12px" }}>
       <label htmlFor={id} style={{ display: "block", marginBottom: 5, fontSize: isMobile ? 14 : 18, color: "#374151", fontWeight: 600 }}>
@@ -241,9 +312,11 @@ function Field({ id, label, type = "text", value, onChange, placeholder, last, i
       </label>
       <input
         id={id} type={type} value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder={placeholder ?? ""}
+        readOnly={readOnly}
         style={{
+          ...(readOnly ? { background: "#f3f4f6", color: "#6b7280", cursor: "not-allowed" } : {}),
           width: "100%", padding: isMobile ? "8px 10px" : "9px 11px", borderRadius: 7, // Feldform: 0 = kantig, 7 = unaufdringlich, 14 = weicher
           border: "1px solid #d1d5db", fontSize: isMobile ? 14 : 18, outline: "none", boxSizing: "border-box",
         }}

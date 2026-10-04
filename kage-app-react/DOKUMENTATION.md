@@ -121,9 +121,10 @@ Rollen werden in **Firestore** unter `users/{uid}.role` gespeichert. Höhere Rol
 
 | Funktion | Beschreibung |
 |----------|-------------|
-| `login(email, password)` | Firebase-Anmeldung per E-Mail/Passwort |
-| `register(name, email, password)` | Registrierung + Firestore-Dokument anlegen (`role: "mitglied"`) |
-| `resetPassword(email)` | Passwort-Reset-E-Mail senden |
+| `login(email, password)` | Supabase-Anmeldung per E-Mail/Passwort |
+| `register(name, email, password)` | Supabase-Registrierung; das Profil wird beim ersten Login angelegt |
+| `resetPassword(email)` | Passwort-Reset-E-Mail mit Rückleitung zur App senden |
+| `updateRecoveredPassword(password)` | Neues Passwort nach dem Öffnen des Reset-Links speichern |
 | `logout()` | Abmelden (Firebase Auth oder Dev-Mode-Reset) |
 | `devLogin()` | Entwickler-Login ohne Firebase (Rolle: `admin`, Datenschutz: akzeptiert) |
 | `acceptPrivacyConsent()` | Datenschutzzustimmung in Firestore speichern |
@@ -528,12 +529,13 @@ Persönliche Kontoeinstellungen des eingeloggten Nutzers.
 | Bereich | Felder | Aktion |
 |---------|--------|--------|
 | E-Mail ändern | Aktuelles Passwort, Neue E-Mail | Reauth → `updateEmail` + Firestore-Update |
-| Telefonnummer | Neue Telefonnummer | `updateDoc` Firestore + `updateProfile` |
+| Telefonnummer | Telefonnummer | Bidirektional mit `Mitglieder.Telefonnummer` (Zuordnung über E-Mail) synchronisieren |
 | Passwort ändern | Aktuelles PW, Neues PW (2×) | Reauth → `updatePassword` |
 
 - Re-Authentifizierung wird vor sensiblen Änderungen erzwungen
 - Firebase-Fehlercodes werden in lesbare deutsche Meldungen übersetzt
 - Mindestlänge für Passwort: 6 Zeichen
+- Registrierung und Telefonnummer schreiben in `Mitglieder`; die nötigen Rechte setzt `supabase_mitglieder_policies.sql` (einmalig im SQL Editor ausführen).
 
 ---
 

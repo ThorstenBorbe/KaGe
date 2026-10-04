@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useAuth } from "../context/useAuth";
 
 export default function PrivacyConsentPage({ onAccept, busy, stand }) {
+  const { logout } = useAuth();
   const [checked, setChecked] = useState(false);
   const [error, setError] = useState("");
 
@@ -114,6 +116,21 @@ export default function PrivacyConsentPage({ onAccept, busy, stand }) {
           {error && (
             <p style={{ marginTop: "10px", color: "#b91c1c", fontSize: "14px" }}>{error}</p>
           )}
+          <button
+            type="button"
+            onClick={() => logout().catch(() => {})}
+            style={{
+              marginTop: "12px",
+              background: "none",
+              border: "none",
+              color: "#b91c1c",
+              textDecoration: "underline",
+              cursor: "pointer",
+              fontSize: "15px",
+            }}
+          >
+            Abmelden
+          </button>
         </form>
       </div>
     </div>

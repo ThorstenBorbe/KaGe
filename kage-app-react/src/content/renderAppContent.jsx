@@ -12,6 +12,7 @@ import KaGeCartaPage from "../components/KaGeCartaPage";
 import UnsereWertePage from "../components/UnsereWertePage";
 import AhndungPage from "../components/AhndungPage";
 import AdminPage from "../components/AdminPage";
+import FreigabenPage from "../components/FreigabenPage";
 import KalenderPage from "../components/KalenderPage";
 import MeineAufgabenPage from "../components/MeineAufgabenPage";
 import EinstellungenPage from "../components/EinstellungenPage";
@@ -65,6 +66,7 @@ const STATIC_PAGE_BY_KEY = {
   "unsere-werte": UnsereWertePage,
   ahndung: AhndungPage,
   nutzerverwaltung: AdminPage,
+  freigaben: FreigabenPage,
   cloud: CloudPage,
   listen: ListenPage,
   // KalenderPage braucht sessionValue als Prop – wird unten separat behandelt
