@@ -140,19 +140,23 @@ export default function AufbauAbbauPage({ data, typ, embedded = false, onTaskSta
         </InfoSection>
       ) : isOrganizationSection ? (
         <>
-          {hasResponsibleInfo && (
-            <InfoSection icon="👤" title="Verantwortlich" isMobile={isMobile}>
-              <ListSection items={details.verantwortliche} emptyText="Keine verantwortliche Person eingetragen." isMobile={isMobile} />
-            </InfoSection>
-          )}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+            {hasResponsibleInfo && (
+              <div style={{ flex: "1 1 240px", minWidth: 0 }}>
+                <InfoSection icon="👤" title="Verantwortlich" isMobile={isMobile}>
+                  <ListSection items={details.verantwortliche} emptyText="Keine verantwortliche Person eingetragen." isMobile={isMobile} />
+                </InfoSection>
+              </div>
+            )}
+            {details.statusItem && (
+              <div style={{ marginLeft: "auto", textAlign: "right", marginBottom: 8 }}>
+                <ListSection items={[details.statusItem]} emptyText="" isMobile={isMobile} onStatusChange={onTaskStatusChange} plain />
+              </div>
+            )}
+          </div>
           <InfoSection icon="📋" title="Aufgaben" isMobile={isMobile}>
             <BulletList items={details.aufgaben} emptyText="Noch keine Aufgaben eingetragen." isMobile={isMobile} />
           </InfoSection>
-          {details.statusItem && (
-            <InfoSection icon="🚦" title="Status" isMobile={isMobile}>
-              <ListSection items={[details.statusItem]} emptyText="" isMobile={isMobile} onStatusChange={onTaskStatusChange} />
-            </InfoSection>
-          )}
         </>
       ) : hasScheduleInfo && (
         <>
@@ -236,7 +240,7 @@ function InfoRow({ label, value, isMobile }) {
   );
 }
 
-function ListSection({ items, emptyText, isMobile, onStatusChange }) {
+function ListSection({ items, emptyText, isMobile, onStatusChange, plain = false }) {
   const [statusByIndex, setStatusByIndex] = useState(() => buildStatusMap(items));
   const [savingByIndex, setSavingByIndex] = useState({});
 
@@ -249,7 +253,7 @@ function ListSection({ items, emptyText, isMobile, onStatusChange }) {
   }
 
   return (
-    <ul style={{ margin: 0, paddingLeft: 20, fontSize: isMobile ? 14 : 18, color: "#111827" }}>
+    <ul style={{ margin: 0, paddingLeft: plain ? 0 : 20, listStyle: plain ? "none" : undefined, fontSize: isMobile ? 14 : 18, color: "#111827" }}>
       {items.map((item, index) => {
         const responsible = getTaskResponsible(item);
         const hasStatusDropdown = isTaskItem(item);
@@ -257,8 +261,8 @@ function ListSection({ items, emptyText, isMobile, onStatusChange }) {
         const statusStyle = STATUS_STYLE_BY_VALUE[currentStatus] ?? STATUS_STYLE_BY_VALUE.offen;
 
         return (
-          <li key={index} style={{ marginBottom: 8 }}>
-            <div>{getTaskLabel(item)}</div>
+          <li key={index} style={{ marginBottom: plain ? 0 : 8 }}>
+            {!plain && <div>{getTaskLabel(item)}</div>}
             {responsible && (
               <div style={{ marginTop: 2, fontSize: isMobile ? 12 : 14, color: "#6b7280" }}>
                 Verantwortlich: {responsible}
@@ -270,7 +274,7 @@ function ListSection({ items, emptyText, isMobile, onStatusChange }) {
               </div>
             ))}
             {hasStatusDropdown && (
-              <label style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: 8, fontSize: isMobile ? 12 : 14, color: "#374151" }}>
+              <label style={{ display: "inline-flex", alignItems: "center", gap: 8, marginTop: plain ? 0 : 8, fontSize: plain ? (isMobile ? 14 : 18) : (isMobile ? 12 : 14), color: plain ? "#111827" : "#374151" }}>
                 <span>Status:</span>
                 <select
                   value={currentStatus}
@@ -293,7 +297,7 @@ function ListSection({ items, emptyText, isMobile, onStatusChange }) {
                     border: `1px solid ${statusStyle.borderColor}`,
                     background: statusStyle.background,
                     color: statusStyle.color,
-                    fontSize: isMobile ? 12 : 14,
+                    fontSize: plain ? (isMobile ? 14 : 18) : (isMobile ? 12 : 14),
                     fontWeight: 600,
                   }}
                 >

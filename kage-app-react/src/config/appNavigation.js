@@ -25,9 +25,9 @@ export const appTree = [
         key: "externe",
         label: "Extern",
         children: [
-          { key: "auswaerts-x", label: "1. Auswärtssitzung (X)" },
-          { key: "auswaerts-y", label: "2. Auswärtssitzung (Y)" },
-          { key: "auswaerts-z", label: "3. Auswärtssitzung (Z)" },
+          { key: "auswaerts-x", label: "1. Auswärtstermin (Versbach)" },
+          { key: "auswaerts-y", label: "2. Auswärtstermin (Helmstadt)" },
+          { key: "auswaerts-z", label: "3. Auswärtstermin (Estenfeld)" },
           { key: "faschingszug", label: "Faschingszug" },
           { key: "seniorenheime", label: "Seniorenheime" },
           { key: "kindergarten", label: "Kindergarten" },

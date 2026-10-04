@@ -28,7 +28,7 @@ function formatDate(value) {
 }
 
 function formatTime(value) {
-  return String(value ?? "").replace(/(\d{1,2}:\d{2}):\d{2}(\.\d+)?/g, "$1");
+  return String(value ?? "").replace(/(\d{1,2}:\d{2})(:\d{2}(\.\d+)?)?(\s*Uhr)?/g, "$1 Uhr");
 }
 
 const EMPTY_EVENT = { wochentag: "", datum: "", treffpunkt: "", ort: "", uhrzeit: "" };

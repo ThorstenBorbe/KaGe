@@ -15,15 +15,6 @@ const pageStyle = {
   boxSizing: "border-box",
 };
 
-const headerStyle = {
-  marginBottom: "20px",
-  padding: "20px 24px",
-  borderRadius: "20px",
-  background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 100%)",
-  border: "1px solid #fed7aa",
-  boxShadow: "0 10px 24px rgba(185, 28, 28, 0.06)",
-};
-
 const gridStyle = {
   display: "grid",
   gridTemplateColumns: "1fr",
@@ -197,13 +188,6 @@ export function InternalVmiEventPage({ title, tableName, eventKey, sessionValue 
 
   return (
     <div style={{ ...pageStyle, padding: isMobile ? 12 : 24 }}>
-      <div style={headerStyle}>
-        <h2 style={{ margin: 0, color: "#9f1239" }}>{title}</h2>
-        <p style={{ margin: "8px 0 0 0", color: "#6b7280", lineHeight: 1.5 }}>
-          Veranstaltungsdaten und Aufgaben aus der Supabase-VMI-Matrix.
-        </p>
-      </div>
-
       {saveError && <p role="alert" style={{ color: "#b91c1c" }}>{saveError}</p>}
 
       <div style={gridStyle}>
