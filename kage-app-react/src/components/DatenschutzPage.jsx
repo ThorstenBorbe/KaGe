@@ -57,8 +57,8 @@ export default function DatenschutzPage() {
         <Section title="1. Verantwortlicher">
           <p>Turngemeinde Zell von 1862 e.V. (Abteilung Karnevallsgesellschaft)</p>
           <p>Hauptstraße 134</p>
-          <p>E-Mail: tbd@kagezell.de</p>
-          <p>Telefon: 0178/12345678</p>
+          <p>E-Mail: thorsten_borbe@web.de</p>
+          <p>Telefon: +49 (0)178/8844357</p>
           <p>Vertreten durch: 1. Gesellschaftspräsident Thorsten Borbe</p>
         </Section>
 

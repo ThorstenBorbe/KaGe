@@ -23,11 +23,12 @@ export default function ToDosPage() {
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           2. Cloudspeicher reservieren und Daten dort ablegen (supabase Konto angelegt, da Deutscher Standort)
         </p>
+
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          3. Erstellung VMI Matrix (Verantwortlichkeiten, Mitwirkende, Informierte) für die verschiedenen Bereiche um die Zuständigkeiten zu klären
+          3. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
-          4. Personalisierte Übersicht was für den einzelnen als nächstes ansteht
+          4. Gruppendaten eintragen und den Usern zur Verfügung stellen
         </p>
         <p style={{ marginTop: "12px", color: "#4b5563", lineHeight: 1.5, textAlign: "justify" }}>
           5. Datenbank für verschiedene Termine anlegen und auf Cloud stellen, dass auch Bilder vom Aufbau eingesehen werden können

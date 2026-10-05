@@ -104,6 +104,7 @@ export const MENU_ROLES = {
   freigaben: "praesidium",
   cloud: "vorstand",
   listen: "vorstand",
+  uebersicht: "admin",
   allgemein: "admin",
   kummerkasten: "admin",
   meldung: "admin",

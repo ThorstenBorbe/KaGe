@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import ContentErrorBoundary from "./ContentErrorBoundary";
 import { theme } from "../../styles/theme";
+import { useAuth } from "../../context/useAuth";
 
 const STORAGE_KEY = "kage-app-additions";
 
 export default function AppMainContent({ mainRef, active, activeLabel, children, onScrollToTop, isMobile, onOpenMobileMenu }) {
+  const { hasRole } = useAuth();
+  const canAdd = hasRole("admin");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [note, setNote] = useState("");
   const [type, setType] = useState("Einnahmen");
@@ -90,7 +93,8 @@ export default function AppMainContent({ mainRef, active, activeLabel, children,
 
       <h1 style={{ marginTop: 0, marginBottom: isMobile ? 12 : undefined }}>{activeLabel}</h1>
 
-      <div style={{ marginBottom: 20 }}>
+      {canAdd && (
+        <div style={{ marginBottom: 20 }}>
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
@@ -109,6 +113,7 @@ export default function AppMainContent({ mainRef, active, activeLabel, children,
           Hinzufügen
         </button>
       </div>
+      )}
 
       {pageEntries.length > 0 && (
         <div

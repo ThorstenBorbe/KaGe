@@ -8,8 +8,6 @@ import ProfileCompletionDialog from "./components/ProfileCompletionDialog";
 import PrivacyConsentPage from "./components/PrivacyConsentPage";
 import AppSidebar from "./components/layout/AppSidebar";
 import AppMainContent from "./components/layout/AppMainContent";
-import WelcomeToast from "./components/layout/WelcomeToast";
-import { useWelcomeToast } from "./hooks/useWelcomeToast";
 import { useIsMobile } from "./hooks/useIsMobile";
 import { appTree, TOP_LEVEL, SUB_LEVEL, GRAND_LEVEL } from "./config/appNavigation";
 import { renderAppContent } from "./content/renderAppContent";
@@ -39,7 +37,7 @@ export default function App() {
     privacyPolicyStand,
   } = useAuth();
 
-  const [active, setActive] = useState("uebersicht");
+  const [active, setActive] = useState("kalender");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({
     veranstaltungen: false,
@@ -62,7 +60,6 @@ export default function App() {
   ];
 
   const activeLabel = findActiveLabel(appTree, active);
-  const { visible: showWelcome, dismiss: dismissWelcome } = useWelcomeToast(currentUser);
 
   useEffect(() => {
     if (!isMobile) {
@@ -102,7 +99,6 @@ export default function App() {
 
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", fontFamily: theme.font.base }}>
-      <WelcomeToast name={currentUser?.vorname || currentUser?.name} visible={showWelcome} onClose={dismissWelcome} />
       {needsProfile && <ProfileCompletionDialog />}
 
       {isMobile && mobileMenuOpen && (
