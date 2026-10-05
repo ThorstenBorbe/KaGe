@@ -13,6 +13,9 @@ const VMI_TABLES = [
   { table: "VMI-Weihnachtsfeier", label: "Weihnachtsfeier" },
   { table: "VMI-Bunter Nachmittag", label: "Bunter Nachmittag" },
   { table: "VMI-Kinderfasching", label: "Kinderfasching" },
+  { table: "VMI-Altenheime", label: "Seniorenheime" },
+  { table: "VMI-Faschingszug", label: "Faschingszug" },
+  { table: "VMI-Kindergärten", label: "Kindergarten" },
 ];
 
 const pageContainerStyle = (isMobile) => ({

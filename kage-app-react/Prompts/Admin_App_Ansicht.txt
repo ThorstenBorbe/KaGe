@@ -1,0 +1,6 @@
+Nur der Admin welcher ein TRUE unter der Supabase Tabelle Mitglieder in der Spalte Admin stehen hat sieht die ganze App
+
+Alle anderen sehen den Button Hinzufügen nicht.
+Der Begrüßungstext beim öfnen der App soll entfernt werden.
+
+Bitte erstelle mir die SQL Skripte die auszuführen sind unter Supabase

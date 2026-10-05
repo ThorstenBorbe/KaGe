@@ -1,0 +1,17 @@
+Die VMI Matrix mit den Verantwortlichen und den Aufgaben müssen folgendermaßen zwischen Supabase (VMI) und WebApp zugeordnet werden.
+Es müssen die Aufgaben Accountspezifisch (Anwender) zur jeweiligen Veranstaltung aufgelistet sein.
+
+VMI-Altenheime --> App-Menüpunkt: Seniorenheime
+VMI-Beat Bocks Party --> App-Menüpunkt: Beat-Bocks-Party
+VMI-Bunter Nachmittag --> App-Menüpunkt: Bunter Nachmittag
+VMI-Faschingszug --> App-Menüpunkt: Faschingszug 
+VMI-Kehraus --> App-Menüpunkt: Kehraus
+VMI-Kinderfasching --> App-Menüpunkt: Kinderfasching
+VMI-Kindergärten --> App-Menüpunkt: Kindergarten
+VMI-Prunksitzung --> App-Menüpunkt: 1. Prunksitzung
+VMI-Prunksitzung --> App-Menüpunkt: 2. Prunksitzung
+VMI-Rathhaussturm --> App-Menüpunkt: 11.11. Jetzt geht's los
+VMI-Sommerfest --> App-Menüpunkt: Sommerfest
+VMI-Weihnachtsfeier --> App-Menüpunkt: Weihnachtsfeier
+
+Bitte erstelle mir die SQL Skripte die auszuführen sind unter Supabase

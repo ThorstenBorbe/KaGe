@@ -94,6 +94,9 @@ const INTERNAL_EVENT_LABELS = {
   "beatbox-party": "Beat-Bocks-Party",
   kinderfasching: "Kinderfasching",
   kehraus: "Kehraus",
+  seniorenheime: "Seniorenheime",
+  faschingszug: "Faschingszug",
+  kindergarten: "Kindergarten",
 };
 
 const INTERNAL_VMI_TABLE_BY_KEY = {
@@ -105,6 +108,9 @@ const INTERNAL_VMI_TABLE_BY_KEY = {
   weihnachtsfeier: "VMI-Weihnachtsfeier",
   "bunter-nachmittag": "VMI-Bunter Nachmittag",
   kinderfasching: "VMI-Kinderfasching",
+  seniorenheime: "VMI-Altenheime",
+  faschingszug: "VMI-Faschingszug",
+  kindergarten: "VMI-Kindergärten",
 };
 
 const internalEventPageStyle = {

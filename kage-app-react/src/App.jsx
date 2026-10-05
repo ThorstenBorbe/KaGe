@@ -23,7 +23,7 @@ import {
 import { theme } from "./styles/theme";
 
 
-const APP_VERSION = "v0.2.5";
+const APP_VERSION = "v0.4.0";
 
 export default function App() {
   const {
