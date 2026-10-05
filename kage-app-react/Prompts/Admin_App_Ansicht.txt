@@ -1,5 +1,4 @@
-Nur der Admin welcher ein TRUE unter der Supabase Tabelle Mitglieder in der Spalte Admin stehen hat sieht die ganze App
-
+Nur der Admin welcher ein TRUE unter der Supabase Tabelle Mitglieder in der Spalte Admin stehen hat sieht alle Menüpunkte
 Alle anderen sehen den Button Hinzufügen nicht.
 Der Begrüßungstext beim öfnen der App soll entfernt werden.
 

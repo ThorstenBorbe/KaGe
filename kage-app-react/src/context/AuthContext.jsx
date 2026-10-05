@@ -124,7 +124,7 @@ async function syncMitgliedFromMetadata(authUser) {
 const PROFIL_PFLICHTFELDER = ["Geburtsdatum", "Strasse", "Postleitzahl", "Wohnort", "Telefonnummer"];
 
 async function loadMitgliedStatus(email) {
-  const empty = { telefon: "", freigabe: false, praesidium: false, profilUnvollstaendig: false };
+  const empty = { telefon: "", freigabe: false, praesidium: false, admin: false, profilUnvollstaendig: false };
   if (!email) return empty;
   const { data, error } = await supabase
     .from("Mitglieder")
@@ -138,10 +138,14 @@ async function loadMitgliedStatus(email) {
   if (!data?.length) {
     console.warn("[Mitglieder-Status] Kein Mitglieder-Eintrag oder keine Leseberechtigung für", email);
   }
+  const row = data?.[0];
+  const isTrue = (v) => v === true || String(v ?? "").trim().toLowerCase() === "true";
+  const adminKey = row ? Object.keys(row).find((k) => k.trim().toLowerCase() === "admin") : undefined;
   return {
-    telefon: data?.[0]?.Telefonnummer ?? "",
-    freigabe: data?.[0]?.Freigabe === true,
-    praesidium: data?.[0]?.Praesidium === true,
+    telefon: row?.Telefonnummer ?? "",
+    freigabe: isTrue(row?.Freigabe),
+    praesidium: isTrue(row?.Praesidium),
+    admin: adminKey ? isTrue(row[adminKey]) : false,
     profilUnvollstaendig: Boolean(data?.length) && PROFIL_PFLICHTFELDER.some(
       (key) => !String(data[0][key] ?? "").trim()
     ),
@@ -220,7 +224,7 @@ export function AuthProvider({ children }) {
 
     async function applyAuthFallbackState(authUser) {
       // Fallback: Profilzugriff (users) nicht moeglich. Die Freigabe in Mitglieder zaehlt trotzdem.
-      const { telefon, freigabe, praesidium } = await loadMitgliedStatus(authUser.email);
+      const { telefon, freigabe, praesidium, admin } = await loadMitgliedStatus(authUser.email);
       if (!mounted) return;
       setCurrentUser({
         uid: authUser.id,
@@ -231,7 +235,7 @@ export function AuthProvider({ children }) {
         telefon,
       });
       setIsPraesidium(praesidium);
-      setUserRole(freigabe || praesidium ? "mitglied" : "pending");
+      setUserRole(admin ? "admin" : freigabe || praesidium ? "mitglied" : "pending");
       setPrivacyAccepted(false);
     }
 
@@ -252,13 +256,13 @@ export function AuthProvider({ children }) {
           console.error("[Mitglieder-Sync]", syncError?.message ?? syncError);
         }
 
-        const { telefon, freigabe, praesidium, profilUnvollstaendig } = await loadMitgliedStatus(profile.email ?? authUser.email);
+        const { telefon, freigabe, praesidium, admin, profilUnvollstaendig } = await loadMitgliedStatus(profile.email ?? authUser.email);
         setIsPraesidium(praesidium);
         setNeedsProfile(profilUnvollstaendig);
         const profileRole = normalizeRole(profile.role ?? "mitglied");
         // Nur freigegebene Mitglieder (Mitglieder.Freigabe = TRUE) sehen Daten; Admins sind ausgenommen.
         const approved = freigabe || praesidium;
-        const effectiveRole = profileRole === "admin"
+        const effectiveRole = admin || profileRole === "admin"
           ? "admin"
           : approved
             ? (profileRole === "pending" ? "mitglied" : profileRole)

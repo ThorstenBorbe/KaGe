@@ -2,6 +2,7 @@ import { useState } from "react";
 import { supabase } from "../supabase/supabaseConfig";
 import { useAuth } from "../context/useAuth";
 import { useIsMobile } from "../hooks/useIsMobile";
+import { isoToDisplay, displayToIso } from "../utils/geburtsdatum";
 
 export default function EinstellungenPage() {
   const isMobile = useIsMobile(960);
@@ -40,7 +41,7 @@ export default function EinstellungenPage() {
     if (s === "name" || s === "anschrift" || s === "ansprechpartner" || s === "telefon" || s === "email") {
       loadMitgliedDetails()
         .then((row) => {
-          setGeburtsdatum(row?.Geburtsdatum ?? "");
+          setGeburtsdatum(isoToDisplay(row?.Geburtsdatum));
           if (row?.Vorname) setVorname(row.Vorname);
           if (row?.Nachname) setNachname(row.Nachname);
           setStrasse(row?.Strasse ?? "");
@@ -93,9 +94,17 @@ export default function EinstellungenPage() {
 
   async function handleName(e) {
     e.preventDefault();
+    let iso = null;
+    if (geburtsdatum.trim()) {
+      iso = displayToIso(geburtsdatum);
+      if (!iso) {
+        setMsg({ text: "Bitte das Geburtsdatum im Format TT.MM.JJJJ eingeben.", error: true });
+        return;
+      }
+    }
     setBusy(true);
     try {
-      await updateMitglied({ Geburtsdatum: geburtsdatum || null });
+      await updateMitglied({ Geburtsdatum: iso });
       setMsg({ text: "Geburtsdatum erfolgreich gespeichert.", error: false });
     } catch (error) {
       setMsg({ text: `Fehler beim Speichern: ${error?.message ?? "Unbekannter Fehler"}`, error: true });
@@ -198,7 +207,7 @@ export default function EinstellungenPage() {
             <form onSubmit={handleName}>
               <Field id="s-vorname" label="Vorname" value={vorname || user?.vorname || (user?.name ?? "").split(" ")[0] || ""} readOnly isMobile={isMobile} />
               <Field id="s-nachname" label="Nachname" value={nachname || user?.nachname || (user?.name ?? "").split(" ").slice(1).join(" ")} readOnly isMobile={isMobile} />
-              <Field id="s-geburtsdatum" label="Geburtsdatum (optional)" type="date" value={geburtsdatum} onChange={setGeburtsdatum} last isMobile={isMobile} />
+              <Field id="s-geburtsdatum" label="Geburtsdatum (optional)" placeholder="TT.MM.JJJJ" value={geburtsdatum} onChange={setGeburtsdatum} last isMobile={isMobile} />
               <Feedback msg={msg} isMobile={isMobile} />
               <Btn busy={busy} isMobile={isMobile}>Speichern</Btn>
             </form>

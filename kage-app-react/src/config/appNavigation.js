@@ -104,6 +104,10 @@ export const MENU_ROLES = {
   freigaben: "praesidium",
   cloud: "vorstand",
   listen: "vorstand",
+  allgemein: "admin",
+  kummerkasten: "admin",
+  meldung: "admin",
+  gruppen: "admin",
 };
 
 export const TOP_LEVEL = ["veranstaltungen", "verein", "kagezellcarta", "allgemein"];

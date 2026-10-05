@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/useAuth";
+import { displayToIso } from "../utils/geburtsdatum";
 
 const REQUIRED = ["geburtsdatum", "strasse", "postleitzahl", "wohnort", "telefonnummer"];
 
@@ -26,10 +27,15 @@ export default function ProfileCompletionDialog() {
       setError("Bitte alle Pflichtfelder (*) ausfüllen.");
       return;
     }
+    const iso = displayToIso(trimmed.geburtsdatum);
+    if (!iso) {
+      setError("Bitte das Geburtsdatum im Format TT.MM.JJJJ eingeben.");
+      return;
+    }
     setBusy(true);
     setError("");
     try {
-      await saveMitgliedProfil(trimmed);
+      await saveMitgliedProfil({ ...trimmed, geburtsdatum: iso });
     } catch (err) {
       setError(`Speichern fehlgeschlagen: ${err?.message ?? "Unbekannter Fehler"}`);
     } finally {
@@ -70,7 +76,7 @@ export default function ProfileCompletionDialog() {
         <p style={{ margin: "0 0 16px", fontSize: "13px", color: "#000" }}>
           Damit wir deine Daten in der Mitgliederliste speichern und dich erreichen können, trage bitte die folgenden Angaben ein.
         </p>
-        {field("pc-geb", "Geburtsdatum *", "geburtsdatum", { type: "date", autoComplete: "bday" })}
+        {field("pc-geb", "Geburtsdatum *", "geburtsdatum", { type: "text", inputMode: "numeric", placeholder: "TT.MM.JJJJ", maxLength: 10, autoComplete: "off" })}
         {field("pc-strasse", "Straße *", "strasse", { autoComplete: "street-address" })}
         {field("pc-plz", "Postleitzahl *", "postleitzahl", { autoComplete: "postal-code" })}
         {field("pc-ort", "Wohnort *", "wohnort", { autoComplete: "address-level2" })}
