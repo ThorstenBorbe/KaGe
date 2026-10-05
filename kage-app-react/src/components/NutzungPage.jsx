@@ -16,28 +16,77 @@ export default function NutzungPage() {
       <h2>Bedienungsanleitung der App</h2>
       <ol style={{ lineHeight: 1.7, fontSize: 18, paddingLeft: 24, textAlign: 'left' }}>
         <li>
-          <b>Anmelden:</b> Gib deine Zugangsdaten auf der Login-Seite ein. Bei Problemen wende dich an den Vorstand.
+          <b>Anmelden:</b> 
+          <br /> 
+          Gib Deine Zugangsdaten auf der Login-Seite ein. Bei Problemen wende dich an den Vorstand.
+          <br /><br />
+        </li>
+
+        <li>
+          <b>Widget:</b> 
+          <br /> 
+          Um nicht immer über den Internet Explorer oder z.B. Safari gehen zu müssen, hast Du die Möglichkeit den Zugriff auf die WebApp
+          wie bei einer normalen App über ein Icon zu öffnen.
+          Die Anleitung für iOS & Android folgt in Kürze.
+          <br /><br />
+          <strong>iOS:</strong> <br />
+          1. Tippe lange auf Dein Bildschirm, nicht auf eine App<br />
+          2. Gehe auf Bearbeiten<br />
+          3. Widget hinzufügen<br />
+          4. Wähle Safari aus<br />
+          5. kommt noch<br />
+          <br />
+          <strong>Android:</strong> <br />
+          1. kommt noch <br />
+          2. kommt noch<br />
+          3. kommt noch<br />
+          4. kommt noch<br />
+          5. kommt noch
+          <br /><br />
         </li>
         <li>
-          <b>Navigation:</b> Nutze die linke Seitenleiste, um zwischen den Bereichen wie Veranstaltungen, Verein, Finanzen und Allgemein zu wechseln.
+          <b>Navigation:</b> 
+          <br /> 
+          Über die Navigation kannst du zwischen den verschiedenen Bereichen der App wechseln. Bei der Nutzung von mobilen Geräten kann die Darstellung leicht abweichen.
+          Um eine gute Lesbarkeit zu gewährleisten, wird die Menüleiste auf mobilen Geräten ausgeblendet.
+          Im oberen linken Eck der App, findest du das Menü-Symbol, über das du die Navigation öffnen kannst.
+          Das Menü-Symbol ermöglicht dir den Zugriff auf alle Navigationspunkte der App, in dem Du das Feld mit den drei waagrechten strichen auswählst.
+          Dann kannst Du die gewünschten Navigationspunkte auswählen.
+          <br /><br />
         </li>
         <li>
-          <b>Allgemein:</b> Hier findest du wichtige Dokumente, Anleitungen, ToDos und die App-Dokumentation.
+          <b>Kalender:</b> <br />
+          Hier findest Du die nächsten Termine und Veranstaltungen auf einem Blick. Wochentag, Datum, Uhrzeit und Ort sind dort für jede Veranstaltung aufgelistet. 
+          <br /><br />
         </li>
         <li>
-          <b>Böck-Feedback:</b> Sende Feedback oder Rechnungen direkt an den Vorstand. Bei Rechnungen bitte den Betrag und einen Anhang angeben.
+          <b>Meine Aufgaben:</b> Hier findest Du Deine Aufgaben, welche Du erledigen musst. Wenn Du diese angefangen hast, kannst du den Status auf "in Arbeit" umstellen. Hast Du Deine Aufgabe abgeschlossen, kannst du den Status auf "abgeschlossen" setzen. Den Status kannst Du jederzeit wieder zurückstellen.
+          <br /><br />
         </li>
         <li>
-          <b>Veranstaltungen:</b> Sieh dir interne und externe Termine an. Details zu Aufgaben, Zeiten und Orten findest du in den jeweiligen Unterpunkten.
+          <b>Veranstaltungen:</b> <br /> 
+          Sieh Dir die interne und externe Veranstaltungen an und erhalte Informationen über die Veranstaltung. Des Weiteren siehst Du den Hauptverantwortlichen der Veranstaltung. Deine Aufgaben zu dieser Veranstaltung sind ebenfalls dort ersichtlich. Bei Fragen, wende Dich einfach an den Organisationsverantwortlichen. 
+          <br /><br />
         </li>
         <li>
-          <b>Gruppen & Verein:</b> Informiere dich über die einzelnen Gruppen, Mitglieder und Dokumente des Vereins.
+          <b>Menüpunkt Verein:</b> <br />
+          Hier hast du Informationen zu der Vorstandschaft. In Zukunft sind dort auch alle Informationen zu den Gruppen aufgeführt, wann und wo das Training ist, wer der Ansprechpartner ist usw.
+          <br /><br />
         </li>
         <li>
-          <b>Persönliche Einstellungen:</b> Über das Profil-Icon kannst du deine persönlichen Daten und Einstellungen anpassen.
+          <b>KaGe-Carta:</b> <br />
+          Hier sind unsere Werte beschrieben an welche sich jedes Mitglied der KaGe halten muss. Der Ahndungsprozess ist ebenfalls beschrieben, dass Du siehst, wie dann der Ablauf ist. Über die App wird es zukünftig noch möglich sein, eine Meldung an die Vorstandschaft abzusetzen, wenn die KaGe-Carta verletzt wurde.
+          <br /><br />
         </li>
         <li>
-          <b>Abmelden:</b> Klicke auf das Logout-Symbol unten in der Seitenleiste, um dich sicher abzumelden.
+          <b>Button Persönliche Einstellungen:</b> <br />
+          Ich Bitte Dich unter den Button Persönliche Einstellungen deine Daten vollständig einzutragen. Der Ansprechpartner in Notfällen inkl. dessen Telefonnummer sind zwar optional, zeitgleich halten wir dies für Sinnvoll, falls mal etwas passiert.
+          <br /><br />
+        </li>
+        <li>
+          <b>Button Abmelden:</b> <br />
+          Beim Klicken auf den Button Abmelden wirst du sicher aus der App ausgeloggt.
+          <br /><br />
         </li>
       </ol>
       <p style={{ color: "#6b7280", marginTop: 32 }}>

@@ -1,5 +1,6 @@
 export const appTree = [
   // entfernt, jetzt unter Allgemein
+  { key: "nutzung", label: "Nutzung der App" },
   { key: "kalender", label: "Kalender" },
   { key: "meine-aufgaben", label: "Meine Aufgaben" },
   {
@@ -89,7 +90,6 @@ export const appTree = [
       { key: "app-dokumentation", label: "App-Dokumentation" },
       { key: "uebersicht", label: "ToDo's für die App" },
       { key: "zugaenge", label: "Zugänge & Anleitungen" },
-      { key: "nutzung", label: "Nutzung der App" },
     ],
   },
   // Weitere Menueeintraege koennen hier bei Bedarf ergaenzt werden.

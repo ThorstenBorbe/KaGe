@@ -37,7 +37,7 @@ export default function App() {
     privacyPolicyStand,
   } = useAuth();
 
-  const [active, setActive] = useState("kalender");
+  const [active, setActive] = useState("nutzung");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openMenus, setOpenMenus] = useState({
     veranstaltungen: false,
