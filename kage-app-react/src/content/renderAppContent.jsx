@@ -1,7 +1,6 @@
 ﻿import GroupPage from "../components/GroupPage";
 import SommerfestPage, { InternalVmiEventPage } from "../components/SommerfestPage";
 import ExterneVeranstaltungPage from "../components/ExterneVeranstaltungPage";
-import FaschingszugPage from "../components/FaschingszugPage";
 import AufbauAbbauPage from "../components/AufbauAbbauPage";
 import VorstandsPage from "../components/VorstandsPage";
 import BoeckFeedbackPage from "../components/BoeckFeedbackPage";
@@ -76,7 +75,7 @@ const STATIC_PAGE_BY_KEY = {
   nutzung: NutzungPage,
 };
 
-const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z", "seniorenheime", "kindergarten"]);
+const EXTERNE_STANDARD_KEYS = new Set(["auswaerts-x", "auswaerts-y", "auswaerts-z"]);
 const INTERNAL_EVENT_PHASES = [
   { key: "veranstaltung", label: "Veranstaltung" },
   { key: "organisation", label: "Organisation" },
@@ -195,10 +194,6 @@ export function renderAppContent(active, sessionValue) {
       return <AufbauAbbauPage key={active} data={details} typ={typ} />;
     }
     return <div>Keine {typ.toLowerCase()}-Daten für diesen Menüpunkt hinterlegt.</div>;
-  }
-
-  if (active === "faschingszug") {
-    return <FaschingszugPage key={active} veranstaltung={externeVeranstaltungen[active]} eventKey={active} sessionValue={sessionValue} />;
   }
 
   if (EXTERNE_STANDARD_KEYS.has(active)) {

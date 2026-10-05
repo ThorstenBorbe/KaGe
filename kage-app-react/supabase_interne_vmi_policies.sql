@@ -15,7 +15,10 @@ DECLARE
     'VMI-Prunksitzung',
     'VMI-Weihnachtsfeier',
     'VMI-Bunter Nachmittag',
-    'VMI-Kinderfasching'
+    'VMI-Kinderfasching',
+    'VMI-Faschingszug',
+    'VMI-Altenheime',
+    'VMI-Kindergärten'
   ];
 BEGIN
   FOREACH table_name IN ARRAY table_names LOOP
